@@ -1,4 +1,5 @@
 using ChallengePrototype.Components;
+using ChallengePrototype.Models;
 using ChallengePrototype.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,16 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     }
     if (engine.Topics.Count != 5 || questionCount != engine.TotalQuestions || questionCount <= 5 || requestedLevels.Count < 3)
         throw new InvalidOperationException($"Invalid fixed MVP pool: topics={engine.Topics.Count}, questions={questionCount}, levels={requestedLevels.Count}.");
+    var bonusChecks = new[]
+    {
+        (new ResultCube(1, 1, 1, 1, GameDifficulty.Easy, true), 10),
+        (new ResultCube(2, 2, 2, 3, GameDifficulty.Medium, true), 21),
+        (new ResultCube(3, 3, 3, 4, GameDifficulty.Hard, true), 36),
+        (new ResultCube(4, 4, 4, 5, GameDifficulty.VeryHard, true), 66)
+    };
+    foreach (var (cube, expected) in bonusChecks)
+        if (BonusConfiguration.Calculate(cube) != expected)
+            throw new InvalidOperationException($"Bonus formula mismatch for cube {cube.CubeId}.");
     Console.WriteLine($"VERIFY COMPLETE: questions={questionCount}, levels={string.Join(',', requestedLevels)}");
     return;
 }

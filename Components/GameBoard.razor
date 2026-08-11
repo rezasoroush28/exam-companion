@@ -13,6 +13,10 @@
 
 @code {
     [Parameter] public EventCallback<CubeSettledPayload> CubeSettled { get; set; }
+    [Parameter] public EventCallback<long> IncorrectCubeRemoved { get; set; }
+    [Parameter] public EventCallback VacuumStarted { get; set; }
+    [Parameter] public EventCallback<long> CorrectCubeCollected { get; set; }
+    [Parameter] public EventCallback ResultPhysicsCompleted { get; set; }
     [Parameter] public bool IsDevelopment { get; set; }
 
     private ElementReference _element;
@@ -49,8 +53,32 @@
         await _module!.InvokeVoidAsync("resetBoard", _boardId);
     }
 
+    public async Task StartResultSequenceAsync(IReadOnlyList<ResultCube> cubes)
+    {
+        await _ready.Task;
+        var payload = cubes.Select(cube => new
+        {
+            cubeId = cube.CubeId,
+            isCorrect = cube.IsCorrect,
+            importance = cube.ImportanceTier,
+            difficulty = cube.Difficulty.ToString()
+        });
+        await _module!.InvokeVoidAsync("startResultSequence", _boardId, payload);
+    }
+
+    public async Task SetWireframesAsync(bool enabled)
+    {
+        await _ready.Task;
+        await _module!.InvokeVoidAsync("setWireframes", _boardId, enabled);
+    }
+
     [JSInvokable]
     public Task OnCubeSettled(CubeSettledPayload payload) => CubeSettled.InvokeAsync(payload);
+
+    [JSInvokable] public Task OnIncorrectCubeRemoved(long cubeId) => IncorrectCubeRemoved.InvokeAsync(cubeId);
+    [JSInvokable] public Task OnVacuumStarted() => VacuumStarted.InvokeAsync();
+    [JSInvokable] public Task OnCorrectCubeCollected(long cubeId) => CorrectCubeCollected.InvokeAsync(cubeId);
+    [JSInvokable] public Task OnResultPhysicsCompleted() => ResultPhysicsCompleted.InvokeAsync();
 
     public async ValueTask DisposeAsync()
     {

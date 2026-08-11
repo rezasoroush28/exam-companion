@@ -237,6 +237,68 @@ button { font: inherit; }
 .answer-feedback.is-correct { color: #275f70; background: #e4f1f3; }
 .answer-feedback.is-incorrect { color: #85445a; background: #f5e9ed; }
 
+.bonus-hud {
+    position: absolute;
+    z-index: 14;
+    top: 18px;
+    right: 18px;
+    min-width: 104px;
+    padding: 9px 13px;
+    display: grid;
+    justify-items: center;
+    border: 1px solid rgba(255,255,255,.92);
+    border-radius: 15px;
+    color: #274e72;
+    background: rgba(250,253,255,.9);
+    box-shadow: 0 9px 24px rgba(37,72,104,.2);
+    backdrop-filter: blur(9px);
+    direction: ltr;
+}
+
+.bonus-hud span { color: #7790a8; font-size: .61rem; letter-spacing: .12em; }
+.bonus-hud strong { font-size: 1.35rem; line-height: 1.1; }
+.bonus-hud b {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    color: #315f86;
+    font-size: 1rem;
+    animation: bonus-float 300ms ease-out both;
+}
+.bonus-hud.final { animation: total-emphasis 350ms ease-out both; }
+
+.result-debug {
+    margin: 0 auto;
+    padding: 7px 9px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 11px;
+    color: #58718a;
+    background: rgba(247,251,254,.76);
+    font: 10px/1.4 Consolas, monospace;
+}
+.result-debug button {
+    padding: 3px 7px;
+    border: 1px solid #b8cfdf;
+    border-radius: 7px;
+    color: #365b7d;
+    background: white;
+    cursor: pointer;
+}
+
+@keyframes bonus-float {
+    from { opacity: 1; transform: translate(-50%, 0) scale(.9); }
+    to { opacity: 0; transform: translate(-50%, -28px) scale(1.08); }
+}
+
+@keyframes total-emphasis {
+    0% { transform: scale(.94); }
+    55% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+}
+
 .complete-card, .loading, .error-card {
     position: absolute;
     z-index: 16;
@@ -284,5 +346,5 @@ button { font: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .question-layer, .physics-board.physics-impact { animation-duration: 1ms; }
+    .question-layer, .physics-board.physics-impact, .bonus-hud b, .bonus-hud.final { animation-duration: 1ms; }
 }

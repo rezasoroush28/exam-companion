@@ -33,7 +33,24 @@
         <section class="challenge-frame" aria-label="محفظه چالش">
             <div class="board-glow"></div>
             <div class="game-board">
-                <GameBoard @ref="_gameBoard" CubeSettled="HandleCubeSettledAsync" IsDevelopment="@IsDevelopment" />
+                <GameBoard @ref="_gameBoard" CubeSettled="HandleCubeSettledAsync"
+                           IncorrectCubeRemoved="HandleIncorrectRemovedAsync"
+                           VacuumStarted="HandleVacuumStartedAsync"
+                           CorrectCubeCollected="HandleCorrectCollectedAsync"
+                           ResultPhysicsCompleted="HandleResultCompletedAsync"
+                           IsDevelopment="@IsDevelopment" />
+
+                @if (_showBonus)
+                {
+                    <div class="bonus-hud @(_completed ? "final" : "")">
+                        <span>@(_completed ? "TOTAL BONUS" : "BONUS")</span>
+                        <strong>@_totalBonus</strong>
+                        @if (_floatingBonus > 0)
+                        {
+                            <b @key="_bonusPulse">+@_floatingBonus</b>
+                        }
+                    </div>
+                }
 
                 @if (_questionVisible && _question is not null)
                 {
@@ -67,8 +84,8 @@
                 @if (_completed)
                 {
                     <div class="complete-card">
-                        <span>پنج موضوع کامل شد</span>
-                        <strong>@Engine.QuestionsAnswered سؤال</strong>
+                        <span>نتیجه چالش کامل شد</span>
+                        <strong>امتیاز نهایی: @_totalBonus</strong>
                         <button @onclick="RestartAsync">شروع دوباره همین چالش</button>
                     </div>
                 }
@@ -77,7 +94,18 @@
 
         @if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
-            <button class="restart" @onclick="RestartAsync">بازنشانی چالش ثابت</button>
+            <div class="result-debug">
+                <span>@_resultState</span>
+                <span>wrong: @_incorrectRemaining</span>
+                <span>correct: @_correctRemaining</span>
+                <span>bonus: @_totalBonus</span>
+                <button @onclick="DebugForceCompletionAsync">پایان آزمایشی</button>
+                <button @onclick="DebugRandomizeAnswersAsync">پاسخ‌های تصادفی</button>
+                <button @onclick="() => DebugSetAnswersAsync(true)">همه درست</button>
+                <button @onclick="() => DebugSetAnswersAsync(false)">همه غلط</button>
+                <button @onclick="ToggleWireframesAsync">wireframe</button>
+                <button @onclick="RestartAsync">بازنشانی</button>
+            </div>
         }
     }
 </div>
@@ -94,6 +122,17 @@
     private bool _feedbackShown;
     private bool _lastAnswerCorrect;
     private bool _completed;
+    private bool _resultStarted;
+    private bool _showBonus;
+    private int _totalBonus;
+    private int _floatingBonus;
+    private int _bonusPulse;
+    private string _resultState = "ChallengeActive";
+    private int _incorrectRemaining;
+    private int _correctRemaining;
+    private bool _wireframes;
+    private readonly List<ResultCube> _resultCubes = [];
+    private readonly HashSet<long> _collectedCubeIds = [];
     private string? _selectedOption;
     private string? _error;
     private static bool IsDevelopment => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
@@ -108,6 +147,13 @@
         _loading = true;
         _error = null;
         _completed = false;
+        _resultStarted = false;
+        _showBonus = false;
+        _totalBonus = 0;
+        _floatingBonus = 0;
+        _resultState = "ChallengeActive";
+        _resultCubes.Clear();
+        _collectedCubeIds.Clear();
         _questionVisible = false;
         try
         {
@@ -132,8 +178,7 @@
         _question = await Engine.NextQuestionAsync();
         if (_question is null)
         {
-            _completed = true;
-            await InvokeAsync(StateHasChanged);
+            await StartResultSequenceAsync();
             return;
         }
 
@@ -161,6 +206,9 @@
         _selectedOption = option;
         _lastAnswerCorrect = option == _question.CorrectOption;
         await _gameBoard.MarkAnswerAsync(_activeCubeId, _lastAnswerCorrect);
+        _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
+            BonusConfiguration.ImportanceTier(_question.Topic.Importance),
+            _question.RequestedDifficulty, _lastAnswerCorrect));
         _feedbackShown = true;
         Engine.RecordAnswer();
         await Task.Delay(GameTiming.FeedbackMs, _lifetime.Token);
@@ -168,6 +216,108 @@
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.BetweenQuestionsMs, _lifetime.Token);
         await DropNextAsync(_lifetime.Token);
+    }
+
+    private async Task StartResultSequenceAsync()
+    {
+        if (_resultStarted || _gameBoard is null) return;
+        _resultStarted = true;
+        _resultState = "ChallengeFinished";
+        _incorrectRemaining = _resultCubes.Count(x => !x.IsCorrect);
+        _correctRemaining = _resultCubes.Count(x => x.IsCorrect);
+        await InvokeAsync(StateHasChanged);
+        await _gameBoard.StartResultSequenceAsync(_resultCubes);
+    }
+
+    private Task HandleIncorrectRemovedAsync(long cubeId)
+    {
+        _incorrectRemaining = Math.Max(0, _incorrectRemaining - 1);
+        _resultState = _incorrectRemaining == 0 ? "WaitingForIncorrectCubesToExit" : "DroppingIncorrectCubes";
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task HandleVacuumStartedAsync()
+    {
+        _resultState = "VacuumActive";
+        _showBonus = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleCorrectCollectedAsync(long cubeId)
+    {
+        if (!_collectedCubeIds.Add(cubeId)) return;
+        var cube = _resultCubes.FirstOrDefault(x => x.CubeId == cubeId && x.IsCorrect);
+        if (cube is null) return;
+        var bonus = BonusConfiguration.Calculate(cube);
+        _resultState = "BonusUpdating";
+        _floatingBonus = bonus;
+        _bonusPulse++;
+        _totalBonus += bonus;
+        _correctRemaining = Math.Max(0, _correctRemaining - 1);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleResultCompletedAsync()
+    {
+        _resultState = "ResultComplete";
+        _showBonus = true;
+        _floatingBonus = 0;
+        _completed = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task DebugForceCompletionAsync()
+    {
+        if (!IsDevelopment || _resultStarted || _gameBoard is null) return;
+        if (_question is not null && _resultCubes.All(x => x.CubeId != _activeCubeId))
+        {
+            var correct = Random.Shared.Next(2) == 0;
+            await _gameBoard.MarkAnswerAsync(_activeCubeId, correct);
+            _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
+                BonusConfiguration.ImportanceTier(_question.Topic.Importance), _question.RequestedDifficulty, correct));
+            Engine.RecordAnswer();
+        }
+        _questionVisible = false;
+        await StartResultSequenceAsync();
+    }
+
+    private async Task DebugRandomizeAnswersAsync()
+    {
+        if (!IsDevelopment || _resultStarted || _gameBoard is null) return;
+        for (var index = 0; index < _resultCubes.Count; index++)
+        {
+            var existing = _resultCubes[index];
+            var randomized = existing with { IsCorrect = Random.Shared.Next(2) == 0 };
+            _resultCubes[index] = randomized;
+            await _gameBoard.MarkAnswerAsync(randomized.CubeId, randomized.IsCorrect);
+        }
+    }
+
+    private async Task DebugSetAnswersAsync(bool correct)
+    {
+        if (!IsDevelopment || _resultStarted || _gameBoard is null) return;
+        for (var index = 0; index < _resultCubes.Count; index++)
+        {
+            var updated = _resultCubes[index] with { IsCorrect = correct };
+            _resultCubes[index] = updated;
+            await _gameBoard.MarkAnswerAsync(updated.CubeId, correct);
+        }
+        if (_question is not null && _resultCubes.All(x => x.CubeId != _activeCubeId))
+        {
+            await _gameBoard.MarkAnswerAsync(_activeCubeId, correct);
+            _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
+                BonusConfiguration.ImportanceTier(_question.Topic.Importance), _question.RequestedDifficulty, correct));
+            Engine.RecordAnswer();
+            _questionVisible = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ToggleWireframesAsync()
+    {
+        if (_gameBoard is null) return;
+        _wireframes = !_wireframes;
+        await _gameBoard.SetWireframesAsync(_wireframes);
     }
 
     private string OptionState(string option)
