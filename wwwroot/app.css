@@ -1,0 +1,288 @@
+:root {
+    --ink: #17365f;
+    --muted: #6f829a;
+    --page: #dce7ef;
+    --board-width: 390px;
+    --board-height: 620px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { min-height: 100%; }
+
+body {
+    margin: 0;
+    color: var(--ink);
+    background:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,.95), transparent 34rem),
+        linear-gradient(145deg, #c9d9e6 0%, #edf2f2 48%, #c5d4df 100%);
+    font-family: Tahoma, "Segoe UI", sans-serif;
+}
+
+button { font: inherit; }
+
+.game-shell {
+    width: min(100%, 460px);
+    min-height: 100dvh;
+    margin: 0 auto;
+    padding: 12px 14px 18px;
+    display: grid;
+    align-content: start;
+    gap: 10px;
+}
+
+.hud {
+    min-height: 66px;
+    padding: 9px 11px;
+    display: grid;
+    grid-template-columns: 1.8fr repeat(3, 1fr);
+    gap: 6px;
+    direction: rtl;
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 18px;
+    background: rgba(247,251,254,.72);
+    box-shadow: 0 10px 28px rgba(42,74,106,.14), inset 0 0 0 1px rgba(140,186,220,.22);
+    backdrop-filter: blur(14px);
+}
+
+.hud > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    border-left: 1px solid rgba(90,133,169,.16);
+}
+
+.hud > div:last-child { border-left: 0; }
+.hud span { color: var(--muted); font-size: .68rem; }
+.hud strong { max-width: 100%; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-lesson strong { font-size: .75rem; }
+.difficulty.easy { color: #1267e8; }
+.difficulty.medium { color: #7046d9; }
+.difficulty.hard { color: #e46a25; }
+.difficulty.veryhard { color: #d63b31; }
+
+.challenge-frame {
+    position: relative;
+    margin: 0 auto;
+    padding: 10px;
+    border-radius: 38px;
+    background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(210,225,237,.96));
+    box-shadow:
+        0 28px 60px rgba(34,68,101,.25),
+        inset 0 0 0 2px rgba(255,255,255,.85),
+        inset 0 0 0 7px rgba(120,182,224,.18);
+}
+
+.board-glow {
+    position: absolute;
+    inset: 8px;
+    border-radius: 31px;
+    box-shadow: inset 0 0 20px rgba(75,174,235,.35);
+    pointer-events: none;
+    z-index: 20;
+}
+
+.game-board {
+    position: relative;
+    width: min(var(--board-width), calc(100vw - 48px));
+    height: var(--board-height);
+    overflow: hidden;
+    border: 1px solid rgba(128,172,205,.42);
+    border-radius: 29px;
+    background-color: #edf5fa;
+    background-image:
+        linear-gradient(rgba(83,143,188,.105) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(83,143,188,.105) 1px, transparent 1px),
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.9), transparent 60%);
+    background-size: 64px 64px, 64px 64px, 100% 100%;
+    box-shadow: inset 0 -18px 28px rgba(86,128,162,.13);
+}
+
+.game-board::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 24px;
+    border-top: 1px solid rgba(115,160,194,.25);
+    background: linear-gradient(#e9f2f8, #d6e5f0);
+    box-shadow: 0 -5px 14px rgba(68,109,143,.12);
+}
+
+.physics-board {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    overflow: hidden;
+    direction: ltr;
+    transform-origin: center bottom;
+}
+
+.physics-canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.physics-board.physics-impact {
+    animation: board-impact 80ms linear;
+}
+
+.physics-debug {
+    position: absolute;
+    z-index: 4;
+    top: 9px;
+    left: 9px;
+    min-width: 130px;
+    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 7px;
+    border-radius: 8px;
+    color: #d8edff;
+    background: rgba(18, 39, 62, .74);
+    font: 10px/1.4 Consolas, monospace;
+    pointer-events: none;
+}
+
+.physics-debug span { color: #91aec7; }
+
+@keyframes board-impact {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(calc(-2px * var(--impact-strength)), 1px); }
+    55% { transform: translate(calc(2px * var(--impact-strength)), -1px); }
+    78% { transform: translate(calc(-1px * var(--impact-strength)), 0); }
+}
+
+.question-layer {
+    position: absolute;
+    z-index: 12;
+    inset: 54px 13px 94px;
+    display: grid;
+    align-items: center;
+    animation: panel-in 220ms ease-out both;
+}
+
+.question-card {
+    max-height: 430px;
+    padding: 15px;
+    overflow: auto;
+    border: 2px solid rgba(255,255,255,.96);
+    border-radius: 25px;
+    background: rgba(250,253,255,.94);
+    box-shadow: 0 18px 40px rgba(38,72,108,.26), inset 0 0 0 1px rgba(123,176,216,.35);
+    backdrop-filter: blur(10px);
+}
+
+.question-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: #6c83a0;
+    font-size: .67rem;
+}
+
+.question-text {
+    margin: 11px 0 13px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #d5e5f0;
+    color: #17365f;
+    font-size: .9rem;
+    line-height: 1.85;
+}
+
+.question-text p, .answer p { margin: 0; }
+.question-text img, .answer img { max-width: 100%; height: auto; }
+
+.answers { display: grid; gap: 8px; }
+
+.answer {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #bdd6e8;
+    border-radius: 14px;
+    color: #17365f;
+    background: linear-gradient(#fff, #edf5fa);
+    cursor: pointer;
+    text-align: right;
+    box-shadow: 0 4px 8px rgba(54,91,124,.1);
+    transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.answer:not(:disabled):active { transform: scale(.985); }
+.answer:disabled { cursor: default; }
+.option-key { font-weight: 800; color: #4b79a5; direction: ltr; }
+.answer.selected { border-color: #559fe0; }
+.answer.correct-option { border-width: 2px; border-color: #47729a; background: #e7f0f7; }
+.answer.wrong-option { border-style: dashed; border-color: #98566a; background: #f7edf0; }
+
+.answer-feedback {
+    margin-top: 10px;
+    padding: 7px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: .78rem;
+    font-weight: 800;
+}
+.answer-feedback.is-correct { color: #275f70; background: #e4f1f3; }
+.answer-feedback.is-incorrect { color: #85445a; background: #f5e9ed; }
+
+.complete-card, .loading, .error-card {
+    position: absolute;
+    z-index: 16;
+    inset-inline: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 24px;
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    border-radius: 24px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 18px 45px rgba(34,68,100,.24);
+    text-align: center;
+}
+
+.complete-card button, .error-card button, .restart {
+    padding: 9px 14px;
+    border: 1px solid #aac8dc;
+    border-radius: 12px;
+    color: #274c70;
+    background: rgba(247,251,254,.92);
+    cursor: pointer;
+}
+
+.loading, .error-card { position: fixed; left: 50%; width: min(340px, calc(100% - 30px)); transform: translate(-50%,-50%); }
+.restart { margin: 0 auto; font-size: .72rem; }
+
+@keyframes panel-in {
+    from { opacity: 0; transform: translateY(12px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-height: 760px) {
+    :root { --board-height: 550px; }
+    .game-shell { padding-top: 7px; }
+    .hud { min-height: 58px; }
+    .question-layer { inset-block: 38px 78px; }
+    .question-card { max-height: 400px; }
+}
+
+@media (max-width: 350px) {
+    .game-shell { padding-inline: 5px; }
+    .hud { grid-template-columns: 1.5fr repeat(3, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .question-layer, .physics-board.physics-impact { animation-duration: 1ms; }
+}

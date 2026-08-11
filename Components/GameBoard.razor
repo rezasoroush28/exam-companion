@@ -1,0 +1,72 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div @ref="_element" class="physics-board" aria-label="محیط فیزیکی چالش">
+    @if (IsDevelopment)
+    {
+        <div class="physics-debug">
+            <span>state</span><b class="debug-state"></b>
+            <span>velocity</span><b class="debug-velocity"></b>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback<CubeSettledPayload> CubeSettled { get; set; }
+    [Parameter] public bool IsDevelopment { get; set; }
+
+    private ElementReference _element;
+    private IJSObjectReference? _module;
+    private string? _boardId;
+    private DotNetObjectReference<GameBoard>? _self;
+    private readonly TaskCompletionSource _ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        _self = DotNetObjectReference.Create(this);
+        _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/cubePhysics.js");
+        _boardId = await _module.InvokeAsync<string>("initializeGameBoard", _element, _self, IsDevelopment);
+        _ready.TrySetResult();
+    }
+
+    public async Task SpawnCubeAsync(long cubeId, ChallengeQuestion question)
+    {
+        await _ready.Task;
+        await _module!.InvokeVoidAsync("spawnCube", _boardId, cubeId, question.Id, question.Topic.Id,
+            question.Topic.Importance, question.RequestedDifficulty.CssName());
+    }
+
+    public async Task MarkAnswerAsync(long cubeId, bool correct)
+    {
+        await _ready.Task;
+        await _module!.InvokeVoidAsync("markCubeAnswer", _boardId, cubeId, correct);
+    }
+
+    public async Task ResetAsync()
+    {
+        await _ready.Task;
+        await _module!.InvokeVoidAsync("resetBoard", _boardId);
+    }
+
+    [JSInvokable]
+    public Task OnCubeSettled(CubeSettledPayload payload) => CubeSettled.InvokeAsync(payload);
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_module is not null && _boardId is not null) await _module.InvokeVoidAsync("disposeGameBoard", _boardId);
+            if (_module is not null) await _module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        _self?.Dispose();
+    }
+
+    public sealed class CubeSettledPayload
+    {
+        public long CubeId { get; set; }
+        public long QuestionId { get; set; }
+        public long TopicId { get; set; }
+    }
+}
