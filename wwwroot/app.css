@@ -307,6 +307,16 @@ button { font: inherit; }
 .answer:not(:disabled):active { transform: scale(.985); }
 .answer:disabled { cursor: default; }
 .option-key { font-weight: 800; color: #4b79a5; direction: ltr; }
+.test-answer-key {
+    grid-column: 2;
+    width: max-content;
+    padding: 2px 6px;
+    border-radius: 999px;
+    color: #39705a;
+    background: #dff1e8;
+    font-size: .6rem;
+    font-weight: 800;
+}
 .answer.selected { border-color: #559fe0; }
 .answer.correct-option { border-width: 2px; border-color: #47729a; background: #e7f0f7; }
 .answer.wrong-option { border-style: dashed; border-color: #98566a; background: #f7edf0; }

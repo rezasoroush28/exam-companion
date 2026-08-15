@@ -8,9 +8,9 @@ public sealed class HealthGameOptions
     public double MaxHealth { get; init; } = 100;
     public double StartingHealth { get; init; } = 70;
     public int GracePeriodMs { get; init; } = 2000;
-    public double BaseWrongDamage { get; init; } = 16;
+    public double BaseWrongDamage { get; init; } = 5;
     public double BaseCorrectGain { get; init; } = 8;
-    public double BaseTimeDecay { get; init; } = 0.055;
+    public double BaseTimeDecay { get; init; } = 0.8;
     public IReadOnlyDictionary<GameDifficulty, double> DifficultyPenalty { get; init; } =
         new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 1, [GameDifficulty.Medium] = .8, [GameDifficulty.Hard] = .62, [GameDifficulty.VeryHard] = .5 };
     public IReadOnlyDictionary<GameDifficulty, double> DifficultyReward { get; init; } =

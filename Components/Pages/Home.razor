@@ -72,6 +72,10 @@
                                     <button class="answer @state" disabled="@(_answerLocked || !_questionActive || _healthDepleted)" @onclick="() => AnswerAsync(option.Option)">
                                         <span class="option-key">@OptionLetter(option.Option)</span>
                                         <span>@((MarkupString)option.Html)</span>
+                                        @if (IsDevelopment && option.Option == _question.CorrectOption)
+                                        {
+                                            <small class="test-answer-key">پاسخ صحیح</small>
+                                        }
                                     </button>
                                 }
                             </div>

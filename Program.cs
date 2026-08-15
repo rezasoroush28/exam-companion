@@ -46,10 +46,10 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     var health = scope.ServiceProvider.GetRequiredService<ChallengeHealthEngine>();
     var healthChecks = new[]
     {
-        (health.GetWrongDamage(GameDifficulty.Easy, 1), 14d),
-        (health.GetWrongDamage(GameDifficulty.Easy, 5), 22d),
-        (health.GetWrongDamage(GameDifficulty.Hard, 3), 11d),
-        (health.GetWrongDamage(GameDifficulty.VeryHard, 5), 11d),
+        (health.GetWrongDamage(GameDifficulty.Easy, 1), 5d),
+        (health.GetWrongDamage(GameDifficulty.Easy, 5), 7d),
+        (health.GetWrongDamage(GameDifficulty.Hard, 3), 3d),
+        (health.GetWrongDamage(GameDifficulty.VeryHard, 5), 3d),
         (health.GetCorrectGain(GameDifficulty.Easy, 1), 7d),
         (health.GetCorrectGain(GameDifficulty.Easy, 5), 11d),
         (health.GetCorrectGain(GameDifficulty.Hard, 3), 14d),
@@ -63,6 +63,11 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     var twoSecondLoss = health.GetTimeLoss(TimeSpan.FromSeconds(4), GameDifficulty.Easy, 5);
     if (Math.Abs(twoSecondLoss - oneSecondLoss * 2) > .000001 || health.Clamp(101) != 100 || health.Clamp(-1) != 0)
         throw new InvalidOperationException("Health linear decay or clamping failed.");
+    foreach (var difficulty in Enum.GetValues<GameDifficulty>())
+        foreach (var importance in Enumerable.Range(1, 5))
+            if (health.GetTimeLoss(TimeSpan.FromSeconds(10), difficulty, importance)
+                <= health.GetWrongDamage(difficulty, importance))
+                throw new InvalidOperationException($"Time pressure must exceed wrong-answer damage after 10 seconds: {difficulty}, importance {importance}.");
     Console.WriteLine($"VERIFY COMPLETE: questions={questionCount}, levels={string.Join(',', requestedLevels)}");
     return;
 }
