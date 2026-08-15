@@ -27,12 +27,12 @@
                 <strong>@Engine.LessonTitle</strong>
             </div>
             <div><span>سطح</span><strong class="difficulty @Engine.CurrentDifficulty.CssName()">@Engine.CurrentDifficulty.Label()</strong></div>
-            <div><span>پیشرفت</span><strong>@Engine.QuestionsPresented / @Engine.TotalQuestions</strong></div>
-            <div><span>پاسخ‌ها</span><strong>@Engine.QuestionsAnswered</strong></div>
+            <div><span>پیشرفت</span><strong>@Math.Min(Engine.QuestionsAnswered, Engine.LevelTargetCount) / @Engine.LevelTargetCount</strong></div>
+            <div><span>شواهد</span><strong>@Engine.QuestionsAnswered / @Engine.MinimumEvidenceRequired</strong></div>
         </header>
 
-        <HealthBar @ref="_healthBar" Health="_health" Delta="_healthDelta"
-                   PulseKey="_healthPulse" IsCorrectFeedback="_lastAnswerCorrect" />
+        <HealthBar @ref="_healthBar" Health="_health" Delta="_healthDelta" Difficulty="Engine.CurrentDifficulty"
+                   PulseKey="_healthPulse" IsCorrectFeedback="_lastAnswerCorrect" IsLevelComplete="_levelCompleting" />
 
         <section class="challenge-frame" aria-label="محفظه چالش">
             <div class="board-glow"></div>
@@ -98,6 +98,11 @@
                     </div>
                 }
 
+                @if (_levelCompleting)
+                {
+                    <div class="level-complete"><span>سطح کامل شد</span><strong>@_completedLevel.Label()</strong></div>
+                }
+
             </div>
         </section>
 
@@ -134,11 +139,13 @@
     private bool _completed;
     private bool _questionActive;
     private bool _healthDepleted;
+    private bool _levelCompleting;
+    private GameDifficulty _completedLevel;
     private double _health;
     private double? _healthDelta;
     private int _healthPulse;
     private CancellationTokenSource? _healthDepletion;
-    private readonly HashSet<long> _healthAppliedQuestionIds = [];
+    private readonly HashSet<long> _healthAppliedCubeIds = [];
     private bool _resultStarted;
     private bool _showBonus;
     private int _totalBonus;
@@ -169,7 +176,8 @@
         _healthDelta = null;
         _healthDepleted = false;
         _questionActive = false;
-        _healthAppliedQuestionIds.Clear();
+        _healthAppliedCubeIds.Clear();
+        _levelCompleting = false;
         _resultStarted = false;
         _showBonus = false;
         _totalBonus = 0;
@@ -238,12 +246,13 @@
         _questionActive = false;
         CancelHealthDepletion();
         var activeElapsed = TimeSpan.FromMilliseconds(await _healthBar.StopQuestionAsync());
-        if (!_healthAppliedQuestionIds.Add(_question.Id)) return;
+        if (!_healthAppliedCubeIds.Add(_activeCubeId)) return;
         _selectedOption = option;
         _lastAnswerCorrect = option == _question.CorrectOption;
         var importanceTier = BonusConfiguration.ImportanceTier(_question.Topic.Importance);
+        Engine.RecordAnswer(_question.Topic.Id, _lastAnswerCorrect);
         var healthResult = HealthEngine.ApplyAnswer(_health, activeElapsed,
-            _question.RequestedDifficulty, importanceTier, _lastAnswerCorrect);
+            Engine.CurrentDifficulty, importanceTier, _lastAnswerCorrect, Engine.TotalGainWeight, Engine.IsEvidenceGateOpen);
         _health = healthResult.NewHealth;
         _healthDelta = healthResult.SignedDelta;
         _healthPulse++;
@@ -253,7 +262,6 @@
             importanceTier,
             _question.RequestedDifficulty, _lastAnswerCorrect));
         _feedbackShown = true;
-        Engine.RecordAnswer();
         _healthDepleted = healthResult.IsDepleted;
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.FeedbackMs, _lifetime.Token);
@@ -264,7 +272,36 @@
             await StartResultSequenceAsync();
             return;
         }
+        if (healthResult.IsFull && Engine.IsEvidenceGateOpen)
+        {
+            _questionVisible = false;
+            await CompleteLevelAsync();
+            return;
+        }
         _questionVisible = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(GameTiming.BetweenQuestionsMs, _lifetime.Token);
+        await DropNextAsync(_lifetime.Token);
+    }
+
+    private async Task CompleteLevelAsync()
+    {
+        _completedLevel = Engine.CurrentDifficulty;
+        _levelCompleting = true;
+        _resultState = "LevelCompletion";
+        if (_healthBar is not null) await _healthBar.PlayLevelCompleteAsync();
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(900, _lifetime.Token);
+        _levelCompleting = false;
+        if (!Engine.AdvanceLevel())
+        {
+            await StartResultSequenceAsync();
+            return;
+        }
+        _health = HealthEngine.Options.StartingHealth;
+        _healthDelta = null;
+        _resultState = "PreparingNextLevel";
+        if (_healthBar is not null) await _healthBar.SetHealthAsync(_health, true);
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.BetweenQuestionsMs, _lifetime.Token);
         await DropNextAsync(_lifetime.Token);
@@ -329,7 +366,7 @@
             await _gameBoard.MarkAnswerAsync(_activeCubeId, correct);
             _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
                 BonusConfiguration.ImportanceTier(_question.Topic.Importance), _question.RequestedDifficulty, correct));
-            Engine.RecordAnswer();
+            Engine.RecordAnswer(_question.Topic.Id, correct);
         }
         _questionVisible = false;
         await StartResultSequenceAsync();
@@ -361,7 +398,7 @@
             await _gameBoard.MarkAnswerAsync(_activeCubeId, correct);
             _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
                 BonusConfiguration.ImportanceTier(_question.Topic.Importance), _question.RequestedDifficulty, correct));
-            Engine.RecordAnswer();
+            Engine.RecordAnswer(_question.Topic.Id, correct);
             _questionVisible = false;
             await InvokeAsync(StateHasChanged);
         }
@@ -379,20 +416,20 @@
         if (_healthBar is null || _healthDepleted) return;
         CancelHealthDepletion();
         var importance = BonusConfiguration.ImportanceTier(question.Topic.Importance);
-        var decay = HealthEngine.GetTimeDecayPerSecond(question.RequestedDifficulty, importance);
-        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.Options.GracePeriodMs);
+        var decay = HealthEngine.GetTimeDecayPerSecond(Engine.CurrentDifficulty, importance);
+        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.GetGracePeriodMs(Engine.CurrentDifficulty));
         _healthDepletion = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
-        _ = MonitorHealthDepletionAsync(question.Id, question.RequestedDifficulty, importance, _healthDepletion.Token);
+        _ = MonitorHealthDepletionAsync(_activeCubeId, Engine.CurrentDifficulty, importance, _healthDepletion.Token);
     }
 
-    private async Task MonitorHealthDepletionAsync(long questionId, GameDifficulty difficulty, int importance, CancellationToken token)
+    private async Task MonitorHealthDepletionAsync(long cubeId, GameDifficulty difficulty, int importance, CancellationToken token)
     {
         if (_healthBar is null) return;
         var expected = HealthEngine.GetTimeToDepletion(_health, difficulty, importance);
         try
         {
             await Task.Delay(expected, token);
-            while (!token.IsCancellationRequested && _questionActive && _question?.Id == questionId)
+            while (!token.IsCancellationRequested && _questionActive && _activeCubeId == cubeId)
             {
                 try
                 {
@@ -414,8 +451,8 @@
                             _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
                                 BonusConfiguration.ImportanceTier(_question.Topic.Importance),
                                 _question.RequestedDifficulty, false));
-                            _healthAppliedQuestionIds.Add(_question.Id);
-                            Engine.RecordAnswer();
+                            _healthAppliedCubeIds.Add(cubeId);
+                            Engine.RecordAnswer(_question.Topic.Id, false);
                         }
                         _questionVisible = false;
                         await InvokeAsync(StateHasChanged);

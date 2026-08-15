@@ -1,9 +1,9 @@
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<div class="health-system @RangeClass @FeedbackClass" aria-label="سلامت" role="meter"
+<div class="health-system @RangeClass @FeedbackClass @(IsLevelComplete ? "level-full" : "")" aria-label="سلامت" role="meter"
      aria-valuemin="0" aria-valuemax="100" aria-valuenow="@Math.Round(Health)">
-    <div class="health-header"><span>سلامت</span><strong>@Math.Round(Health)</strong></div>
+    <div class="health-header"><span>سلامت · @Difficulty.Label()</span><strong>@Math.Round(Health) / 100</strong></div>
     <div class="health-track"><div @ref="_fill" class="health-fill"></div></div>
     @if (Delta is not null)
     {
@@ -16,6 +16,8 @@
     [Parameter] public double? Delta { get; set; }
     [Parameter] public int PulseKey { get; set; }
     [Parameter] public bool IsCorrectFeedback { get; set; }
+    [Parameter] public bool IsLevelComplete { get; set; }
+    [Parameter] public GameDifficulty Difficulty { get; set; }
 
     private ElementReference _fill;
     private IJSObjectReference? _module;
@@ -54,6 +56,12 @@
     {
         await _ready.Task;
         await _module!.InvokeVoidAsync("setHealth", _controllerId, health, positive);
+    }
+
+    public async Task PlayLevelCompleteAsync()
+    {
+        await _ready.Task;
+        await _module!.InvokeVoidAsync("playLevelComplete", _controllerId);
     }
 
     public async ValueTask DisposeAsync()

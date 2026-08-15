@@ -105,6 +105,7 @@ button { font: inherit; }
 .health-system.depleted .health-fill { background: #aeb8bf; }
 .health-system.health-positive .health-track { animation: health-positive 250ms ease-out; }
 .health-system.health-negative .health-track { animation: health-negative 220ms ease-out; }
+.health-system.level-full .health-track { animation: health-level-full 700ms ease-out both; }
 .health-delta {
     position: absolute;
     z-index: 2;
@@ -119,6 +120,7 @@ button { font: inherit; }
 @keyframes health-critical { 50% { opacity: .74; } }
 @keyframes health-positive { 50% { transform: scaleY(1.18); filter: brightness(1.08); } }
 @keyframes health-negative { 35% { transform: translateX(-2px); } 70% { transform: translateX(2px); } }
+@keyframes health-level-full { 40% { transform: scale(1.04); filter: brightness(1.22); box-shadow: 0 0 24px #66b9df; } }
 @keyframes health-delta {
     from { opacity: 1; transform: translate(-50%, 5px) scale(.92); }
     to { opacity: 0; transform: translate(-50%, -17px) scale(1.05); }
@@ -384,6 +386,9 @@ button { font: inherit; }
     box-shadow: 0 18px 45px rgba(34,68,100,.24);
     text-align: center;
 }
+.level-complete { position: absolute; inset: 0; z-index: 35; display: grid; place-content: center; text-align: center; pointer-events: none; background: radial-gradient(circle, rgba(220,247,255,.92), rgba(220,247,255,0) 46%); animation: total-emphasis 500ms ease-out both; }
+.level-complete span { color: #51758e; font-size: .8rem; }
+.level-complete strong { color: #234d69; font-size: 1.7rem; }
 
 .complete-card button, .error-card button, .restart {
     padding: 9px 14px;

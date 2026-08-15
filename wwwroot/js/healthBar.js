@@ -14,6 +14,24 @@ export function beginQuestion(id, health, decayPerSecond, gracePeriodMs) {
 export function getActiveElapsedMs(id) { return get(id).elapsed(); }
 export function stopQuestion(id) { return get(id).stop(); }
 export function setHealth(id, health, positive) { get(id).setHealth(health, positive); }
+export function playLevelComplete(id) {
+    get(id).setHealth(100, true);
+    const AudioContextType = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextType) return;
+    const context = new AudioContextType();
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, context.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.42);
+    gain.connect(context.destination);
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        oscillator.frequency.value = frequency;
+        oscillator.connect(gain);
+        oscillator.start(context.currentTime + index * 0.08);
+        oscillator.stop(context.currentTime + 0.45);
+    });
+}
 export function disposeHealthBar(id) {
     const controller = controllers.get(id);
     if (!controller) return;
