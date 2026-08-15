@@ -59,10 +59,19 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     foreach (var (cube, expected) in bonusChecks)
         if (BonusConfiguration.Calculate(cube) != expected)
             throw new InvalidOperationException($"Bonus formula mismatch for cube {cube.CubeId}.");
-    if (Math.Abs(health.GetWrongDamage(GameDifficulty.Easy, 5) - 10.5) > .000001 ||
-        Math.Abs(health.GetWrongDamage(GameDifficulty.VeryHard, 5) - 6) > .000001 ||
+    if (Math.Abs(health.GetWrongDamage(GameDifficulty.Easy, 5) - 7.15) > .000001 ||
+        Math.Abs(health.GetWrongDamage(GameDifficulty.VeryHard, 5) - 6.325) > .000001 ||
         health.GetWrongDamage(GameDifficulty.Easy, 5) <= health.GetWrongDamage(GameDifficulty.Easy, 1))
         throw new InvalidOperationException("Wrong-damage balance failed.");
+    foreach (var difficulty in Enum.GetValues<GameDifficulty>())
+        foreach (var importance in Enumerable.Range(1, 5))
+        {
+            var gain = health.GetCorrectGain(difficulty, difficulty, importance);
+            var damage = health.GetWrongDamage(difficulty, importance);
+            var ratio = gain / damage;
+            if (ratio is < .70 or > 1.75)
+                throw new InvalidOperationException($"Correct/wrong effects are unbalanced: {difficulty}, importance {importance}, ratio={ratio:0.00}.");
+        }
     if (health.GetTimeLoss(TimeSpan.FromSeconds(2), GameDifficulty.Easy, 5) != 0)
         throw new InvalidOperationException("Health grace period failed.");
     var oneSecondLoss = health.GetTimeLoss(TimeSpan.FromSeconds(3), GameDifficulty.Easy, 5);

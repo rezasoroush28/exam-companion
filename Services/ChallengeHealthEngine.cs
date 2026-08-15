@@ -18,10 +18,10 @@ public sealed class HealthProgressionOptions
             [GameDifficulty.Hard] = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .10, [GameDifficulty.Medium] = .20, [GameDifficulty.Hard] = .50, [GameDifficulty.VeryHard] = .20 },
             [GameDifficulty.VeryHard] = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .05, [GameDifficulty.Medium] = .10, [GameDifficulty.Hard] = .25, [GameDifficulty.VeryHard] = .60 }
         };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseCorrectGain { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 6, [GameDifficulty.Medium] = 8, [GameDifficulty.Hard] = 11, [GameDifficulty.VeryHard] = 15 };
+    public IReadOnlyDictionary<GameDifficulty, double> BaseCorrectGain { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 7, [GameDifficulty.Medium] = 8, [GameDifficulty.Hard] = 9, [GameDifficulty.VeryHard] = 10 };
     public IReadOnlyDictionary<int, double> ImportanceGainWeight { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .95, [3] = 1, [4] = 1.05, [5] = 1.1 };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseWrongDamage { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 7, [GameDifficulty.Medium] = 6, [GameDifficulty.Hard] = 5, [GameDifficulty.VeryHard] = 4 };
-    public IReadOnlyDictionary<int, double> ImportanceDamageMultiplier { get; init; } = new Dictionary<int, double> { [1] = .85, [2] = 1, [3] = 1.15, [4] = 1.3, [5] = 1.5 };
+    public IReadOnlyDictionary<GameDifficulty, double> BaseWrongDamage { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 6.5, [GameDifficulty.Medium] = 6.25, [GameDifficulty.Hard] = 6, [GameDifficulty.VeryHard] = 5.75 };
+    public IReadOnlyDictionary<int, double> ImportanceDamageMultiplier { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .95, [3] = 1, [4] = 1.05, [5] = 1.1 };
     public IReadOnlyDictionary<GameDifficulty, double> BaseTimeDecay { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .40, [GameDifficulty.Medium] = .32, [GameDifficulty.Hard] = .25, [GameDifficulty.VeryHard] = .20 };
     public double MinimumCorrectNetGain { get; init; } = 1;
     public IReadOnlyDictionary<int, double> ImportanceTimeMultiplier { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .96, [3] = 1, [4] = 1.07, [5] = 1.15 };
@@ -62,7 +62,7 @@ public sealed class ChallengeHealthEngine(HealthProgressionOptions options)
     }
     public double Clamp(double value, bool evidenceGateOpen) => Math.Clamp(value, Options.MinHealth, evidenceGateOpen ? Options.MaxHealth : 99);
     private static int Tier(int value) => Math.Clamp(value, 1, 5);
-    private static double GetContextMultiplier(GameDifficulty challenge, GameDifficulty actual) => (int)actual - (int)challenge switch
+    private static double GetContextMultiplier(GameDifficulty challenge, GameDifficulty actual) => ((int)actual - (int)challenge) switch
     {
         0 => 1, -1 => .85, -2 => .70, <= -3 => .60, 1 => 1.10, _ => 1.15
     };
