@@ -20,9 +20,10 @@ public sealed class HealthProgressionOptions
         };
     public IReadOnlyDictionary<GameDifficulty, double> BaseCorrectGain { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 6, [GameDifficulty.Medium] = 8, [GameDifficulty.Hard] = 11, [GameDifficulty.VeryHard] = 15 };
     public IReadOnlyDictionary<int, double> ImportanceGainWeight { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .95, [3] = 1, [4] = 1.05, [5] = 1.1 };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseWrongDamage { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 14, [GameDifficulty.Medium] = 11, [GameDifficulty.Hard] = 8.5, [GameDifficulty.VeryHard] = 6.5 };
+    public IReadOnlyDictionary<GameDifficulty, double> BaseWrongDamage { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 7, [GameDifficulty.Medium] = 6, [GameDifficulty.Hard] = 5, [GameDifficulty.VeryHard] = 4 };
     public IReadOnlyDictionary<int, double> ImportanceDamageMultiplier { get; init; } = new Dictionary<int, double> { [1] = .85, [2] = 1, [3] = 1.15, [4] = 1.3, [5] = 1.5 };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseTimeDecay { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .055, [GameDifficulty.Medium] = .045, [GameDifficulty.Hard] = .035, [GameDifficulty.VeryHard] = .027 };
+    public IReadOnlyDictionary<GameDifficulty, double> BaseTimeDecay { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .40, [GameDifficulty.Medium] = .32, [GameDifficulty.Hard] = .25, [GameDifficulty.VeryHard] = .20 };
+    public double MinimumCorrectNetGain { get; init; } = 1;
     public IReadOnlyDictionary<int, double> ImportanceTimeMultiplier { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .96, [3] = 1, [4] = 1.07, [5] = 1.15 };
     public IReadOnlyDictionary<GameDifficulty, int> GracePeriodMs { get; init; } = new Dictionary<GameDifficulty, int> { [GameDifficulty.Easy] = 2000, [GameDifficulty.Medium] = 2500, [GameDifficulty.Hard] = 3500, [GameDifficulty.VeryHard] = 4500 };
 }
@@ -50,9 +51,13 @@ public sealed class ChallengeHealthEngine(HealthProgressionOptions options)
     public HealthResult ApplyAnswer(double health, TimeSpan activeTime, GameDifficulty challengeLevel, GameDifficulty actualDifficulty, int importance, bool correct, bool evidenceGateOpen)
     {
         var previous = Clamp(health, true);
-        var timeLoss = GetTimeLoss(activeTime, actualDifficulty, importance);
+        var rawTimeLoss = GetTimeLoss(activeTime, actualDifficulty, importance);
         var effect = correct ? GetCorrectGain(challengeLevel, actualDifficulty, importance) : GetWrongDamage(actualDifficulty, importance);
-        var next = Clamp(previous - timeLoss + (correct ? effect : -effect), evidenceGateOpen);
+        // Time remains visible and consequential while thinking, but a correct answer must never be a negative event.
+        var timeLoss = correct ? Math.Min(rawTimeLoss, Math.Max(0, effect - Options.MinimumCorrectNetGain)) : rawTimeLoss;
+        var calculated = previous - timeLoss + (correct ? effect : -effect);
+        if (correct) calculated = Math.Max(calculated, previous + Options.MinimumCorrectNetGain);
+        var next = Clamp(calculated, evidenceGateOpen);
         return new(previous, next, timeLoss, effect, correct);
     }
     public double Clamp(double value, bool evidenceGateOpen) => Math.Clamp(value, Options.MinHealth, evidenceGateOpen ? Options.MaxHealth : 99);

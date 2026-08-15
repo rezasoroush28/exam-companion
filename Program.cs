@@ -59,8 +59,8 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     foreach (var (cube, expected) in bonusChecks)
         if (BonusConfiguration.Calculate(cube) != expected)
             throw new InvalidOperationException($"Bonus formula mismatch for cube {cube.CubeId}.");
-    if (Math.Abs(health.GetWrongDamage(GameDifficulty.Easy, 5) - 21) > .000001 ||
-        Math.Abs(health.GetWrongDamage(GameDifficulty.VeryHard, 5) - 9.75) > .000001 ||
+    if (Math.Abs(health.GetWrongDamage(GameDifficulty.Easy, 5) - 10.5) > .000001 ||
+        Math.Abs(health.GetWrongDamage(GameDifficulty.VeryHard, 5) - 6) > .000001 ||
         health.GetWrongDamage(GameDifficulty.Easy, 5) <= health.GetWrongDamage(GameDifficulty.Easy, 1))
         throw new InvalidOperationException("Wrong-damage balance failed.");
     if (health.GetTimeLoss(TimeSpan.FromSeconds(2), GameDifficulty.Easy, 5) != 0)
@@ -69,6 +69,14 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     var twoSecondLoss = health.GetTimeLoss(TimeSpan.FromSeconds(4), GameDifficulty.Easy, 5);
     if (Math.Abs(twoSecondLoss - oneSecondLoss * 2) > .000001 || health.Clamp(101, true) != 100 || health.Clamp(101, false) != 99 || health.Clamp(-1, true) != 0)
         throw new InvalidOperationException("Health linear decay or clamping failed.");
+    foreach (var difficulty in Enum.GetValues<GameDifficulty>())
+    {
+        var timedCorrect = health.ApplyAnswer(50, TimeSpan.FromMinutes(5), GameDifficulty.VeryHard, difficulty, 1, true, true);
+        if (timedCorrect.NewHealth < timedCorrect.PreviousHealth)
+            throw new InvalidOperationException($"Correct answer reduced health: {difficulty}.");
+        if (health.GetTimeLoss(TimeSpan.FromSeconds(35), difficulty, 5) <= health.GetWrongDamage(difficulty, 5))
+            throw new InvalidOperationException($"Time pressure remains weaker than wrong damage: {difficulty}.");
+    }
     if (health.GetCorrectGain(GameDifficulty.VeryHard, GameDifficulty.Easy, 3) >= health.GetCorrectGain(GameDifficulty.Easy, GameDifficulty.Easy, 3) ||
         health.GetCorrectGain(GameDifficulty.Easy, GameDifficulty.VeryHard, 3) <= health.GetCorrectGain(GameDifficulty.Easy, GameDifficulty.Easy, 3))
         throw new InvalidOperationException("Challenge-context recovery failed.");
