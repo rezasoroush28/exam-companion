@@ -250,9 +250,9 @@
         _selectedOption = option;
         _lastAnswerCorrect = option == _question.CorrectOption;
         var importanceTier = BonusConfiguration.ImportanceTier(_question.Topic.Importance);
-        Engine.RecordAnswer(_question.Topic.Id, _lastAnswerCorrect);
+        Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, _lastAnswerCorrect);
         var healthResult = HealthEngine.ApplyAnswer(_health, activeElapsed,
-            Engine.CurrentDifficulty, importanceTier, _lastAnswerCorrect, Engine.TotalGainWeight, Engine.IsEvidenceGateOpen);
+            Engine.CurrentDifficulty, _question.RequestedDifficulty, importanceTier, _lastAnswerCorrect, Engine.IsEvidenceGateOpen);
         _health = healthResult.NewHealth;
         _healthDelta = healthResult.SignedDelta;
         _healthPulse++;
@@ -366,7 +366,7 @@
             await _gameBoard.MarkAnswerAsync(_activeCubeId, correct);
             _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
                 BonusConfiguration.ImportanceTier(_question.Topic.Importance), _question.RequestedDifficulty, correct));
-            Engine.RecordAnswer(_question.Topic.Id, correct);
+            Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, correct);
         }
         _questionVisible = false;
         await StartResultSequenceAsync();
@@ -398,7 +398,7 @@
             await _gameBoard.MarkAnswerAsync(_activeCubeId, correct);
             _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
                 BonusConfiguration.ImportanceTier(_question.Topic.Importance), _question.RequestedDifficulty, correct));
-            Engine.RecordAnswer(_question.Topic.Id, correct);
+            Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, correct);
             _questionVisible = false;
             await InvokeAsync(StateHasChanged);
         }
@@ -416,10 +416,10 @@
         if (_healthBar is null || _healthDepleted) return;
         CancelHealthDepletion();
         var importance = BonusConfiguration.ImportanceTier(question.Topic.Importance);
-        var decay = HealthEngine.GetTimeDecayPerSecond(Engine.CurrentDifficulty, importance);
-        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.GetGracePeriodMs(Engine.CurrentDifficulty));
+        var decay = HealthEngine.GetTimeDecayPerSecond(question.RequestedDifficulty, importance);
+        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.GetGracePeriodMs(question.RequestedDifficulty));
         _healthDepletion = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
-        _ = MonitorHealthDepletionAsync(_activeCubeId, Engine.CurrentDifficulty, importance, _healthDepletion.Token);
+        _ = MonitorHealthDepletionAsync(_activeCubeId, question.RequestedDifficulty, importance, _healthDepletion.Token);
     }
 
     private async Task MonitorHealthDepletionAsync(long cubeId, GameDifficulty difficulty, int importance, CancellationToken token)
@@ -452,7 +452,7 @@
                                 BonusConfiguration.ImportanceTier(_question.Topic.Importance),
                                 _question.RequestedDifficulty, false));
                             _healthAppliedCubeIds.Add(cubeId);
-                            Engine.RecordAnswer(_question.Topic.Id, false);
+                            Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, false);
                         }
                         _questionVisible = false;
                         await InvokeAsync(StateHasChanged);
