@@ -64,6 +64,91 @@ button { font: inherit; }
 .difficulty.hard { color: #e46a25; }
 .difficulty.veryhard { color: #d63b31; }
 
+.health-system {
+    position: relative;
+    width: min(var(--board-width), calc(100vw - 48px));
+    margin: 0 auto -3px;
+    padding: 3px 6px 5px;
+    direction: rtl;
+}
+
+.health-header {
+    min-height: 17px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #6f8298;
+    font-size: .65rem;
+}
+.health-header strong { color: #365f7d; font-size: .72rem; }
+.health-track {
+    height: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(78,112,137,.19);
+    border-radius: 999px;
+    background: rgba(94,120,139,.16);
+    box-shadow: inset 0 2px 4px rgba(42,67,87,.14), 0 2px 8px rgba(46,78,102,.08);
+    direction: ltr;
+}
+.health-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    transform: scaleX(.7);
+    transform-origin: left center;
+    will-change: transform;
+    background: linear-gradient(90deg, #4ba984, #72c498);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,.3);
+}
+.health-system.warning .health-fill { background: linear-gradient(90deg, #d99a3d, #e8ba55); }
+.health-system.critical .health-fill { background: linear-gradient(90deg, #c95d50, #df7768); animation: health-critical 1.8s ease-in-out infinite; }
+.health-system.depleted .health-fill { background: #aeb8bf; }
+.health-system.health-positive .health-track { animation: health-positive 250ms ease-out; }
+.health-system.health-negative .health-track { animation: health-negative 220ms ease-out; }
+.health-delta {
+    position: absolute;
+    z-index: 2;
+    top: 2px;
+    left: 50%;
+    color: #477861;
+    font-size: .78rem;
+    animation: health-delta 420ms ease-out both;
+}
+.health-negative .health-delta { color: #a6534b; }
+
+.health-stopped-card {
+    position: absolute;
+    z-index: 18;
+    inset-inline: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 24px;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+    border-radius: 24px;
+    color: #37516a;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 18px 45px rgba(34,68,100,.25);
+    text-align: center;
+}
+.health-stopped-card button {
+    padding: 9px 14px;
+    border: 1px solid #aac8dc;
+    border-radius: 12px;
+    color: #274c70;
+    background: #f7fbfe;
+    cursor: pointer;
+}
+
+@keyframes health-critical { 50% { opacity: .74; } }
+@keyframes health-positive { 50% { transform: scaleY(1.18); filter: brightness(1.08); } }
+@keyframes health-negative { 35% { transform: translateX(-2px); } 70% { transform: translateX(2px); } }
+@keyframes health-delta {
+    from { opacity: 1; transform: translate(-50%, 5px) scale(.92); }
+    to { opacity: 0; transform: translate(-50%, -17px) scale(1.05); }
+}
+
 .challenge-frame {
     position: relative;
     margin: 0 auto;
@@ -346,5 +431,6 @@ button { font: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .question-layer, .physics-board.physics-impact, .bonus-hud b, .bonus-hud.final { animation-duration: 1ms; }
+    .question-layer, .physics-board.physics-impact, .bonus-hud b, .bonus-hud.final,
+    .health-fill, .health-track, .health-delta { animation-duration: 1ms !important; }
 }

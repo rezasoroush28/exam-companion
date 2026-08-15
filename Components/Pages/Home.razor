@@ -1,6 +1,7 @@
 @page "/"
 @page "/lessons"
 @inject ChallengeEngine Engine
+@inject ChallengeHealthEngine HealthEngine
 @implements IAsyncDisposable
 
 <PageTitle>چالش مکعبی</PageTitle>
@@ -29,6 +30,9 @@
             <div><span>پیشرفت</span><strong>@Engine.QuestionsPresented / @Engine.TotalQuestions</strong></div>
             <div><span>پاسخ‌ها</span><strong>@Engine.QuestionsAnswered</strong></div>
         </header>
+
+        <HealthBar @ref="_healthBar" Health="_health" Delta="_healthDelta"
+                   PulseKey="_healthPulse" IsCorrectFeedback="_lastAnswerCorrect" />
 
         <section class="challenge-frame" aria-label="محفظه چالش">
             <div class="board-glow"></div>
@@ -65,7 +69,7 @@
                                 @foreach (var option in _question.Options)
                                 {
                                     var state = OptionState(option.Option);
-                                    <button class="answer @state" disabled="@_answerLocked" @onclick="() => AnswerAsync(option.Option)">
+                                    <button class="answer @state" disabled="@(_answerLocked || !_questionActive || _healthDepleted)" @onclick="() => AnswerAsync(option.Option)">
                                         <span class="option-key">@OptionLetter(option.Option)</span>
                                         <span>@((MarkupString)option.Html)</span>
                                     </button>
@@ -86,6 +90,15 @@
                     <div class="complete-card">
                         <span>نتیجه چالش کامل شد</span>
                         <strong>امتیاز نهایی: @_totalBonus</strong>
+                        <button @onclick="RestartAsync">شروع دوباره همین چالش</button>
+                    </div>
+                }
+
+                @if (_healthDepleted)
+                {
+                    <div class="health-stopped-card">
+                        <span>سلامت به صفر رسید</span>
+                        <strong>چالش موقتاً متوقف شد</strong>
                         <button @onclick="RestartAsync">شروع دوباره همین چالش</button>
                     </div>
                 }
@@ -113,6 +126,7 @@
 @code {
     private CancellationTokenSource _lifetime = new();
     private GameBoard? _gameBoard;
+    private HealthBar? _healthBar;
     private ChallengeQuestion? _question;
     private long _activeCubeId;
     private long _cubeSequence;
@@ -122,6 +136,13 @@
     private bool _feedbackShown;
     private bool _lastAnswerCorrect;
     private bool _completed;
+    private bool _questionActive;
+    private bool _healthDepleted;
+    private double _health;
+    private double? _healthDelta;
+    private int _healthPulse;
+    private CancellationTokenSource? _healthDepletion;
+    private readonly HashSet<long> _healthAppliedQuestionIds = [];
     private bool _resultStarted;
     private bool _showBonus;
     private int _totalBonus;
@@ -147,6 +168,12 @@
         _loading = true;
         _error = null;
         _completed = false;
+        CancelHealthDepletion();
+        _health = HealthEngine.Options.StartingHealth;
+        _healthDelta = null;
+        _healthDepleted = false;
+        _questionActive = false;
+        _healthAppliedQuestionIds.Clear();
         _resultStarted = false;
         _showBonus = false;
         _totalBonus = 0;
@@ -162,6 +189,8 @@
             await Engine.InitializeAsync(_lifetime.Token);
             _loading = false;
             await InvokeAsync(StateHasChanged);
+            if (_healthBar is not null)
+                await _healthBar.SetHealthAsync(_health, true);
             await Task.Delay(GameTiming.InitialPauseMs, _lifetime.Token);
             await DropNextAsync(_lifetime.Token);
         }
@@ -186,6 +215,8 @@
         _selectedOption = null;
         _feedbackShown = false;
         _answerLocked = false;
+        _questionActive = false;
+        _healthDelta = null;
         _questionVisible = false;
         await InvokeAsync(StateHasChanged);
         if (_gameBoard is null) throw new InvalidOperationException("صفحه فیزیک آماده نیست.");
@@ -197,21 +228,40 @@
         if (_question is null || payload.CubeId != _activeCubeId || payload.QuestionId != _question.Id) return;
         _questionVisible = true;
         await InvokeAsync(StateHasChanged);
+        await Task.Delay(220, _lifetime.Token);
+        if (_question is null || payload.CubeId != _activeCubeId || _answerLocked || _healthDepleted) return;
+        _questionActive = true;
+        await InvokeAsync(StateHasChanged);
+        await BeginHealthTimingAsync(_question);
     }
 
     private async Task AnswerAsync(string option)
     {
-        if (_answerLocked || _question is null || _gameBoard is null) return;
+        if (_answerLocked || !_questionActive || _healthDepleted || _question is null || _gameBoard is null || _healthBar is null) return;
         _answerLocked = true;
+        _questionActive = false;
+        CancelHealthDepletion();
+        var activeElapsed = TimeSpan.FromMilliseconds(await _healthBar.StopQuestionAsync());
+        if (!_healthAppliedQuestionIds.Add(_question.Id)) return;
         _selectedOption = option;
         _lastAnswerCorrect = option == _question.CorrectOption;
+        var importanceTier = BonusConfiguration.ImportanceTier(_question.Topic.Importance);
+        var healthResult = HealthEngine.ApplyAnswer(_health, activeElapsed,
+            _question.RequestedDifficulty, importanceTier, _lastAnswerCorrect);
+        _health = healthResult.NewHealth;
+        _healthDelta = healthResult.SignedDelta;
+        _healthPulse++;
+        await _healthBar.SetHealthAsync(_health, _lastAnswerCorrect);
         await _gameBoard.MarkAnswerAsync(_activeCubeId, _lastAnswerCorrect);
         _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
-            BonusConfiguration.ImportanceTier(_question.Topic.Importance),
+            importanceTier,
             _question.RequestedDifficulty, _lastAnswerCorrect));
         _feedbackShown = true;
         Engine.RecordAnswer();
+        _healthDepleted = healthResult.IsDepleted;
+        await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.FeedbackMs, _lifetime.Token);
+        if (_healthDepleted) return;
         _questionVisible = false;
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.BetweenQuestionsMs, _lifetime.Token);
@@ -221,6 +271,8 @@
     private async Task StartResultSequenceAsync()
     {
         if (_resultStarted || _gameBoard is null) return;
+        CancelHealthDepletion();
+        if (_healthBar is not null) await _healthBar.StopQuestionAsync();
         _resultStarted = true;
         _resultState = "ChallengeFinished";
         _incorrectRemaining = _resultCubes.Count(x => !x.IsCorrect);
@@ -320,6 +372,63 @@
         await _gameBoard.SetWireframesAsync(_wireframes);
     }
 
+    private async Task BeginHealthTimingAsync(ChallengeQuestion question)
+    {
+        if (_healthBar is null || _healthDepleted) return;
+        CancelHealthDepletion();
+        var importance = BonusConfiguration.ImportanceTier(question.Topic.Importance);
+        var decay = HealthEngine.GetTimeDecayPerSecond(question.RequestedDifficulty, importance);
+        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.Options.GracePeriodMs);
+        _healthDepletion = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _ = MonitorHealthDepletionAsync(question.Id, question.RequestedDifficulty, importance, _healthDepletion.Token);
+    }
+
+    private async Task MonitorHealthDepletionAsync(long questionId, GameDifficulty difficulty, int importance, CancellationToken token)
+    {
+        if (_healthBar is null) return;
+        var expected = HealthEngine.GetTimeToDepletion(_health, difficulty, importance);
+        try
+        {
+            await Task.Delay(expected, token);
+            while (!token.IsCancellationRequested && _questionActive && _question?.Id == questionId)
+            {
+                try
+                {
+                    var elapsed = TimeSpan.FromMilliseconds(await _healthBar.GetActiveElapsedMsAsync());
+                    var loss = HealthEngine.GetTimeLoss(elapsed, difficulty, importance);
+                    if (loss >= _health)
+                    {
+                        _questionActive = false;
+                        _answerLocked = true;
+                        _healthDepleted = true;
+                        _healthDelta = -_health;
+                        _health = 0;
+                        _healthPulse++;
+                        await _healthBar.StopQuestionAsync();
+                        await _healthBar.SetHealthAsync(0, false);
+                        await InvokeAsync(StateHasChanged);
+                        return;
+                    }
+                    var remaining = (_health - loss) / HealthEngine.GetTimeDecayPerSecond(difficulty, importance);
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Max(.25, remaining)), token);
+                }
+                catch (JSDisconnectedException)
+                {
+                    await Task.Delay(1000, token);
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private void CancelHealthDepletion()
+    {
+        if (_healthDepletion is null) return;
+        _healthDepletion.Cancel();
+        _healthDepletion.Dispose();
+        _healthDepletion = null;
+    }
+
     private string OptionState(string option)
     {
         if (!_feedbackShown || _question is null) return _selectedOption == option ? "selected" : "";
@@ -331,6 +440,7 @@
 
     public ValueTask DisposeAsync()
     {
+        CancelHealthDepletion();
         _lifetime.Cancel();
         _lifetime.Dispose();
         return ValueTask.CompletedTask;

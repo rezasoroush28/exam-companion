@@ -9,6 +9,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSingleton<QuestionService>();
 builder.Services.AddScoped<ChallengeEngine>();
+builder.Services.AddSingleton(new HealthGameOptions());
+builder.Services.AddSingleton<ChallengeHealthEngine>();
 
 var app = builder.Build();
 
@@ -41,6 +43,26 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     foreach (var (cube, expected) in bonusChecks)
         if (BonusConfiguration.Calculate(cube) != expected)
             throw new InvalidOperationException($"Bonus formula mismatch for cube {cube.CubeId}.");
+    var health = scope.ServiceProvider.GetRequiredService<ChallengeHealthEngine>();
+    var healthChecks = new[]
+    {
+        (health.GetWrongDamage(GameDifficulty.Easy, 1), 14d),
+        (health.GetWrongDamage(GameDifficulty.Easy, 5), 22d),
+        (health.GetWrongDamage(GameDifficulty.Hard, 3), 11d),
+        (health.GetWrongDamage(GameDifficulty.VeryHard, 5), 11d),
+        (health.GetCorrectGain(GameDifficulty.Easy, 1), 7d),
+        (health.GetCorrectGain(GameDifficulty.Easy, 5), 11d),
+        (health.GetCorrectGain(GameDifficulty.Hard, 3), 14d),
+        (health.GetCorrectGain(GameDifficulty.VeryHard, 5), 22d)
+    };
+    foreach (var (actual, expected) in healthChecks)
+        if (actual != expected) throw new InvalidOperationException($"Health formula mismatch: expected {expected}, got {actual}.");
+    if (health.GetTimeLoss(TimeSpan.FromSeconds(2), GameDifficulty.Easy, 5) != 0)
+        throw new InvalidOperationException("Health grace period failed.");
+    var oneSecondLoss = health.GetTimeLoss(TimeSpan.FromSeconds(3), GameDifficulty.Easy, 5);
+    var twoSecondLoss = health.GetTimeLoss(TimeSpan.FromSeconds(4), GameDifficulty.Easy, 5);
+    if (Math.Abs(twoSecondLoss - oneSecondLoss * 2) > .000001 || health.Clamp(101) != 100 || health.Clamp(-1) != 0)
+        throw new InvalidOperationException("Health linear decay or clamping failed.");
     Console.WriteLine($"VERIFY COMPLETE: questions={questionCount}, levels={string.Join(',', requestedLevels)}");
     return;
 }
