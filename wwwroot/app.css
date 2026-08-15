@@ -116,31 +116,6 @@ button { font: inherit; }
 }
 .health-negative .health-delta { color: #a6534b; }
 
-.health-stopped-card {
-    position: absolute;
-    z-index: 18;
-    inset-inline: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 24px;
-    display: grid;
-    gap: 10px;
-    justify-items: center;
-    border-radius: 24px;
-    color: #37516a;
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 18px 45px rgba(34,68,100,.25);
-    text-align: center;
-}
-.health-stopped-card button {
-    padding: 9px 14px;
-    border: 1px solid #aac8dc;
-    border-radius: 12px;
-    color: #274c70;
-    background: #f7fbfe;
-    cursor: pointer;
-}
-
 @keyframes health-critical { 50% { opacity: .74; } }
 @keyframes health-positive { 50% { transform: scaleY(1.18); filter: brightness(1.08); } }
 @keyframes health-negative { 35% { transform: translateX(-2px); } 70% { transform: translateX(2px); } }

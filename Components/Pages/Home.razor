@@ -98,14 +98,6 @@
                     </div>
                 }
 
-                @if (_healthDepleted)
-                {
-                    <div class="health-stopped-card">
-                        <span>سلامت به صفر رسید</span>
-                        <strong>چالش موقتاً متوقف شد</strong>
-                        <button @onclick="RestartAsync">شروع دوباره همین چالش</button>
-                    </div>
-                }
             </div>
         </section>
 
@@ -265,7 +257,13 @@
         _healthDepleted = healthResult.IsDepleted;
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.FeedbackMs, _lifetime.Token);
-        if (_healthDepleted) return;
+        if (_healthDepleted)
+        {
+            _questionVisible = false;
+            await InvokeAsync(StateHasChanged);
+            await StartResultSequenceAsync();
+            return;
+        }
         _questionVisible = false;
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.BetweenQuestionsMs, _lifetime.Token);
@@ -410,7 +408,18 @@
                         _healthPulse++;
                         await _healthBar.StopQuestionAsync();
                         await _healthBar.SetHealthAsync(0, false);
+                        if (_question is not null && _gameBoard is not null && _resultCubes.All(x => x.CubeId != _activeCubeId))
+                        {
+                            await _gameBoard.MarkAnswerAsync(_activeCubeId, false);
+                            _resultCubes.Add(new ResultCube(_activeCubeId, _question.Id, _question.Topic.Id,
+                                BonusConfiguration.ImportanceTier(_question.Topic.Importance),
+                                _question.RequestedDifficulty, false));
+                            _healthAppliedQuestionIds.Add(_question.Id);
+                            Engine.RecordAnswer();
+                        }
+                        _questionVisible = false;
                         await InvokeAsync(StateHasChanged);
+                        await StartResultSequenceAsync();
                         return;
                     }
                     var remaining = (_health - loss) / HealthEngine.GetTimeDecayPerSecond(difficulty, importance);
