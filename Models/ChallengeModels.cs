@@ -55,4 +55,7 @@ public static class BonusConfiguration
     public static int Calculate(ResultCube cube) => (int)Math.Round(
         BaseBonus * ImportanceMultipliers[Math.Clamp(cube.ImportanceTier, 1, 5) - 1]
         * HardnessMultiplier(cube.Difficulty), MidpointRounding.AwayFromZero);
+
+    public static int Calculate(int importanceTier, GameDifficulty difficulty) => Calculate(
+        new ResultCube(0, 0, 0, importanceTier, difficulty, true));
 }

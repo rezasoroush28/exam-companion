@@ -46,6 +46,7 @@ public sealed class TopicProgress
     public int QuestionsSeen { get; set; }
     public int CorrectAnswers { get; set; }
     public int IncorrectAnswers { get; set; }
+    public int TotalBonusEarned { get; set; }
     public DateTimeOffset? FirstSeenAt { get; set; }
     public DateTimeOffset? LastSeenAt { get; set; }
     public ExamLessonChallenge LessonChallenge { get; set; } = null!;
@@ -135,6 +136,7 @@ public sealed class QuestionAttempt
     public double TimeHealthDelta { get; set; }
     public double AnswerHealthDelta { get; set; }
     public double? HealthAfter { get; set; }
+    public int BonusEarned { get; set; }
     public ChallengeRun ChallengeRun { get; set; } = null!;
     public TopicProgress TopicProgress { get; set; } = null!;
 }

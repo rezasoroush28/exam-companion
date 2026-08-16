@@ -12,6 +12,9 @@ public sealed record LevelBlueprint(ChallengeLevel ChallengeLevel, LevelRule Rul
     public int EvidenceRequired => (int)Math.Ceiling(TargetQuestionCount * Rule.MinimumEvidencePercent / 100d);
 }
 
+public sealed record TopicPerformanceReport(long TopicId, int Importance, int QuestionsSeen,
+    int CorrectAnswers, int IncorrectAnswers, double Accuracy, int TotalBonusEarned);
+
 public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> contextFactory)
 {
     public async Task<LevelDesign> GetActiveDesignAsync(CancellationToken cancellationToken = default)
@@ -91,18 +94,33 @@ public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> con
         var run = db.ChallengeRuns.Include(x => x.LevelProgress).Single(x => x.Id == runId);
         var topic = db.TopicProgresses.Single(x => x.LessonChallengeId == lessonChallengeId && x.TopicId == question.Topic.Id);
         var now = DateTimeOffset.UtcNow;
+        var bonus = correct ? BonusConfiguration.Calculate(topic.ImportanceSnapshot, question.RequestedDifficulty) : 0;
         db.QuestionAttempts.Add(new QuestionAttempt { ChallengeRunId = runId, TopicProgressId = topic.Id,
             QuestionId = question.Id, ChallengeLevel = run.LevelProgress.ChallengeLevel,
             ActualQuestionDifficulty = question.RequestedDifficulty.ToQuestionDifficulty(), ImportanceSnapshot = topic.ImportanceSnapshot,
             ShownAt = now.AddMilliseconds(-thinkingMilliseconds), AnsweredAt = now, SelectedAnswer = selectedAnswer,
             IsCorrect = correct, ActiveThinkingMilliseconds = thinkingMilliseconds, HealthBefore = healthBefore,
-            TimeHealthDelta = -timeLoss, AnswerHealthDelta = correct ? answerEffect : -answerEffect, HealthAfter = healthAfter });
+            TimeHealthDelta = -timeLoss, AnswerHealthDelta = correct ? answerEffect : -answerEffect, HealthAfter = healthAfter,
+            BonusEarned = bonus });
         topic.QuestionsSeen++; topic.CorrectAnswers += correct ? 1 : 0; topic.IncorrectAnswers += correct ? 0 : 1;
+        topic.TotalBonusEarned += bonus;
         topic.FirstSeenAt ??= now; topic.LastSeenAt = now;
         run.LevelProgress.QuestionsAnswered++; run.LevelProgress.CorrectAnswers += correct ? 1 : 0;
         run.LevelProgress.IncorrectAnswers += correct ? 0 : 1; run.LevelProgress.EvidenceCollected++;
         run.LevelProgress.CurrentHealth = healthAfter;
         db.SaveChanges();
+    }
+
+    public async Task<IReadOnlyList<TopicPerformanceReport>> GetTopicPerformanceAsync(long lessonChallengeId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var db = await contextFactory.CreateDbContextAsync(cancellationToken);
+        return await db.TopicProgresses.AsNoTracking().Where(x => x.LessonChallengeId == lessonChallengeId)
+            .OrderByDescending(x => x.TotalBonusEarned).ThenBy(x => x.TopicId)
+            .Select(x => new TopicPerformanceReport(x.TopicId, x.ImportanceSnapshot, x.QuestionsSeen,
+                x.CorrectAnswers, x.IncorrectAnswers,
+                x.QuestionsSeen == 0 ? 0 : 100d * x.CorrectAnswers / x.QuestionsSeen, x.TotalBonusEarned))
+            .ToListAsync(cancellationToken);
     }
 
     public void EndRun(long runId, double health, ChallengeRunStatus status, string reason)

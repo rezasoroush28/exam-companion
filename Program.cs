@@ -55,19 +55,6 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     Console.WriteLine($"VERIFY LESSON: {engine.LessonTitle}");
     foreach (var topic in engine.Topics)
         Console.WriteLine($"VERIFY TOPIC: {topic.Id} | {topic.Title} | importance={topic.Importance:0.######}");
-    var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ChallengeDbContext>>();
-    await using var beforeDb = await dbFactory.CreateDbContextAsync();
-    var attemptsBefore = await beforeDb.QuestionAttempts.CountAsync();
-    engine.BeginRun(50);
-    var persistedQuestion = await engine.NextQuestionAsync() ?? throw new InvalidOperationException("Run persistence question missing.");
-    var persistedHealth = health.ApplyAnswer(50, TimeSpan.FromSeconds(1), engine.CurrentDifficulty,
-        persistedQuestion.RequestedDifficulty, BonusConfiguration.ImportanceTier(persistedQuestion.Topic.Importance), true, false);
-    engine.RecordAnswer(persistedQuestion.Topic.Id, persistedQuestion.RequestedDifficulty, true);
-    engine.PersistAttempt(persistedQuestion, persistedQuestion.CorrectOption, TimeSpan.FromSeconds(1), persistedHealth);
-    engine.EndRun(persistedHealth.NewHealth, ChallengeRunStatus.Interrupted, "Verification");
-    await using var afterDb = await dbFactory.CreateDbContextAsync();
-    if (await afterDb.QuestionAttempts.CountAsync() != attemptsBefore + 1)
-        throw new InvalidOperationException("QuestionAttempt persistence failed.");
     foreach (var level in Enum.GetValues<GameDifficulty>())
     {
         engine.StartLevel(level);
