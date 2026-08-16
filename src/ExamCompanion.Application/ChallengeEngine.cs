@@ -1,4 +1,5 @@
 using ChallengePrototype.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ChallengePrototype.Services;
 
@@ -8,7 +9,7 @@ public sealed record TopicLevelProgress(GameTopic Topic, int TargetQuestionCount
     public bool HasMinimumExposure => QuestionsAsked > 0;
 }
 
-public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEngine health, LevelDesignService levelDesigns, ILogger<ChallengeEngine> logger)
+public sealed class ChallengeEngine(IQuestionService questions, ChallengeHealthEngine health, ILevelDesignService levelDesigns, ILogger<ChallengeEngine> logger)
 {
     private readonly Queue<ChallengeQuestion> _remaining = new();
     private readonly HashSet<long> _usedQuestionIds = [];

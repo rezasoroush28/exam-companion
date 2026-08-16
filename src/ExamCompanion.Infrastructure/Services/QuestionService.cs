@@ -1,10 +1,12 @@
 using System.Text.Json;
 using ChallengePrototype.Models;
 using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ChallengePrototype.Services;
 
-public sealed class QuestionService(IWebHostEnvironment environment, ILogger<QuestionService> logger)
+public sealed class QuestionService(IWebHostEnvironment environment, ILogger<QuestionService> logger) : IQuestionService
 {
     private string QuestionDb => Path.Combine(environment.ContentRootPath, "data", "QuestionBankOneQuestionPerTopic.sqlite");
 

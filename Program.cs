@@ -1,33 +1,26 @@
 using ChallengePrototype.Components;
-using ChallengePrototype.Data;
 using ChallengePrototype.Models;
 using ChallengePrototype.Services;
-using Microsoft.EntityFrameworkCore;
+using ExamCompanion.Application;
+using ExamCompanion.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddSingleton<QuestionService>();
-builder.Services.AddScoped<ChallengeEngine>();
-builder.Services.AddSingleton(new HealthProgressionOptions());
-builder.Services.AddSingleton<ChallengeHealthEngine>();
-builder.Services.AddDbContextFactory<ChallengeDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("ChallengeProgress")));
-builder.Services.AddSingleton<LevelDesignService>();
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
-
-await using (var migrationScope = app.Services.CreateAsyncScope())
-    await migrationScope.ServiceProvider.GetRequiredService<ChallengeDbContext>().Database.MigrateAsync();
+await app.Services.MigrateInfrastructureAsync();
 
 if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
 {
     await using var scope = app.Services.CreateAsyncScope();
     var engine = scope.ServiceProvider.GetRequiredService<ChallengeEngine>();
     var health = scope.ServiceProvider.GetRequiredService<ChallengeHealthEngine>();
-    var levelDesigns = scope.ServiceProvider.GetRequiredService<LevelDesignService>();
+    var levelDesigns = scope.ServiceProvider.GetRequiredService<ILevelDesignService>();
     var design = await levelDesigns.GetActiveDesignAsync();
     if (design.LevelRules.Count != 4 || design.LevelRules.OrderBy(x => x.ChallengeLevel).Select(x => x.ImportanceFocus)
         .SequenceEqual(design.LevelRules.OrderBy(x => x.ChallengeLevel).Select(x => x.ImportanceFocus).OrderBy(x => x)) is false)

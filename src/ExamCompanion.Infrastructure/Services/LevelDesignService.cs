@@ -4,18 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChallengePrototype.Services;
 
-public sealed record BlueprintTopic(long TopicId, int Importance, int QuestionQuota);
-public sealed record LevelBlueprint(ChallengeLevel ChallengeLevel, LevelRule Rule,
-    IReadOnlyList<BlueprintTopic> Topics, IReadOnlyDictionary<QuestionDifficulty, int> DifficultyQuotas)
-{
-    public int TargetQuestionCount => Topics.Sum(x => x.QuestionQuota);
-    public int EvidenceRequired => (int)Math.Ceiling(TargetQuestionCount * Rule.MinimumEvidencePercent / 100d);
-}
-
-public sealed record TopicPerformanceReport(long TopicId, int Importance, int QuestionsSeen,
-    int CorrectAnswers, int IncorrectAnswers, double Accuracy, int TotalBonusEarned);
-
-public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> contextFactory)
+public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> contextFactory) : ILevelDesignService
 {
     public async Task<LevelDesign> GetActiveDesignAsync(CancellationToken cancellationToken = default)
     {
