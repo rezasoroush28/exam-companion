@@ -8,6 +8,7 @@ obj/
 *.log
 *.sqlite-shm
 *.sqlite-wal
+/data/ExamCompanionChallenge.sqlite
 
 .edge-*/
 .chrome-*/

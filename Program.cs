@@ -1,6 +1,8 @@
 using ChallengePrototype.Components;
+using ChallengePrototype.Data;
 using ChallengePrototype.Models;
 using ChallengePrototype.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,24 +13,63 @@ builder.Services.AddSingleton<QuestionService>();
 builder.Services.AddScoped<ChallengeEngine>();
 builder.Services.AddSingleton(new HealthProgressionOptions());
 builder.Services.AddSingleton<ChallengeHealthEngine>();
+builder.Services.AddDbContextFactory<ChallengeDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("ChallengeProgress")));
+builder.Services.AddSingleton<LevelDesignService>();
 
 var app = builder.Build();
+
+await using (var migrationScope = app.Services.CreateAsyncScope())
+    await migrationScope.ServiceProvider.GetRequiredService<ChallengeDbContext>().Database.MigrateAsync();
 
 if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
 {
     await using var scope = app.Services.CreateAsyncScope();
     var engine = scope.ServiceProvider.GetRequiredService<ChallengeEngine>();
     var health = scope.ServiceProvider.GetRequiredService<ChallengeHealthEngine>();
+    var levelDesigns = scope.ServiceProvider.GetRequiredService<LevelDesignService>();
+    var design = await levelDesigns.GetActiveDesignAsync();
+    if (design.LevelRules.Count != 4 || design.LevelRules.OrderBy(x => x.ChallengeLevel).Select(x => x.ImportanceFocus)
+        .SequenceEqual(design.LevelRules.OrderBy(x => x.ChallengeLevel).Select(x => x.ImportanceFocus).OrderBy(x => x)) is false)
+        throw new InvalidOperationException("Default LevelDesign structure is invalid.");
+    foreach (var rule in design.LevelRules)
+    {
+        var blueprint = levelDesigns.Generate(rule, Enumerable.Range(1, 5).Select(x => ((long)x, x)).ToArray());
+        if (blueprint.Topics.Sum(x => x.QuestionQuota) != blueprint.TargetQuestionCount ||
+            blueprint.DifficultyQuotas.Values.Sum() != blueprint.TargetQuestionCount ||
+            blueprint.Topics.Any(x => x.QuestionQuota < rule.MinimumQuestionsPerTopic || x.QuestionQuota > rule.MaximumQuestionsPerTopic) ||
+            blueprint.Topics.OrderBy(x => x.Importance).Select(x => x.QuestionQuota).SequenceEqual(
+                blueprint.Topics.OrderBy(x => x.Importance).Select(x => x.QuestionQuota).OrderBy(x => x)) is false)
+            throw new InvalidOperationException($"Generic blueprint allocation failed: {rule.ChallengeLevel}.");
+        if (blueprint.TargetQuestionCount >= 4 && blueprint.DifficultyQuotas.Values.Any(x => x == 0))
+            throw new InvalidOperationException($"Difficulty mixture failed: {rule.ChallengeLevel}.");
+        var dominant = (QuestionDifficulty)(int)rule.ChallengeLevel;
+        if (blueprint.DifficultyQuotas[dominant] != blueprint.DifficultyQuotas.Values.Max())
+            throw new InvalidOperationException($"Dominant difficulty failed: {rule.ChallengeLevel}.");
+    }
+    var largeRule = design.LevelRules.Single(x => x.ChallengeLevel == ChallengeLevel.Easy);
+    var segments = levelDesigns.GenerateSegments(largeRule, Enumerable.Range(1, 30).Select(x => ((long)x, (x % 5) + 1)).ToArray());
+    if (segments.Count <= 1 || segments.SelectMany(x => x.Topics).Select(x => x.TopicId).Distinct().Count() != 30)
+        throw new InvalidOperationException("Large lesson segmentation omitted topics.");
     await engine.InitializeAsync(CancellationToken.None);
     Console.WriteLine($"VERIFY LESSON: {engine.LessonTitle}");
     foreach (var topic in engine.Topics)
         Console.WriteLine($"VERIFY TOPIC: {topic.Id} | {topic.Title} | importance={topic.Importance:0.######}");
-    var targetMatrix = new[] { new[] { 1, 1, 2, 2, 3 }, new[] { 1, 2, 2, 2, 3 }, new[] { 2, 2, 2, 3, 3 }, new[] { 2, 2, 3, 3, 3 } };
+    var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ChallengeDbContext>>();
+    await using var beforeDb = await dbFactory.CreateDbContextAsync();
+    var attemptsBefore = await beforeDb.QuestionAttempts.CountAsync();
+    engine.BeginRun(50);
+    var persistedQuestion = await engine.NextQuestionAsync() ?? throw new InvalidOperationException("Run persistence question missing.");
+    var persistedHealth = health.ApplyAnswer(50, TimeSpan.FromSeconds(1), engine.CurrentDifficulty,
+        persistedQuestion.RequestedDifficulty, BonusConfiguration.ImportanceTier(persistedQuestion.Topic.Importance), true, false);
+    engine.RecordAnswer(persistedQuestion.Topic.Id, persistedQuestion.RequestedDifficulty, true);
+    engine.PersistAttempt(persistedQuestion, persistedQuestion.CorrectOption, TimeSpan.FromSeconds(1), persistedHealth);
+    engine.EndRun(persistedHealth.NewHealth, ChallengeRunStatus.Interrupted, "Verification");
+    await using var afterDb = await dbFactory.CreateDbContextAsync();
+    if (await afterDb.QuestionAttempts.CountAsync() != attemptsBefore + 1)
+        throw new InvalidOperationException("QuestionAttempt persistence failed.");
     foreach (var level in Enum.GetValues<GameDifficulty>())
     {
-        for (var tier = 1; tier <= 5; tier++)
-            if (health.GetTargetQuestions(level, tier) != targetMatrix[(int)level][tier - 1])
-                throw new InvalidOperationException($"Target matrix mismatch: {level}, tier {tier}.");
         engine.StartLevel(level);
         var allocation = engine.GetDifficultyAllocation(engine.LevelTargetCount);
         if (allocation.Values.Sum() != engine.LevelTargetCount || allocation.Values.Any(x => x == 0) ||
@@ -93,8 +134,8 @@ if (args.Contains("--verify", StringComparer.OrdinalIgnoreCase))
     var promoted = health.ApplyAnswer(98, TimeSpan.Zero, GameDifficulty.Easy, GameDifficulty.VeryHard, 5, true, true);
     if (gated.NewHealth != 99 || promoted.NewHealth != 100) throw new InvalidOperationException("Promotion health cap failed.");
     engine.StartLevel(GameDifficulty.Easy);
-    if (!engine.AdvanceLevel() || engine.CurrentDifficulty != GameDifficulty.Medium || !engine.AdvanceLevel() ||
-        engine.CurrentDifficulty != GameDifficulty.Hard || !engine.AdvanceLevel() || engine.CurrentDifficulty != GameDifficulty.VeryHard || engine.AdvanceLevel())
+    if (!engine.AdvanceLevel(false) || engine.CurrentDifficulty != GameDifficulty.Medium || !engine.AdvanceLevel(false) ||
+        engine.CurrentDifficulty != GameDifficulty.Hard || !engine.AdvanceLevel(false) || engine.CurrentDifficulty != GameDifficulty.VeryHard || engine.AdvanceLevel(false))
         throw new InvalidOperationException("Hardness progression failed.");
     Console.WriteLine("VERIFY COMPLETE: progressive health, allocation, evidence, overtime and progression passed");
     return;

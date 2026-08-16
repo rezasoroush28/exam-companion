@@ -8,13 +8,17 @@ public sealed record TopicLevelProgress(GameTopic Topic, int TargetQuestionCount
     public bool HasMinimumExposure => QuestionsAsked > 0;
 }
 
-public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEngine health, ILogger<ChallengeEngine> logger)
+public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEngine health, LevelDesignService levelDesigns, ILogger<ChallengeEngine> logger)
 {
     private readonly Queue<ChallengeQuestion> _remaining = new();
     private readonly HashSet<long> _usedQuestionIds = [];
     private readonly Dictionary<long, TopicLevelProgress> _progress = [];
     private readonly Dictionary<GameDifficulty, int> _difficultyAsked = [];
     private IReadOnlyList<ChallengeQuestion> _bank = [];
+    private LevelDesign? _levelDesign;
+    private LevelBlueprint? _blueprint;
+    private long _lessonChallengeId;
+    private long _currentRunId;
     private long? _lastTopicId;
     public string LessonTitle { get; private set; } = "";
     public IReadOnlyList<GameTopic> Topics { get; private set; } = [];
@@ -22,7 +26,7 @@ public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEn
     public int QuestionsPresented { get; private set; }
     public int QuestionsAnswered { get; private set; }
     public int LevelTargetCount { get; private set; }
-    public int MinimumEvidenceRequired => health.GetMinimumEvidence(LevelTargetCount);
+    public int MinimumEvidenceRequired => _blueprint?.EvidenceRequired ?? health.GetMinimumEvidence(LevelTargetCount);
     public int DominantDifficultyTarget { get; private set; }
     public int DominantDifficultyRequired => (int)Math.Ceiling(DominantDifficultyTarget * .5);
     public int DominantDifficultyAnswered => _difficultyAsked.GetValueOrDefault(CurrentDifficulty);
@@ -31,30 +35,49 @@ public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEn
     public bool IsScheduleExhausted => _remaining.Count == 0;
     public IReadOnlyCollection<TopicLevelProgress> TopicProgress => _progress.Values;
 
+    public void BeginRun(double health) => _currentRunId = levelDesigns.BeginRun(_lessonChallengeId, CurrentDifficulty.ToChallengeLevel(), health);
+    public void PersistAttempt(ChallengeQuestion question, string? answer, TimeSpan thinkingTime, HealthResult result) =>
+        levelDesigns.RecordAttempt(_currentRunId, _lessonChallengeId, question, answer, (long)thinkingTime.TotalMilliseconds,
+            result.PreviousHealth, result.TimeLoss, result.AnswerEffect, result.NewHealth, result.IsCorrect);
+    public void EndRun(double health, ChallengeRunStatus status, string reason)
+    {
+        if (_currentRunId == 0) return;
+        levelDesigns.EndRun(_currentRunId, health, status, reason); _currentRunId = 0;
+    }
+    public void CompleteLessonChallenge() => levelDesigns.CompleteLessonChallenge(_lessonChallengeId);
+
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         var setup = await questions.CreateFixedSetupAsync(cancellationToken);
         LessonTitle = setup.LessonTitle; Topics = setup.Topics; _bank = setup.Questions;
-        _usedQuestionIds.Clear(); StartLevel(GameDifficulty.Easy);
+        _levelDesign = await levelDesigns.GetActiveDesignAsync(cancellationToken);
+        var lessonChallenge = await levelDesigns.GetOrCreateLessonChallengeAsync(setup, _levelDesign, cancellationToken);
+        _lessonChallengeId = lessonChallenge.Id;
+        _usedQuestionIds.Clear(); StartLevel(lessonChallenge.CurrentLevel.ToGameDifficulty());
     }
 
     public void StartLevel(GameDifficulty difficulty)
     {
         CurrentDifficulty = difficulty; QuestionsPresented = 0; QuestionsAnswered = 0; _lastTopicId = null;
         _remaining.Clear(); _progress.Clear(); _difficultyAsked.Clear();
+        var rule = _levelDesign?.LevelRules.Single(x => x.ChallengeLevel == difficulty.ToChallengeLevel())
+            ?? throw new InvalidOperationException("Level design has not been loaded.");
+        _blueprint = levelDesigns.Generate(rule, Topics.Select(topic => (topic.Id, BonusConfiguration.ImportanceTier(topic.Importance))).ToArray());
         foreach (var topic in Topics)
         {
-            var target = health.GetTargetQuestions(difficulty, BonusConfiguration.ImportanceTier(topic.Importance));
+            var target = _blueprint.Topics.Single(x => x.TopicId == topic.Id).QuestionQuota;
             _progress[topic.Id] = new(topic, target, 0, 0, 0);
         }
         LevelTargetCount = _progress.Values.Sum(x => x.TargetQuestionCount);
         BuildSchedule();
     }
 
-    public bool AdvanceLevel()
+    public bool AdvanceLevel(bool persist = true)
     {
         if (CurrentDifficulty == GameDifficulty.VeryHard) return false;
-        StartLevel(CurrentDifficulty + 1); return true;
+        var next = CurrentDifficulty + 1;
+        if (persist) levelDesigns.SetCurrentLevel(_lessonChallengeId, next.ToChallengeLevel());
+        StartLevel(next); return true;
     }
 
     public Task<ChallengeQuestion?> NextQuestionAsync()
@@ -90,20 +113,9 @@ public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEn
 
     public IReadOnlyDictionary<GameDifficulty, int> GetDifficultyAllocation(int count)
     {
-        var weights = health.Options.DifficultyDistribution[CurrentDifficulty];
-        var allocation = Enum.GetValues<GameDifficulty>().ToDictionary(x => x, _ => 0);
-        var raw = weights.ToDictionary(x => x.Key, x => x.Value * count);
-        foreach (var item in raw) allocation[item.Key] = (int)Math.Floor(item.Value);
-        var unassigned = count - allocation.Values.Sum();
-        foreach (var difficulty in raw.OrderByDescending(x => x.Value - Math.Floor(x.Value)).ThenByDescending(x => weights[x.Key]).Take(unassigned).Select(x => x.Key))
-            allocation[difficulty]++;
-        if (count >= allocation.Count)
-            foreach (var missing in allocation.Where(x => x.Value == 0).Select(x => x.Key).ToArray())
-            {
-                var donor = allocation.Where(x => x.Value > 1).OrderByDescending(x => x.Value).ThenByDescending(x => weights[x.Key]).First().Key;
-                allocation[donor]--; allocation[missing]++;
-            }
-        return allocation;
+        if (_blueprint is null) throw new InvalidOperationException("Level blueprint has not been generated.");
+        return levelDesigns.AllocateDifficulties(_blueprint.Rule, count)
+            .ToDictionary(x => x.Key.ToGameDifficulty(), x => x.Value);
     }
 
     private List<GameDifficulty> BuildDifficultySlots(int count) => GetDifficultyAllocation(count)
@@ -164,10 +176,17 @@ public sealed class ChallengeEngine(QuestionService questions, ChallengeHealthEn
     {
         var roll = Random.Shared.NextDouble();
         var cumulative = 0d;
-        foreach (var item in health.Options.DifficultyDistribution[CurrentDifficulty])
+        if (_blueprint is null) return CurrentDifficulty;
+        foreach (var item in new[]
         {
-            cumulative += item.Value;
-            if (roll <= cumulative) return item.Key;
+            (GameDifficulty.Easy, _blueprint.Rule.EasyQuestionWeight),
+            (GameDifficulty.Medium, _blueprint.Rule.MediumQuestionWeight),
+            (GameDifficulty.Hard, _blueprint.Rule.HardQuestionWeight),
+            (GameDifficulty.VeryHard, _blueprint.Rule.VeryHardQuestionWeight)
+        })
+        {
+            cumulative += item.Item2;
+            if (roll <= cumulative) return item.Item1;
         }
         return CurrentDifficulty;
     }

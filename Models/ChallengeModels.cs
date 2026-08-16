@@ -17,7 +17,7 @@ public static class DifficultyExtensions
 public sealed record GameTopic(long Id, string Title, double Importance);
 public sealed record AnswerOption(string Option, string Html);
 public sealed record ChallengeQuestion(long Id, GameTopic Topic, string TitleHtml, IReadOnlyList<AnswerOption> Options, string CorrectOption, GameDifficulty RequestedDifficulty, string? DatabaseLevel, bool IsDifficultyFallback);
-public sealed record ChallengeSetup(string LessonTitle, IReadOnlyList<GameTopic> Topics, IReadOnlyList<ChallengeQuestion> Questions);
+public sealed record ChallengeSetup(long LessonId, string LessonTitle, IReadOnlyList<GameTopic> Topics, IReadOnlyList<ChallengeQuestion> Questions);
 
 public static class GameTiming
 {

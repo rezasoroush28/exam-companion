@@ -17,6 +17,9 @@ public sealed class QuestionService(IWebHostEnvironment environment, ILogger<Que
         lessonCommand.CommandText = "SELECT lesson_title FROM mvp_challenge_config WHERE config_id=1";
         var lessonTitle = (string?)await lessonCommand.ExecuteScalarAsync(cancellationToken)
             ?? throw new InvalidOperationException("تنظیم ثابت چالش MVP در پایگاه داده وجود ندارد.");
+        var lessonIdCommand = connection.CreateCommand();
+        lessonIdCommand.CommandText = "SELECT lesson_id FROM mvp_challenge_config WHERE config_id=1";
+        var lessonId = Convert.ToInt64(await lessonIdCommand.ExecuteScalarAsync(cancellationToken));
 
         var topics = new List<GameTopic>();
         var topicCommand = connection.CreateCommand();
@@ -57,7 +60,7 @@ public sealed class QuestionService(IWebHostEnvironment environment, ILogger<Que
 
         logger.LogInformation("Loaded fixed MVP lesson {Lesson}, {TopicCount} topics and {QuestionCount} questions.",
             lessonTitle, topics.Count, questions.Count);
-        return new ChallengeSetup(lessonTitle, topics, questions);
+        return new ChallengeSetup(lessonId, lessonTitle, topics, questions);
     }
 
     private static GameDifficulty? NormalizeLevel(string? value) => value?.Trim().ToLowerInvariant() switch

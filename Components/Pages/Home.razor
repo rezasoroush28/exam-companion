@@ -165,6 +165,7 @@
 
     private async Task RestartAsync()
     {
+        Engine.EndRun(_health, ChallengeRunStatus.Abandoned, "Restarted");
         _lifetime.Cancel();
         _lifetime.Dispose();
         _lifetime = new CancellationTokenSource();
@@ -191,6 +192,7 @@
             if (_gameBoard is not null)
                 await _gameBoard.ResetAsync();
             await Engine.InitializeAsync(_lifetime.Token);
+            Engine.BeginRun(_health);
             _loading = false;
             await InvokeAsync(StateHasChanged);
             if (_healthBar is not null)
@@ -253,6 +255,7 @@
         Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, _lastAnswerCorrect);
         var healthResult = HealthEngine.ApplyAnswer(_health, activeElapsed,
             Engine.CurrentDifficulty, _question.RequestedDifficulty, importanceTier, _lastAnswerCorrect, Engine.IsEvidenceGateOpen);
+        Engine.PersistAttempt(_question, option, activeElapsed, healthResult);
         _health = healthResult.NewHealth;
         _healthDelta = healthResult.SignedDelta;
         _healthPulse++;
@@ -267,6 +270,7 @@
         await Task.Delay(GameTiming.FeedbackMs, _lifetime.Token);
         if (_healthDepleted)
         {
+            Engine.EndRun(_health, ChallengeRunStatus.HealthDepleted, "HealthDepleted");
             _questionVisible = false;
             await InvokeAsync(StateHasChanged);
             await StartResultSequenceAsync();
@@ -286,6 +290,7 @@
 
     private async Task CompleteLevelAsync()
     {
+        Engine.EndRun(_health, ChallengeRunStatus.Completed, "PromotionHealthReached");
         _completedLevel = Engine.CurrentDifficulty;
         _levelCompleting = true;
         _resultState = "LevelCompletion";
@@ -295,6 +300,7 @@
         _levelCompleting = false;
         if (!Engine.AdvanceLevel())
         {
+            Engine.CompleteLessonChallenge();
             await StartResultSequenceAsync();
             return;
         }
@@ -302,6 +308,7 @@
         _healthDelta = null;
         _resultState = "PreparingNextLevel";
         if (_healthBar is not null) await _healthBar.SetHealthAsync(_health, true);
+        Engine.BeginRun(_health);
         await InvokeAsync(StateHasChanged);
         await Task.Delay(GameTiming.BetweenQuestionsMs, _lifetime.Token);
         await DropNextAsync(_lifetime.Token);
@@ -437,6 +444,7 @@
                     var loss = HealthEngine.GetTimeLoss(elapsed, difficulty, importance);
                     if (loss >= _health)
                     {
+                        var healthBefore = _health;
                         _questionActive = false;
                         _answerLocked = true;
                         _healthDepleted = true;
@@ -453,7 +461,10 @@
                                 _question.RequestedDifficulty, false));
                             _healthAppliedCubeIds.Add(cubeId);
                             Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, false);
+                            Engine.PersistAttempt(_question, null, elapsed,
+                                new HealthResult(healthBefore, 0, loss, 0, false));
                         }
+                        Engine.EndRun(0, ChallengeRunStatus.HealthDepleted, "ThinkingTimeDepletedHealth");
                         _questionVisible = false;
                         await InvokeAsync(StateHasChanged);
                         await StartResultSequenceAsync();
