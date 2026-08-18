@@ -69,7 +69,48 @@ public sealed class ChallengeLevelProgress
     public DateTimeOffset? StartedAt { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
     public ExamLessonChallenge LessonChallenge { get; set; } = null!;
+    public ChallengeHealthPattern? HealthPattern { get; set; }
     public List<ChallengeRun> ChallengeRuns { get; set; } = [];
+}
+
+public sealed class ChallengeHealthPattern
+{
+    public long Id { get; set; }
+    public long ChallengeLevelProgressId { get; set; }
+    public int PatternVersion { get; set; }
+    public ChallengeLevel ChallengeLevel { get; set; }
+    public int TopicCount { get; set; }
+    public int TotalImportance { get; set; }
+    public double AverageImportance { get; set; }
+    public int TargetQuestionCount { get; set; }
+    public double StartingHealth { get; set; }
+    public double PromotionHealth { get; set; }
+    public double FailureHealth { get; set; }
+    public double PromotionDistance { get; set; }
+    public double HealthUnit { get; set; }
+    public double TargetAccuracy { get; set; }
+    public double WrongSeverity { get; set; }
+    public double ExpectedTimeBudgetFraction { get; set; }
+    public double ImportanceSensitivity { get; set; }
+    public double BaseCorrectGain { get; set; }
+    public double BaseWrongDamage { get; set; }
+    public double BaseTimeBudgetPerQuestion { get; set; }
+    public DateTimeOffset GeneratedAt { get; set; }
+    public ChallengeLevelProgress LevelProgress { get; set; } = null!;
+    public List<ChallengeHealthDifficultyFactor> DifficultyFactors { get; set; } = [];
+}
+
+public sealed class ChallengeHealthDifficultyFactor
+{
+    public long Id { get; set; }
+    public long ChallengeHealthPatternId { get; set; }
+    public QuestionDifficulty QuestionDifficulty { get; set; }
+    public double CorrectMultiplier { get; set; }
+    public double WrongMultiplier { get; set; }
+    public double TimeMultiplier { get; set; }
+    public int GracePeriodMilliseconds { get; set; }
+    public double PressureWindowSeconds { get; set; }
+    public ChallengeHealthPattern HealthPattern { get; set; } = null!;
 }
 
 public sealed class LevelDesign

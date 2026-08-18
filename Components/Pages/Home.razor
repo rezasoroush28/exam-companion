@@ -173,7 +173,7 @@
         _error = null;
         _completed = false;
         CancelHealthDepletion();
-        _health = HealthEngine.Options.StartingHealth;
+        _health = 0;
         _healthDelta = null;
         _healthDepleted = false;
         _questionActive = false;
@@ -192,6 +192,7 @@
             if (_gameBoard is not null)
                 await _gameBoard.ResetAsync();
             await Engine.InitializeAsync(_lifetime.Token);
+            _health = Engine.CurrentHealthPattern.StartingHealth;
             Engine.BeginRun(_health);
             _loading = false;
             await InvokeAsync(StateHasChanged);
@@ -253,8 +254,8 @@
         _lastAnswerCorrect = option == _question.CorrectOption;
         var importanceTier = BonusConfiguration.ImportanceTier(_question.Topic.Importance);
         Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, _lastAnswerCorrect);
-        var healthResult = HealthEngine.ApplyAnswer(_health, activeElapsed,
-            Engine.CurrentDifficulty, _question.RequestedDifficulty, importanceTier, _lastAnswerCorrect, Engine.IsEvidenceGateOpen);
+        var healthResult = HealthEngine.ApplyAnswer(Engine.CurrentHealthPattern, _health, activeElapsed,
+            _question.RequestedDifficulty, importanceTier, _lastAnswerCorrect, Engine.IsEvidenceGateOpen);
         Engine.PersistAttempt(_question, option, activeElapsed, healthResult);
         _health = healthResult.NewHealth;
         _healthDelta = healthResult.SignedDelta;
@@ -304,7 +305,7 @@
             await StartResultSequenceAsync();
             return;
         }
-        _health = HealthEngine.Options.StartingHealth;
+        _health = Engine.CurrentHealthPattern.StartingHealth;
         _healthDelta = null;
         _resultState = "PreparingNextLevel";
         if (_healthBar is not null) await _healthBar.SetHealthAsync(_health, true);
@@ -423,16 +424,18 @@
         if (_healthBar is null || _healthDepleted) return;
         CancelHealthDepletion();
         var importance = BonusConfiguration.ImportanceTier(question.Topic.Importance);
-        var decay = HealthEngine.GetTimeDecayPerSecond(question.RequestedDifficulty, importance);
-        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.GetGracePeriodMs(question.RequestedDifficulty));
+        var pattern = Engine.CurrentHealthPattern;
+        var decay = HealthEngine.GetTimeDecayPerSecond(pattern, question.RequestedDifficulty, importance);
+        await _healthBar.BeginQuestionAsync(_health, decay, HealthEngine.GetGracePeriodMs(pattern, question.RequestedDifficulty));
         _healthDepletion = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
-        _ = MonitorHealthDepletionAsync(_activeCubeId, question.RequestedDifficulty, importance, _healthDepletion.Token);
+        _ = MonitorHealthDepletionAsync(_activeCubeId, pattern, question.RequestedDifficulty, importance, _healthDepletion.Token);
     }
 
-    private async Task MonitorHealthDepletionAsync(long cubeId, GameDifficulty difficulty, int importance, CancellationToken token)
+    private async Task MonitorHealthDepletionAsync(long cubeId, ChallengeHealthPattern pattern,
+        GameDifficulty difficulty, int importance, CancellationToken token)
     {
         if (_healthBar is null) return;
-        var expected = HealthEngine.GetTimeToDepletion(_health, difficulty, importance);
+        var expected = HealthEngine.GetTimeToDepletion(pattern, _health, difficulty, importance);
         try
         {
             await Task.Delay(expected, token);
@@ -441,15 +444,15 @@
                 try
                 {
                     var elapsed = TimeSpan.FromMilliseconds(await _healthBar.GetActiveElapsedMsAsync());
-                    var loss = HealthEngine.GetTimeLoss(elapsed, difficulty, importance);
-                    if (loss >= _health)
+                    var loss = HealthEngine.GetTimeLoss(pattern, elapsed, difficulty, importance);
+                    if (loss >= _health - pattern.FailureHealth)
                     {
                         var healthBefore = _health;
                         _questionActive = false;
                         _answerLocked = true;
                         _healthDepleted = true;
-                        _healthDelta = -_health;
-                        _health = 0;
+                        _healthDelta = pattern.FailureHealth - _health;
+                        _health = pattern.FailureHealth;
                         _healthPulse++;
                         await _healthBar.StopQuestionAsync();
                         await _healthBar.SetHealthAsync(0, false);
@@ -462,15 +465,17 @@
                             _healthAppliedCubeIds.Add(cubeId);
                             Engine.RecordAnswer(_question.Topic.Id, _question.RequestedDifficulty, false);
                             Engine.PersistAttempt(_question, null, elapsed,
-                                new HealthResult(healthBefore, 0, loss, 0, false));
+                                new HealthResult(healthBefore, pattern.FailureHealth, loss, 0, false,
+                                    pattern.FailureHealth, pattern.PromotionHealth));
                         }
-                        Engine.EndRun(0, ChallengeRunStatus.HealthDepleted, "ThinkingTimeDepletedHealth");
+                        Engine.EndRun(pattern.FailureHealth, ChallengeRunStatus.HealthDepleted, "ThinkingTimeDepletedHealth");
                         _questionVisible = false;
                         await InvokeAsync(StateHasChanged);
                         await StartResultSequenceAsync();
                         return;
                     }
-                    var remaining = (_health - loss) / HealthEngine.GetTimeDecayPerSecond(difficulty, importance);
+                    var remaining = (_health - pattern.FailureHealth - loss)
+                        / HealthEngine.GetTimeDecayPerSecond(pattern, difficulty, importance);
                     await Task.Delay(TimeSpan.FromSeconds(Math.Max(.25, remaining)), token);
                 }
                 catch (JSDisconnectedException)

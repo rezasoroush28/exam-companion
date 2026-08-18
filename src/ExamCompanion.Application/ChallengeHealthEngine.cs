@@ -4,66 +4,107 @@ namespace ChallengePrototype.Services;
 
 public sealed class HealthProgressionOptions
 {
-    public double MinHealth { get; init; } = 0;
-    public double MaxHealth { get; init; } = 100;
-    public double StartingHealth { get; init; } = 50;
-    public double PromotionMinimumFraction { get; init; } = .75;
-    public IReadOnlyDictionary<GameDifficulty, double> QuestionLevelBase { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 1, [GameDifficulty.Medium] = 1.25, [GameDifficulty.Hard] = 1.5, [GameDifficulty.VeryHard] = 1.75 };
-    public IReadOnlyDictionary<int, double> ImportanceQuestionBonus { get; init; } = new Dictionary<int, double> { [1] = 0, [2] = .4, [3] = .8, [4] = 1.2, [5] = 1.6 };
-    public IReadOnlyDictionary<GameDifficulty, IReadOnlyDictionary<GameDifficulty, double>> DifficultyDistribution { get; init; } =
-        new Dictionary<GameDifficulty, IReadOnlyDictionary<GameDifficulty, double>>
-        {
-            [GameDifficulty.Easy] = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .65, [GameDifficulty.Medium] = .20, [GameDifficulty.Hard] = .10, [GameDifficulty.VeryHard] = .05 },
-            [GameDifficulty.Medium] = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .20, [GameDifficulty.Medium] = .50, [GameDifficulty.Hard] = .20, [GameDifficulty.VeryHard] = .10 },
-            [GameDifficulty.Hard] = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .10, [GameDifficulty.Medium] = .20, [GameDifficulty.Hard] = .50, [GameDifficulty.VeryHard] = .20 },
-            [GameDifficulty.VeryHard] = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .05, [GameDifficulty.Medium] = .10, [GameDifficulty.Hard] = .25, [GameDifficulty.VeryHard] = .60 }
-        };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseCorrectGain { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 7, [GameDifficulty.Medium] = 8, [GameDifficulty.Hard] = 9, [GameDifficulty.VeryHard] = 10 };
-    public IReadOnlyDictionary<int, double> ImportanceGainWeight { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .95, [3] = 1, [4] = 1.05, [5] = 1.1 };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseWrongDamage { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = 6.5, [GameDifficulty.Medium] = 6.25, [GameDifficulty.Hard] = 6, [GameDifficulty.VeryHard] = 5.75 };
-    public IReadOnlyDictionary<int, double> ImportanceDamageMultiplier { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .95, [3] = 1, [4] = 1.05, [5] = 1.1 };
-    public IReadOnlyDictionary<GameDifficulty, double> BaseTimeDecay { get; init; } = new Dictionary<GameDifficulty, double> { [GameDifficulty.Easy] = .40, [GameDifficulty.Medium] = .32, [GameDifficulty.Hard] = .25, [GameDifficulty.VeryHard] = .20 };
+    public double EarlyEvidenceCap { get; init; } = 99;
     public double MinimumCorrectNetGain { get; init; } = 1;
-    public IReadOnlyDictionary<int, double> ImportanceTimeMultiplier { get; init; } = new Dictionary<int, double> { [1] = .9, [2] = .96, [3] = 1, [4] = 1.07, [5] = 1.15 };
-    public IReadOnlyDictionary<GameDifficulty, int> GracePeriodMs { get; init; } = new Dictionary<GameDifficulty, int> { [GameDifficulty.Easy] = 2000, [GameDifficulty.Medium] = 2500, [GameDifficulty.Hard] = 3500, [GameDifficulty.VeryHard] = 4500 };
+    public double MinimumEvidenceFraction { get; init; } = .75;
 }
 
-public sealed record HealthResult(double PreviousHealth, double NewHealth, double TimeLoss, double AnswerEffect, bool IsCorrect)
+public sealed record HealthResult(double PreviousHealth, double NewHealth, double TimeLoss, double AnswerEffect,
+    bool IsCorrect, double FailureHealth = 0, double PromotionHealth = 100)
 {
     public double SignedDelta => NewHealth - PreviousHealth;
-    public bool IsDepleted => NewHealth <= 0;
-    public bool IsFull => NewHealth >= 100;
+    public bool IsDepleted => NewHealth <= FailureHealth;
+    public bool IsFull => NewHealth >= PromotionHealth;
 }
 
 public sealed class ChallengeHealthEngine(HealthProgressionOptions options)
 {
     public HealthProgressionOptions Options { get; } = options;
-    public int GetTargetQuestions(GameDifficulty level, int importance) => Math.Clamp((int)Math.Floor(Options.QuestionLevelBase[level] + Options.ImportanceQuestionBonus[Tier(importance)] + .5), 1, 4);
-    public int GetMinimumEvidence(int targetCount) => (int)Math.Ceiling(targetCount * Options.PromotionMinimumFraction);
-    public double GetGainWeight(int importance) => Options.ImportanceGainWeight[Tier(importance)];
-    public double GetCorrectGain(GameDifficulty challengeLevel, GameDifficulty actualDifficulty, int importance) =>
-        Options.BaseCorrectGain[actualDifficulty] * GetGainWeight(importance) * GetContextMultiplier(challengeLevel, actualDifficulty);
-    public double GetWrongDamage(GameDifficulty actualDifficulty, int importance) => Options.BaseWrongDamage[actualDifficulty] * Options.ImportanceDamageMultiplier[Tier(importance)];
-    public double GetTimeDecayPerSecond(GameDifficulty actualDifficulty, int importance) => Options.BaseTimeDecay[actualDifficulty] * Options.ImportanceTimeMultiplier[Tier(importance)];
-    public int GetGracePeriodMs(GameDifficulty actualDifficulty) => Options.GracePeriodMs[actualDifficulty];
-    public double GetTimeLoss(TimeSpan activeTime, GameDifficulty actualDifficulty, int importance) => Math.Max(0, activeTime.TotalSeconds - GetGracePeriodMs(actualDifficulty) / 1000d) * GetTimeDecayPerSecond(actualDifficulty, importance);
-    public TimeSpan GetTimeToDepletion(double health, GameDifficulty actualDifficulty, int importance) => TimeSpan.FromMilliseconds(GetGracePeriodMs(actualDifficulty) + Math.Max(0, health) / GetTimeDecayPerSecond(actualDifficulty, importance) * 1000);
-    public HealthResult ApplyAnswer(double health, TimeSpan activeTime, GameDifficulty challengeLevel, GameDifficulty actualDifficulty, int importance, bool correct, bool evidenceGateOpen)
+
+    public int GetMinimumEvidence(int targetCount) =>
+        (int)Math.Ceiling(targetCount * Options.MinimumEvidenceFraction);
+
+    public double GetCorrectTopicFactor(ChallengeHealthPattern pattern, int importance) => Math.Clamp(
+        1 + (pattern.ImportanceSensitivity * .60 * GetImportanceDeviation(pattern, importance)), .90, 1.15);
+
+    public double GetWrongTopicFactor(ChallengeHealthPattern pattern, int importance) => Math.Clamp(
+        1 + (pattern.ImportanceSensitivity * GetImportanceDeviation(pattern, importance)), .80, 1.25);
+
+    public double GetTimeTopicFactor(ChallengeHealthPattern pattern, int importance) => Math.Clamp(
+        1 + (pattern.ImportanceSensitivity * .35 * GetImportanceDeviation(pattern, importance)), .90, 1.10);
+
+    public double GetCorrectGain(ChallengeHealthPattern pattern, GameDifficulty actualDifficulty, int importance)
     {
-        var previous = Clamp(health, true);
-        var rawTimeLoss = GetTimeLoss(activeTime, actualDifficulty, importance);
-        var effect = correct ? GetCorrectGain(challengeLevel, actualDifficulty, importance) : GetWrongDamage(actualDifficulty, importance);
-        // Time remains visible and consequential while thinking, but a correct answer must never be a negative event.
-        var timeLoss = correct ? Math.Min(rawTimeLoss, Math.Max(0, effect - Options.MinimumCorrectNetGain)) : rawTimeLoss;
-        var calculated = previous - timeLoss + (correct ? effect : -effect);
-        if (correct) calculated = Math.Max(calculated, previous + Options.MinimumCorrectNetGain);
-        var next = Clamp(calculated, evidenceGateOpen);
-        return new(previous, next, timeLoss, effect, correct);
+        var value = pattern.BaseCorrectGain * GetCorrectTopicFactor(pattern, importance)
+            * GetFactor(pattern, actualDifficulty).CorrectMultiplier;
+        return Math.Clamp(value, pattern.HealthUnit * .50, pattern.HealthUnit * 3);
     }
-    public double Clamp(double value, bool evidenceGateOpen) => Math.Clamp(value, Options.MinHealth, evidenceGateOpen ? Options.MaxHealth : 99);
-    private static int Tier(int value) => Math.Clamp(value, 1, 5);
-    private static double GetContextMultiplier(GameDifficulty challenge, GameDifficulty actual) => ((int)actual - (int)challenge) switch
+
+    public double GetWrongDamage(ChallengeHealthPattern pattern, GameDifficulty actualDifficulty, int importance)
     {
-        0 => 1, -1 => .85, -2 => .70, <= -3 => .60, 1 => 1.10, _ => 1.15
-    };
+        var value = pattern.BaseWrongDamage * GetWrongTopicFactor(pattern, importance)
+            * GetFactor(pattern, actualDifficulty).WrongMultiplier;
+        return Math.Clamp(value, pattern.HealthUnit * .40, pattern.HealthUnit * 2.50);
+    }
+
+    public double GetQuestionTimeBudget(ChallengeHealthPattern pattern, GameDifficulty actualDifficulty, int importance) =>
+        pattern.BaseTimeBudgetPerQuestion * GetTimeTopicFactor(pattern, importance)
+        * GetFactor(pattern, actualDifficulty).TimeMultiplier;
+
+    public double GetTimeDecayPerSecond(ChallengeHealthPattern pattern, GameDifficulty actualDifficulty, int importance)
+    {
+        var factor = GetFactor(pattern, actualDifficulty);
+        if (factor.PressureWindowSeconds <= 0)
+            throw new InvalidOperationException("A health difficulty factor must have a positive pressure window.");
+        return GetQuestionTimeBudget(pattern, actualDifficulty, importance) / factor.PressureWindowSeconds;
+    }
+
+    public int GetGracePeriodMs(ChallengeHealthPattern pattern, GameDifficulty actualDifficulty) =>
+        GetFactor(pattern, actualDifficulty).GracePeriodMilliseconds;
+
+    public double GetTimeLoss(ChallengeHealthPattern pattern, TimeSpan activeTime,
+        GameDifficulty actualDifficulty, int importance) => Math.Max(0,
+        activeTime.TotalSeconds - GetGracePeriodMs(pattern, actualDifficulty) / 1000d)
+        * GetTimeDecayPerSecond(pattern, actualDifficulty, importance);
+
+    public TimeSpan GetTimeToDepletion(ChallengeHealthPattern pattern, double health,
+        GameDifficulty actualDifficulty, int importance)
+    {
+        var decay = GetTimeDecayPerSecond(pattern, actualDifficulty, importance);
+        if (decay <= 0) return Timeout.InfiniteTimeSpan;
+        var healthDistance = Math.Max(0, health - pattern.FailureHealth);
+        return TimeSpan.FromMilliseconds(GetGracePeriodMs(pattern, actualDifficulty)
+            + healthDistance / decay * 1000);
+    }
+
+    public HealthResult ApplyAnswer(ChallengeHealthPattern pattern, double health, TimeSpan activeTime,
+        GameDifficulty actualDifficulty, int importance, bool correct, bool evidenceGateOpen)
+    {
+        var previous = Clamp(pattern, health, true);
+        var timeLoss = GetTimeLoss(pattern, activeTime, actualDifficulty, importance);
+        var effect = correct
+            ? GetCorrectGain(pattern, actualDifficulty, importance)
+            : GetWrongDamage(pattern, actualDifficulty, importance);
+        var calculated = previous - timeLoss + (correct ? effect : -effect);
+
+        // Correctness remains an authoritative positive event even after a long valid thinking period.
+        if (correct)
+            calculated = Math.Max(calculated, previous + Options.MinimumCorrectNetGain);
+
+        var next = Clamp(pattern, calculated, evidenceGateOpen);
+        return new(previous, next, timeLoss, effect, correct, pattern.FailureHealth, pattern.PromotionHealth);
+    }
+
+    public double Clamp(ChallengeHealthPattern pattern, double value, bool evidenceGateOpen)
+    {
+        var cap = evidenceGateOpen ? pattern.PromotionHealth : Math.Min(pattern.PromotionHealth, Options.EarlyEvidenceCap);
+        return Math.Clamp(value, pattern.FailureHealth, cap);
+    }
+
+    private static double GetImportanceDeviation(ChallengeHealthPattern pattern, int importance) =>
+        (Math.Clamp(importance, 1, 5) - pattern.AverageImportance) / 4d;
+
+    private static ChallengeHealthDifficultyFactor GetFactor(ChallengeHealthPattern pattern, GameDifficulty difficulty) =>
+        pattern.DifficultyFactors.SingleOrDefault(x => x.QuestionDifficulty == difficulty.ToQuestionDifficulty())
+        ?? throw new InvalidOperationException($"Health pattern {pattern.Id} has no factor for {difficulty}.");
 }

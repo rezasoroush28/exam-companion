@@ -9,6 +9,8 @@ public static class DependencyInjection
         services.AddScoped<ChallengePrototype.Services.ChallengeEngine>();
         services.AddSingleton(new ChallengePrototype.Services.HealthProgressionOptions());
         services.AddSingleton<ChallengePrototype.Services.ChallengeHealthEngine>();
+        services.AddSingleton<ChallengePrototype.Services.IChallengeHealthPatternCalculator,
+            ChallengePrototype.Services.ChallengeHealthPatternCalculator>();
         return services;
     }
 }

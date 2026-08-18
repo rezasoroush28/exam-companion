@@ -34,3 +34,9 @@ dotnet tool run dotnet-ef migrations add MigrationName `
 ```
 
 The external question-bank SQLite files are read-only reference sources. Application-owned challenge and progress data is managed through `ChallengeDbContext` and EF Core migrations.
+
+## Generated health economy
+
+Each `ChallengeLevelProgress` owns one versioned `ChallengeHealthPattern`. Application code calculates it only after the level blueprint has finalized topic quotas, target question count, and actual difficulty quotas. Infrastructure persists the pattern and its four normalized difficulty factors; retries load the same row instead of recalculating it.
+
+`ChallengeHealthEngine` applies the persisted pattern to each actual question difficulty and the question topic's importance relative to the lesson's average importance. Blazor supplies active elapsed time and renders the result, but it does not own authoritative health formulas. Existing `QuestionAttempt` health deltas remain historical records and are not rewritten when patterns are introduced or versioned.

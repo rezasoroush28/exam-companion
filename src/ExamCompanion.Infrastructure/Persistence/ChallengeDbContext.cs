@@ -13,6 +13,8 @@ public sealed class ChallengeDbContext(DbContextOptions<ChallengeDbContext> opti
     public DbSet<LevelRule> LevelRules => Set<LevelRule>();
     public DbSet<ChallengeRun> ChallengeRuns => Set<ChallengeRun>();
     public DbSet<QuestionAttempt> QuestionAttempts => Set<QuestionAttempt>();
+    public DbSet<ChallengeHealthPattern> ChallengeHealthPatterns => Set<ChallengeHealthPattern>();
+    public DbSet<ChallengeHealthDifficultyFactor> ChallengeHealthDifficultyFactors => Set<ChallengeHealthDifficultyFactor>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +37,28 @@ public sealed class ChallengeDbContext(DbContextOptions<ChallengeDbContext> opti
         modelBuilder.Entity<ChallengeLevelProgress>(entity =>
         {
             entity.HasIndex(x => new { x.LessonChallengeId, x.ChallengeLevel }).IsUnique();
+        });
+        modelBuilder.Entity<ChallengeHealthPattern>(entity =>
+        {
+            entity.HasIndex(x => x.ChallengeLevelProgressId).IsUnique();
+            entity.HasOne(x => x.LevelProgress).WithOne(x => x.HealthPattern)
+                .HasForeignKey<ChallengeHealthPattern>(x => x.ChallengeLevelProgressId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_ChallengeHealthPattern_Version", "PatternVersion > 0");
+                table.HasCheckConstraint("CK_ChallengeHealthPattern_Topics", "TopicCount > 0");
+                table.HasCheckConstraint("CK_ChallengeHealthPattern_Questions", "TargetQuestionCount > 0");
+                table.HasCheckConstraint("CK_ChallengeHealthPattern_Health", "PromotionHealth > StartingHealth AND StartingHealth > FailureHealth");
+            });
+        });
+        modelBuilder.Entity<ChallengeHealthDifficultyFactor>(entity =>
+        {
+            entity.HasIndex(x => new { x.ChallengeHealthPatternId, x.QuestionDifficulty }).IsUnique();
+            entity.HasOne(x => x.HealthPattern).WithMany(x => x.DifficultyFactors)
+                .HasForeignKey(x => x.ChallengeHealthPatternId).OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table => table.HasCheckConstraint("CK_ChallengeHealthDifficultyFactor_Timing",
+                "GracePeriodMilliseconds >= 0 AND PressureWindowSeconds > 0"));
         });
         modelBuilder.Entity<LevelDesign>(entity =>
         {

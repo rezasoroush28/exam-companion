@@ -1,0 +1,711 @@
+{
+  "schema_version": 1,
+  "source_table": "mvp_challenge_questions",
+  "field_grade_id": 8,
+  "lesson_id": 87,
+  "lesson_title": "زیست‌شناسی 1",
+  "config_updated_at_utc": "2026-08-11T14:11:41+00:00",
+  "topic_count": 5,
+  "question_count": 25,
+  "topics": [
+    {
+      "position": 1,
+      "topic_id": 4253,
+      "topic_title": "فصل 1: دنیای زنده",
+      "importance": 0.089286,
+      "question_count": 5,
+      "questions": [
+        {
+          "question_id": 6141,
+          "difficulty": "easy",
+          "title_html": "<div><div id=\"TajrobiP10Az02-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-3\">4- </span>مطابق با کتاب درسی، کدام ویژگی، اندام دارای بیشترین نقش\n         در گوارش شیمیایی تری‌گلیسریدها را از اندام شروع‌کنندۀ گوارش شیمیایی پروتئین‌ها، متمایز\n         می‌سازد؟</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) مراحل پایانی گوارش مواد غذایی در آن انجام می‌شود.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) پروتئازهای خود را به صورت غیرفعال ترشح می‌نماید.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) توسط پردۀ صفاق به سایر اندام‌های درون شکم متصل می‌شود.\n      </p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) آنزیمی به منظور ایجاد زیرواحدهای ساختاری مولکول‌های قندی\n         ترشح می‌کند.</p>"
+            }
+          ],
+          "correct_option": "4",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-4\">4- </span>پاسخ: گزینۂ <span class=\"Number\">۴</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>گوارش شیمیایی تری‌گلیسریدها، بیشتر در اثر لیپاز لوزالمعده انجام می‌شود. اندام شروع‌کنندۀ گوارش شیمیایی پروتئین‌ها، معده است. لوزالمعده آنزیم‌های لازم برای گوارش انواع مواد را تولید می‌کند؛ در نتیجه می‌توان گفت که در لوزالمعده آنزیم تجزیه‌کنندۀ کربوهیدرات تولید و ترشح می‌شود. دقت داشته باشید که در معده آنزیم تجزیه‌کنندۀ کربوهیدرات‌ها ترشح نمی‌شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۱</span>): محل انجام مراحل پایانی گوارش مواد غذایی، دوازدهه است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۲</span>): در هر دو اندام، پروتئازها به صورت غیرفعال ترشح می‌شوند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۳</span>): لوزالمعده و معده هر دو توسط پردۀ صفاق به سایر اندام‌های درون حفرۀ شکم اتصال دارند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 6542,
+          "difficulty": "very hard",
+          "title_html": "<div><div id=\"TajrobiP10Az07-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-3\">7- </span>در خصوص دو اندام مختلف سازندۀ هورمون اریتروپویتین، کدام\n         گزینه از نظر درستی یا نادرستی، متفاوت با دیگر گزینه‌ها است؟</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) هر دوی آن‌ها، دارای گیرنده برای هورمون ضد‌ادراری\n         هستند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) فقط یکی از آن‌ها، فراوان‌ترین مادۀ آلی ادرار را از\n         دیوارۀ مویرگ‌ها عبور می‌دهد.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) هر دوی آن‌ها، از طریق مجرا(هایی) با نوعی اندام کیسه‌ای\n         ارتباط دارد.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) فقط یکی از آن‌ها، قطعاً از طریق تجزیۀ آمونیاک، از مرگ\n         جلوگیری می‌کند.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-4\"> </span>پاسخ: گزینۂ <span class=\"Number\">۳</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>گزینۀ (<span class=\"Number\">۳</span>) درست و سایر گزینه‌ها نادرست هستند. هورمون اریتروپویتین توسط گروه ویژه‌ای از یاخته‌های کبد و کلیه به درون خون ترشح می‌شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی همۀ گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۱</span>): اگر غلظت مواد حل‌شده در خوناب از حد مشخصی فراتر رود، مرکز تشنگی در هیپوتالاموس تحریک می‌شود که نتیجۀ آن فعال‌شدن مرکز تشنگی و نوشیدن آب و از طرف دیگر ترشح هورمون ضد‌ادراری است. این هورمون با اثر بر کلیه‌ها، بازجذب آب را افزایش می‌دهد و به این ترتیب دفع آب از راه ادرار کاهش می‌یابد؛ پس کلیه برخلاف کبد برای هورمون ضد‌ادراری گیرنده دارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۲</span>): کبد، اوره (فراوان‌ترین ترکیب آلی ادرار) را می‌سازد. اوره پس از خروج از یاخته‌های کبدی، از دیوارۀ مویرگ‌های کبدی عبور کرده و به جریان خون وارد می‌شود. در فرایند تراوش در کلیه، مواد دفعی خون (از جمله اوره) از دیوارۀ مویرگ‌های کلافک عبور کرده و از خون خارج می‌شوند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۳</span>): کلیه از طریق میزنای به مثانه (کیسه‌ای ماهیچه‌ای) راه دارد. در فصل <span class=\"Number\">۲</span> زیست دهم خواندید که کبد نیز از طریق مجرا(ها)یی به کیسۀ صفرا راه دارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۴</span>): کبد آمونیاک را تجزیه نمی‌کند، بلکه با کربن دی‌اکسید ترکیب می‌کند و اوره می‌سازد و به این روش، مانع از تجمع آمونیاک (که بسیار سمّی است) در بدن می‌شود. در ضمن، کلیه توانایی تجزیه یا تبدیل آمونیاک به ماده‌ای دیگر را ندارد.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 6777,
+          "difficulty": "medium",
+          "title_html": "<div><div id=\"TajrobiP10Az10-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-5\">13- </span>کدام مورد به منظور تکمیل عبارت زیر، <span class=\"Underline\">نامناسب</span> است؟</p>\n      <p class=\"Soal-No-Number\">«طبق مطلب کتاب درسی دهم و در ارتباط با نهان‌دانگان، مریستم‌هایی که بعداً عمل\n         می‌کنند، <span class=\"Unuse_NoghteChin\">................</span> مریستم‌هایی که در تشکیل ساختار نخستین\n         گیاه نقش دارند، <span class=\"Unuse_NoghteChin\">.................</span> .»</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) برخلاف ـ با قرارگیری در ساختار جوانه‌های انتهایی در افزایش\n         طول ساقه مؤثرند</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) همانند ـ می‌توانند با فعالیت خود، در افزایش قطر ساقه‌،\n         نقش مؤثری داشته باشند</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) همانند ـ در تولید انواعی از سامانه‌های بافتی در ریشه و ساقه\n         نقش دارند</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) برخلاف ـ فقط در بعضی نهان‌دانگان وجود دارند</p>"
+            }
+          ],
+          "correct_option": "1",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-6\"> </span>پاسخ: گزینۂ <span class=\"Number\">۱</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>مریستم نخستین در تشکیل ساختار نخستین گیاه نقش دارد. مریستم پسین نیز طبق تیتر کتاب درسی، مریستم‌هایی‌اند که بعدن عمل می‌کنند. <span class=\"Royanew\">جوانه</span><span class=\"Royanew\">‌ها</span> علاوه بر افزایش طول <span class=\"Royanew\">ساقه</span>، به <span class=\"Royanew\">ایجاد</span><span class=\"Royanew\"> </span><span class=\"Royanew\">شاخه‌ها</span><span class=\"Royanew\"> </span><span class=\"Royanew\">و</span><span class=\"Royanew\"> </span><span class=\"Royanew\">برگ‌های</span><span class=\"Royanew\"> </span><span class=\"Royanew\">جدیدی</span> نیز می‌انجامد. جوانه‌ها را براساس محلی که قرار دارند در دو گروه جوانۀ رأسی (انتهایی) و جوانۀ جانبی قرار می‌دهند. این تقسیم‌بندی تنها در ارتباط با مریستم نخستین ساقه صادق است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۲</span>): تشکیل ساقه‌ها و ریشه‌هایی با قطر بسیار در نهان‌دانگان <span class=\"Royanew\">دولپه‌ای</span> نمی‌تواند حاصل فعّالیت مریستم نخستین در این گیاهان باشد، بلکه حاصل فعالیت مریستم پسین است، اما به طور کلی، هر دو مریستم نخستین و پسین در افزایش قطر اندام نقش دارند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۳</span>): مریستم‌های نخستین در تشکیل هر سه سامانۀ بافتی در ریشه، ساقه و برگ نقش دارند. مریستم‌های پسین نیز می‌توانند سامانه‌های بافتی را در ریشه و ساقه ایجاد کنند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><img class=\"_idGenObjectAttribute-6\" src=\"https://bt.zoomeracademy.ir/storage/bank/questions/40b0833e-32fb-4ab1-812f-ccbe5e79279b/descriptive-answer/pasokh/Daftarche_Tajrobi_P10_-_Az_10_-_Pasokh_MML-web-resources/image/3.png\" alt=\"\"></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۴</span>): مریستم‌های پسین فقط در بعضی گیاهان دولپه (که باید چوبی شوند!) تشکیل می‌گردند، اما همۀ نهان‌دانگان، دارای مریستم نخستین هستند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 14552,
+          "difficulty": "hard",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-7\"> </span>کدام عبارت، در ارتباط با کودهای مهمی که برای افزایش\n         حاصلخیزی خاک مصرف می‌شوند، درست است؟</p>\n      <p class=\"Soal-No-Number\">«به طور معمول، کودهای <span class=\"Unuse_NoghteChin\">..........</span> و به طور حتم\n         <span class=\"Unuse_NoghteChin\">...............</span> .»</p>\n      \n      \n      \n      \n      \n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) آلی، شباهت زیادی به نیازهای جانداران دارند ـ به عوامل&#13;\n         بیماری‌زا آلوده هستند</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) زیستی، مواد معدنی خاک را افزایش می‌دهند ـ همراه با کودهای&#13;\n         دیگر به خاک افزوده می‌شوند</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) شیمیایی، عناصر معدنی را سریع در اختیار گیاه قرار می‌دهند ـ&#13;\n         بافت خاک را تخریب می‌کنند</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) شیمیایی، کمبود مواد مغذی خاک را جبران می‌کنند ـ فاقد&#13;\n         باکتری‌های مفید برای خاک هستند</p>"
+            }
+          ],
+          "correct_option": "4",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-9\"> </span>پاسخ: گزینۂ <span class=\"Number\">۴</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Bold-Roya\">راه حل تشریحی:</span> <span class=\"Bold-Roya\">کودهای</span><span class=\"Bold-Roya\"> شیمیایی</span> می‌توانند به سرعت، کمبود مواد مغذی خاک را جبران کنند. کودهای زیستی (نه شیمیایی) می‌توانند حاوی باکتری‌های مفید برای خاک باشند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۱</span> <span class=\"Bold-Roya\">کودهای آلی، شامل بقایای در حال تجزیه جانداران</span><span class=\"Bold-Roya\">‌اند</span> و به همین دلیل به نیازهای جانداران شباهت بیشتری دارند و استفادۀ بیش از حد آن‌ها به گیاهان آسیب کم‌تری می‌زند. از <span class=\"Bold-Roya\">معایب</span> این کودها، <span class=\"Underline\">احتمال</span> آلودگی به عوامل بیماری‌زا است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۲</span> <span class=\"Bold-Roya\">کودهای زیستی شامل</span><span class=\"Bold-Roya\"> باکتری‌هایی هستند که برای خاک مفید هستند و با</span><span class=\"Bold-Roya\"> فعالیت و تکثیر خود، مواد معدنی خاک را افزایش می</span><span class=\"Bold-Roya\">‌دهند</span>. این کودها <span class=\"Bold-Roya\">معمولن</span> به همراه کودهای شیمیایی به خاک افزوده می‌شوند و معایب دو نوع کود دیگر را ندارند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۳</span> <span class=\"Bold-Roya\">کودهای شیمیایی شامل عناصر معدنی هستند که</span><span class=\"Bold-Roya\"> به راحتی در اختیار گیاه قرار می‌گیرند</span> و می‌توانند به سرعت، کمبود مواد مغذی خاک را جبران کنند. مصرف<span class=\"Bold-Roya\"> بیش از حد</span> (نه به طور حتم) کودهای شیمیایی می‌تواند آسیب‌های زیادی به خاک و محیط زیست وارد و بافت خاک را تخریب کند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 26105,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-7\"> </span>نخستین شبکۀ مویرگی مرتبط با گردیزه درون بخش قشری کلیه برخلاف دومین شبکۀ مویرگی آن به طور حتم چه تعداد از مشخصه‌های زیر را دارد؟</p>\n\t\t\t<p class=\"Soal-No-Number\">الف) از دو طرف خود به یک نوع رگ خونی متصل است.</p>\n\t\t\t<p class=\"Soal-No-Number\">ب) در انجام انواعی از فرایندهای تشکیل ادرار نقش دارد.</p>\n\t\t\t<p class=\"Soal-No-Number\">ج) اطراف مجاری جمع‌کنندۀ درون کلیه‌ها را احاطه نکرده است.</p>\n\t\t\t<p class=\"Soal-No-Number\">د) یاخته‌های سازندۀ آن توانایی جابه‌جایی مواد با مصرف انرژی زیستی را ندارند.</p>\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) <span class=\"Number\">۱</span></p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) <span class=\"Number\">۲</span></p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) <span class=\"Number\">۳</span></p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) <span class=\"Number\">۴</span></p>"
+            }
+          ],
+          "correct_option": "1",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-10\"> </span>پاسخ: گزینه «<span class=\"Number\">۱</span>»</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">پاسخ تشریحی: فقط مورد «الف» درست است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی همۀ موارد:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">الف) کلافک در ابتدا و انتهای خود به سرخرگ متصل است در حالی که شبکۀ دور لوله‌ای، در ابتدای خود به سرخرگ و در انتهای خود به سیاهرگ اتصال دارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">ب) کلافک در فرایند تراوش نقش دارد؛ شبکۀ مویرگی دور لوله‌ای نیز در فرایندهای بازجذب و ترشح نقش ایفا می‌کند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">ج) شبکۀ مویرگی دور لوله‌ای همانند شبکۀ مویرگی کلافک، اطراف مجاری جمع‌کنندۀ درون کلیه‌ها را احاطه نکرده است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">د) یاخته‌های هر دو شبکه، توانایی جابه‌جایی مواد با صرف انرژی را دارند، مثل انتقال فعال و درون‌بری. دقت کنید درست است که برای وقوع تراوش از شبکۀ مویرگی اول، انرژی زیستی مصرف نمی‌شود اما یاخته‌های کلافک زنده هستند و مثل همۀ یاخته‌های زنده نیازمند تبادل مواد با محیط اطرافشان.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        }
+      ]
+    }
+    ,
+    {
+      "position": 2,
+      "topic_id": 4319,
+      "topic_title": "فصل 3: تبادلات گازی",
+      "importance": 0.23214300000000002,
+      "question_count": 5,
+      "questions": [
+        {
+          "question_id": 6393,
+          "difficulty": "very hard",
+          "title_html": "<div><div id=\"TajrobiP10Az05-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-6\">16- </span>در ارتباط با اجزای دستگاه لنفی بدن فردی بالغ و سالم،\n         کدام گزینه درست است؟</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) اندام لنفی که خون پایین‌ترین رگ خونی آن با سیاهرگ بخش\n         تحتانی معده ادغام می‌شود، لنف خود را به مجرای لنفی دریافت‌کنندۀ لیپیدهای جذب‌شده در رودۀ باریک،\n         وارد می‌کند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) لنف جمع‌آوری‌شده از دست چپ و طویل‌ترین کولون رودۀ\n         بزرگ، به مجرای لنفی قطورتر وارد شده و لنف دست راست و آپاندیس ابتدا به مجرای لنفی حاوی گره‌های لنفی وارد\n         می‌شود.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) گره‌های لنفی در بخش درونی خود به کمک دیواره‌هایی به\n         بخش‌های مجزا تقسیم شده‌اند و دیوارۀ رگ‌های لنفی در محل اتصال به این بخش‌ها متسع\n         شده‌اند و به کمک ساختاری از بازگشت لنف جلوگیری می‌کنند.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) مجرای لنفی‌ای که از پشت دهلیز چپ عبور می‌کند، ضمن\n         دریافت لنف ناحیۀ گردن، در پشت سیاهرگ حامل خون غدد بزاقی، به سمت راست قوس پیدا می‌کند.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-8\">16- </span>پاسخ: گزینۂ <span class=\"Number\">۳</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>طبق شکل گره‌های لنفی به کمک دیواره‌هایی در بخش درونی خود به بخش‌های مجزایی تقسیم شده‌اند. رگ‌های لنفی به این گره‌ها متصل می‌شوند و در محل اتصال دیوارۀ این رگ‌ها متسع می‌شود و درون خود دریچه‌ای دارد. دریچه‌ها سبب یک‌طرفه‌شدن جریان مواد می‌شوند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><img class=\"_idGenObjectAttribute-5\" src=\"https://bt.zoomeracademy.ir/storage/bank/questions/98dff72e-c8a1-4533-95da-9d9645e1c97a/descriptive-answer/pasokh/Daftarche_Tajrobi_P10_-_Az_05_-_Pasokh_MML-web-resources/image/05046.png\" alt=\"\"></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۱</span>): طحال اندام لنفی است که طبق شکل بالا، خون سیاهرگ (پایین‌ترین رگ) آن با سیاهرگ بخش فوقانی (نه تحتانی) معده ادغام می‌شود. لنف خروجی از طحال به مجرای لنفی چپ می‌ریزد. مجرای لنفی چپ در دریافت چربی‌های جذب‌شده از رودۀ باریک نقش دارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><img class=\"_idGenObjectAttribute-6\" src=\"https://bt.zoomeracademy.ir/storage/bank/questions/98dff72e-c8a1-4533-95da-9d9645e1c97a/descriptive-answer/pasokh/Daftarche_Tajrobi_P10_-_Az_05_-_Pasokh_MML-web-resources/image/05047.png\" alt=\"05047\"></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۲</span>): لنف جمع‌آوری‌شده از دست چپ به مجرای لنفی چپ (مجرای قطورتر) و لنف جمع‌آوری‌شده از دست راست به مجرای لنفی راست وارد می‌شود. لنف راست‌روده، آپاندیس و کولون‌های رودۀ بزرگ ابتدا به مجرای لنفی چپ وارد می‌شوند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۴</span>): مجرای لنفی چپ از پشت قلب عبور می‌کند و به دلیل مایل‌بودن به سمت چپ بدن از پشت دهلیز چپ عبور می‌کند. طبق شکل مجرای لنفی چپ بخشی از لنف ناحیۀ گردن را دریافت می‌کند. از ناحیۀ سر و گردن دو سیاهرگ به طور عمودی به سیاهرگ‌های زیرترقوه‌ای متصل می‌شوند. این سیاهرگ‌ها خون تیرۀ بخش‌هایی در سر مثل غدد بزاقی را دریافت می‌کنند. مجرای لنفی چپ به سمت چپ (نه راست) قوس پیدا می‌کند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 6939,
+          "difficulty": "easy",
+          "title_html": "<div><div id=\"TajrobiP10Az12-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-5\">17- </span>به طور معمول در خصوص انسان، کدام مورد صحیح است؟</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) مویرگ‌های کلافک، به پودوسیت‌ها متصل‌اند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) مویرگ‌های کبد، دارای غشای پایۀ پیوسته هستند.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) مویرگ‌های مغز، دارای غشای پایۀ بسیار ضخیم هستند.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) مویرگ‌های کلیه، دارای حفراتی بین یاخته‌ها هستند.</p>"
+            }
+          ],
+          "correct_option": "1",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-5\"> </span>پاسخ: گزینۂ <span class=\"Number\">۱</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>مویرگ‌های کلافک دارای غشای پایۀ مشترک با پودوسیت‌ها بوده و به این شکل به آن‌ها متصل هستند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۲</span>): مویرگ‌های کبد از نوع ناپیوسته‌اند و غشای پایۀ ناقص (ناپیوسته) دارند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۳</span>): مویرگ‌های مغز و نخاع از نوع پیوسته‌اند. غشای پایۀ بسیار ضخیم، مربوط به مویرگ‌های منفذدار است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۴</span>): مویرگ‌های کلیه از نوع منفذدار هستند، در حالی که در مویرگ‌های ناپیوسته است که حفراتی بین یاخته‌ها وجود دارد.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 26871,
+          "difficulty": "hard",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-7\"> </span>چند مورد به منظور تکمیل عبارت مقابل <span class=\"Underline\">نامناسب</span> است؟ «در پی پاره‌شدن کیسۀ حاوی آنزیم‌های تجزیه‌کننده در بخش\n         جلویی سر زامه (اسپرم)، <span class=\"Unuse_NoghteChin\">...............</span> .»</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-8\">•</span> برخی آنزیم‌ها، ترکیبات\n         سازندۀ جدار لقاحی را در ریزکیسه‌های اطراف غشای مام‌یاخته (اووسیت) سنتز می‌کنند</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-8\">•</span> اتصالات سیتوپلاسمی میان همۀ\n         یاخته‌های تغذیه‌کنندۀ مام‌یاخته (اووسیت) ثانویه از بین می‌رود</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-8\">•</span> با ایجاد جدار لقاحی در هر دو\n         لایۀ اطراف مام‌یاخته، از ورود سایر زامه (اسپرم‌)ها جلوگیری می‌شود</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-8\">•</span> امکان مشاهدۀ بیش از دو مجموعۀ\n         فام‌تنی در مام‌یاختۀ ثانویه (اووسیت) وجود دارد</p>\n      \n      \n      \n      \n      \n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) چهار</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) سه</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) دو</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) یک</p>"
+            }
+          ],
+          "correct_option": "4",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-9\"> </span>پاسخ: گزینه <span class=\"Number\">۲</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Bold-Roya\">راه حل تشریحی:</span> موارد اول، دوم و سوم عبارت را به نادرستی تکمیل می‌کنند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی همۀ موارد:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد اول: ترکیبات سازندۀ جدار لقاحی، در بخشی از یاخته سنتز شده و سپس به منظور ذخیره‌سازی درون ریزکیسه‌هایی قرار می‌گیرند و بعد از شروع لقاح، از این ریزکیسه‌ها آزاد شده و در لایۀ داخلی اووسیت ثانویه، جدار لقاحی را تشکیل می‌دهند. به عبارتی این ریزکیسه‌ها فقط حاوی مواد سازندۀ جدار لقاحی هستند، نه این‌که این مواد تازه درون آن‌ها تولید یا سنتز شوند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><img class=\"_idGenObjectAttribute-25\" src=\"https://bt.zoomeracademy.ir/storage/bank/questions/c70fa312-68e2-4194-87d1-4c01199160f0/descriptive-answer/pasokh/Site-Book_Daftarche-_Pasokh_-Tajrobi_-_Az_07_Hozuri_Kootah_Sazi-site_MML-web-resources/image/070413.png\" alt=\"\"></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد دوم: توجه داشته باشید <span class=\"Bold-Roya\">هم</span><span class=\"Bold-Roya\">‌زمان</span> با عبور اسپرم از بین یاخته‌های فولیکولی اطراف اووسیت، آکروزوم پاره شده و آنزیم‌های آن رها می‌شوند. در صورت فرعی سؤال اشاره شده است: «در پی ...» این دو مورد هم‌زمان با یکدیگر اتفاق می‌افتند. از طرفی، طبق شکل می‌بینید که بین برخی از یاخته‌های فولیکولی، هم‌چنان اتصالات سیتوپلاسمی وجود دارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد سوم: جدار لقاحی در لایۀ ژله‌ای اطراف اووسیت ایجاد می‌شود، یعنی لایۀ داخلی و در لایۀ خارجی آن، یعنی یاخته‌های فولیکولی ایجاد نمی‌شود. این مورد از شکل کتاب درسی قابل برداشت است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد چهارم: دقت داشته باشید اووسیت ثانویه میوز <span class=\"Number\">۲</span> را انجام می‌دهد؛ پس هم‌زمان با تکمیل آن در مرحلۀ تلوفاز، کروموزوم‌های تک‌کروماتیدی در دو پوشش هستۀ مجزا از هم قرار می‌گیرند. از طرفی به دنبال لقاح، هستۀ اسپرم هم وارد اووسیت ثانویه شده است، یعنی ممکن است در مرحله‌ای، <span class=\"Number\">۳</span> هستۀ <span class=\"Unuse_English\" lang=\"en-US\">n</span> در آن دیده شود و این یعنی <span class=\"Number\">۳</span> مجموعۀ کروموزومی که در ادامه، با تقسیم سیتوپلاسم و تشکیل دومین جسم قطبی، یک یاختۀ <math xmlns=\"http://www.w3.org/1998/Math/MathML\" displaystyle=\"true\" mathvariant=\"normal\" mathsize=\"1.16\"><semantics><mrow><mn>۲</mn><mi>n</mi></mrow></semantics></math>\r\n\r\n خواهیم داشت و یک یاختۀ <span class=\"Unuse_English\" lang=\"en-US\">n</span> !</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 31830,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-9\"> </span>در یک فرد بالغ و سالم، هیچ‌کدام از ترکیبات موجود\n\t\t\tدر بزاق <span class=\"Underline\">نمی‌تواند</span> <span class=\"Unuse_NoghteChin\">...............</span>\n\t\t</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> از آسیب شیمیایی ناشی از مواد اسیدی جلوگیری نماید.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> منجر به کشته‌شدن برخی از یاخته‌های زنده شود.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> پیوندهای شیمیایی موجود در پروتئین‌های غذا را تجزیه کند.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> مقادیر فراوانی از آب موجود در مواد غذایی را جذب کند.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-8\"> </span><span class=\"gozine\">گزینۀ «۳»</span>\r\n\t\t</p>\r\n\r\n\t\t<p class=\"Soal-No-number\">هیچ‌یک از ترکیبات موجود در بزاق نقش پروتئازی در ارتباط با پروتئین‌های\r\n\t\t\tموجود در غذا ندارند. گزینه‌های (<span class=\"Number\">۱</span>) و (<span class=\"Number\">۴</span>) مربوط\r\n\t\t\tبه عملکرد موسین و مادۀ مخاطی حاصل از آن می‌باشد و گزینۀ (<span class=\"Number\">۲</span>) مربوط به نقش\r\n\t\t\tآنزیم لیزوزیم است.</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 31838,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-11\"> </span>کدام عبارت جملۀ روبه‌رو را به درستی کامل\n\t\t\tمی‌کند؟ «مخاط بخشی از لولۀ گوارشی که <span class=\"Unuse_NoghteChin\">...............</span> در مقایسه با\n\t\t\tمخاط بخشی که <span class=\"Unuse_NoghteChin\">...............</span>»</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> در مسیر بلع قرار دارد ـ در معرض کیموس قرار دارد، فاقد غده است.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> در معرض کیموس قرار دارد ـ بعد از کولون پایین‌رو قرار دارد، فاقد&#13;\n\t\t\tبافت پیوندی سست است.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> در جذب مواد گوارش‌یافته نقش اصلی را دارد ـ بین حلق و معده قرار&#13;\n\t\t\tدارد، دارای حفاظت بیشتری است.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> بلافاصله پس از بندارۀ پیلور ـ در ریفلاکس آسیب می‌بیند، بافت پوششی&#13;\n\t\t\tچندلایه‌ای دارد.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-10\"> </span><span class=\"gozine\">گزینۀ «۳»</span></p>\r\n\r\n\t\t<p class=\"Soal-No-number\">مخاط رودۀ باریک (در جذب مواد گوارش‌یافته نقش اصلی را دارد) در مقایسه با مخاط\r\n\t\t\tمری (بخشی که بین حلق و معده قرار دارد) از حفاظت دیواره‌ای بیشتری برخوردار است.</p>\r\n\t\t<p class=\"Soal-No-number\"><span class=\"Roya-Bold\">بررسی سایر گزینه‌ها: </span><span class=\"gozine\">گزینۀ\r\n\t\t\t\t(۱)</span> مخاط مری (در مسیر بلع) همانند مخاط رودۀ باریک (در معرض کیموس) دارای غده است. <span class=\"gozine\">گزینۀ (۲)</span> مخاط روده همانند مخاط سایر بخش‌های لولۀ گوارش حاوی بافت پیوندی سست\r\n\t\t\tاست. <span class=\"gozine\">گزینۀ (۴)</span> مخاط روده (بلافاصله پس از پیلور) برخلاف مخاط مری (مخاط\r\n\t\t\tآسیب‌دیده در اثر ریفلاکس) از نوع\r\n\t\t\tبافت پوششی استوانه‌ای تک‌لایه است.</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        }
+      ]
+    }
+    ,
+    {
+      "position": 3,
+      "topic_id": 4346,
+      "topic_title": "فصل 4: گردش مواد در بدن",
+      "importance": 0.339286,
+      "question_count": 5,
+      "questions": [
+        {
+          "question_id": 6935,
+          "difficulty": "hard",
+          "title_html": "<div><div id=\"TajrobiP10Az12-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-5\">14- </span>چند مورد، در ارتباط با انواع باکتری‌هایی که شکل\n         قابل جذب نیتروژن را در اختیار گیاهان قرار می‌دهند، درست است؟</p>\n      <p class=\"Soal-No-Number\">الف) هر باکتری که به نحوی از ترکیبات آلی گیاخاک استفاده\n         می‌کند، آمونیوم تولید می‌کند.</p>\n      <p class=\"Soal-No-Number\">ب) باکتری‌ای که مواد آلی را برای تولید آمونیوم مصرف می‌کند، تثبیت‌کنندۀ\n         نیتروژن است.</p>\n      <p class=\"Soal-No-Number\">ج) هر باکتری که نیتروژن جوّ را تثبیت می‌نماید، همواره سبب افزایش میزان آمونیوم در\n         خاک می‌شود.</p>\n      <p class=\"Soal-No-Number\">د) باکتری‌ای که ترکیب معدنی حاوی نیتروژن و اکسیژن را تولید می‌کند، آمونیوم\n         مصرف می‌کند.</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) <span class=\"Number\">۱</span></p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) <span class=\"Number\">۲</span></p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) <span class=\"Number\">۳</span></p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) <span class=\"Number\">۴</span></p>"
+            }
+          ],
+          "correct_option": "1",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-7\"> </span>پاسخ: گزینۂ <span class=\"Number\">۱</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>بررسی همۀ موارد:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">الف) <span class=\"Royanew\">نادرست</span>؛ هر باکتری به منظور تأمین انرژی مورد نیاز خود، لازم است مواد آلی (گلوکز) و مغذی را از محیط اطراف خود به دست آورد! باکتری نیترات‌ساز، آمونیوم تولید نمی‌کند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">ب) <span class=\"Royanew\">نادرست</span>؛ باکتری آمونیاک‌ساز مواد آلی را برای تولید آمونیوم مصرف می‌کند. باکتری‌های آمونیاک‌ساز تثبیت‌کنندۀ نیتروژن نیستند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">ج) <span class=\"Royanew\">نادرست</span>؛ این مورد در ارتباط با سیانوباکتری‌هایی که به طور همزیست با ساقه و دمبرگ گونرا زندگی می‌کنند، صدق نمی‌کند، چراکه این باکتری‌ها در خاک نیستند!</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">د) <span class=\"Royanew\">درست</span>؛ باکتری‌های نیترات‌ساز نیترات را تولید می‌کنند که ترکیبی دارای نیتروژن و اکسیژن است. این باکتری‌ها آمونیوم را مصرف می‌کنند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 14403,
+          "difficulty": "hard",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-9\"> </span>گروهی از رگ‌های خونی در بدن مردی سالم و بالغ، خونِ\n         دارای مواد مغذی زیاد را به نوعی اندام وارد می‌کنند. چند مورد فقط در خصوص گروهی از این رگ‌های خونی\n         صحیح است؟</p>\n      <p class=\"Soal-No-Number\">الف) مستقیماً ترشحات دوربرد را از یاخته‌های دستگاه درون‌ریز بدن دریافت\n         می‌کنند.</p>\n      <p class=\"Soal-No-Number\">ب) خونی با غلظت زیاد از مولکول‌های اکسیژن را به سمت یاخته‌های اندام‌ها\n         هدایت می‌کنند.</p>\n      <p class=\"Soal-No-Number\">ج) پس از اثرپذیری از مولکول معدنی حاصل از تنفس یاخته‌ای، میزان انقباض عضلات دیوارۀ\n         خود را تغییر می‌دهند.</p>\n      <p class=\"Soal-No-Number\">د) در لایۀ میانی دیوارۀ خود دارای رشته‌های پروتئینی ارتجاعی هستند که با\n         یاخته‌های ماهیچۀ صاف تماس دارند.</p>\n      \n      \n      \n      \n      \n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) <span class=\"Number\">۱</span></p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) <span class=\"Number\">۲</span></p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) <span class=\"Number\">۳</span></p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">٤</span>) <span class=\"Number\">۴</span></p>"
+            }
+          ],
+          "correct_option": "2",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-12\"> </span>پاسخ: گزینۂ <span class=\"Number\">۲</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Bold-Roya\">راه حل تشریحی:</span> همۀ سرخرگ‌های بدن به‌جز سرخرگ ششی دارای خونِ روشن و حاوی مواد مغذی زیاد هستند؛ از سوی دیگر، سیاهرگ باب هم مواد مغذی زیادی دارد و خون حاوی مواد جذب‌شده از دستگاه گوارش را به کبد وارد می‌کند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بنابراین سرخرگ‌ها و سیاهرگ‌ها مد نظر سؤال می‌باشد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">فقط موارد «ب» و «ج» در خصوص گروهی از این رگ‌ها درست هستند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی همۀ موارد:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">الف) پیک‌های دوربرد، پیک‌هایی هستند که به جریان خون وارد می‌شوند و پیام را به فاصله‌ای دور منتقل می‌کنند؛ هورمون‌ها، پیک‌های دوربردی هستند که به مویرگ‌ها وارد می‌شوند! نه سرخرگ و سیاهرگ! پس این مورد دربارۀ هیچ‌کدام از آن‌ها صادق <span class=\"Underline\">نمی‌باشد</span>.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">ب) اکثر سرخرگ‌های بدن دارای خون روشن و غنی از اکسیژن هستند و خونی با غلظت زیاد از مولکول‌های اکسیژن را به سمتِ یاخته‌های اندام هدایت می‌کنند؛ اما در خصوص سیاهرگ باب درست نیست، پس این مورد فقط دربارۀ گروهی از آن‌ها صحیح است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">ج) تنظیم اصلی جریان خون در مویرگ‌ها، براساس نیاز بافت به اکسیژن و مواد مغذی با تنگ و گشاد شدن سرخرگ‌های کوچک انجام می‌شود که قبل از مویرگ‌ها قرار دارند. افزایش کربن دی‌اکسید (مادۀ معدنی حاصل از تنفس یاخته‌ای)، با گشاد‌کردن سرخرگ‌های کوچک، میزان جریان خون را در آن‌ها افزایش می‌دهد، پس این مورد دربارۀ گروهی از آن‌ها صادق است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">د) در دیوارۀ همۀ سرخرگ‌ها و سیاهرگ‌ها، در لایۀ میانی، رشته‌های الاستیک (ارتجاعی و یا کشسان) مشاهده می‌شود که با عضلات صاف در تماس هستند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 28008,
+          "difficulty": "easy",
+          "title_html": "<div><div id=\"Tajrobiaz05-P10_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-5\">17- </span>آب بر‌اساس اسمز می‌تواند از غشای پروتوپلاست و\n         نوعی اندامک، آزادانه و بدون صرف انرژی عبور کند. کدام گزینه به طور حتم دربارۀ این اندامک صادق است؟</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) شیرۀ ذخیره‌شده درون آن، حاوی آب، ترکیبات پروتئینی، رنگی و\n         اسیدی است.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) در زمان وقوع تورژسانس، بیشتر حجم هر یاختۀ زنده را به خود اختصاص\n         می‌دهد.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) در ساختار خود دارای بسپارهای زیستی با واحدهای اسیدی متفاوت\n         می‌باشد.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) دارای ترکیبات رنگی است که در پیشگیری از بروز سرطان مؤثر هستند.\n      </p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\">پاسخ: گزینۂ «<span class=\"Number\">۳</span>»</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">پاسخ تشریحی: دقت کنید که علاوه بر واکوئول، مولکول‌های آب می‌توانند از غشای سایر اندامک‌های غشادار یاخته‌ای نیز با اسمز عبور کنند. می دانیم که در ساختار غشا، علاوه بر فسفولیپیدهای دارای اسیدهای چرب، پروتئین‌های مختلفی نیز مشاهده می‌شود. پروتئین‌ها از واحدهای نیتروژن‌دار به نام آمینواسید تشکیل شده‌اند که مطابق شکل فصل <span class=\"Number\">۱</span> زیست‌شناسی <span class=\"Number\">۱</span>، می‌توانند باهم متفاوت باشند، آمینواسیدها می‌توانند خاصیت اسیدی متفاوتی از یکدیگر داشته باشند. سایر گزینه‌ها فقط می‌تواند دربارۀ واکوئول صادق باشد.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 31218,
+          "difficulty": "hard",
+          "title_html": "<div id=\"TajrobiAz02-Tabestan_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-7\"/>در ارتباط با انسان سالم و بالغ، چند مورد برای تکمیل\n         عبارت زیر <span class=\"Underline\">نامناسب</span> است؟</p>\n      <p class=\"Soal-No-Number\">«در ساختار دیوارۀ نای، هر لایه‌ای که دارای یاخته‌هایی با ترشحات برون‌ریز\n         است، <span class=\"Unuse_NoghteChin\">...............</span> .»</p>\n      <p class=\"Soal-No-Number\">الف) در مجاورت ضخیم‌ترین لایه قرار دارد</p>\n      <p class=\"Soal-No-Number\">ب) یاخته‌هایی در تماس با غشای پایه در آن دیده می‌شود</p>\n      <p class=\"Soal-No-Number\">ج) نسبت به داخلی‌ترین لایه، ضخیم‌تر است</p>\n      <p class=\"Soal-No-Number\">د) گروهی از یاخته‌های آن دارای مژک هستند</p>\n      \n      \n      \n      \n      \n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) چهار</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) سه</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"> <span class=\"Number\">۳</span>) دو</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) یک</p>"
+            }
+          ],
+          "correct_option": "2",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-9\"></span>پاسخ: گزینه <span class=\"Number\">۲</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\" lang=\"fa-IR\"><span class=\"Highlight\">پاسخ تشریحی:</span> موارد «الف»، «ج» و «د» نامناسب هستند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\" lang=\"fa-IR\">در لایۀ زیرمخاط، غده‌های ترشحی وجود دارد که ترشحات خود را از طریق مجرا(ها) به سطح داخلی نای وارد می‌کنند. مخاط نای نیز یاخته‌های برون‌ریز ترشحی دارد که مادۀ مخاطی می‌سازند. مورد «الف» فقط برای لایۀ زیرمخاطی صادق است که در مجاورت با لایۀ غضروفی ـ ماهیچه‌ای (ضخیم‌ترین لایه) قرار دارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\" lang=\"fa-IR\">دربارۀ مورد «ب» می‌توان گفت لایۀ مخاطی از یاخته‌های پوششی استوانه‌ای تشکیل شده که متصل به غشای پایه‌اند. در لایۀ زیرمخاطی هم حتمن رگ‌های خونی وجود دارد که یاخته‌های پوششی آن به غشای پایه متصل هستند، هم‌چنین در این لایه، به واسطۀ داشتن یاخته‌های پوششی برون‌ریز در غدد ترشحی، یاخته‌هایی وجود دارد که به غشای پایه متصل‌اند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\" lang=\"fa-IR\">در مورد «ج» می‌توان گفت خود لایۀ مخاط، نازک‌ترین لایۀ دیوارۀ نای است!</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\" lang=\"fa-IR\">لایۀ زیرمخاط برخلاف مخاط، یاخته‌های مژک‌دار ندارد که این موضوع غلط‌بودن عبارت «د» را تأیید می‌کند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\" lang=\"fa-IR\"><span class=\"Highlight\"><img class=\"_idGenObjectAttribute-6\" src=\"https://bt.zoomeracademy.ir/storage/bank/questions/446a92a7-7e68-40cc-8211-7bbba8369bbe/descriptive-answer/pasokh/KootahSazi-Book_Datecheye_Tajrobi-Az02-Tabestan-Soal&Pasokh_MML-web-resources/image/020424.png\" alt=\"\"></span></p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 32011,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-12\"> </span>هر جانوری که با سازوکارهایی باعث برقراری جریان\n\t\t\tپیوسته‌ای از هوای تازه در مجاورت بخش مبادله‌ای می‌شود، <span class=\"Unuse_NoghteChin\">...............</span></p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> با حرکتی شبیه قورت‌دادن، هوا را با فشار به شش می‌راند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> به علت پرواز، نسبت به سایر مهره‌داران انرژی بیشتری مصرف&#13;\n\t\t\tمی‌کند.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> همواره بخشی از انرژی دریافتی خود را به صورت گرما از دست می‌دهد.&#13;\n\t\t</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> توسط شبکۀ مویرگی در زیر پوست خود، گازهای تنفسی را با محیط اطراف مبادله&#13;\n\t\t\tمی‌کند.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-11\"> </span><span class=\"gozine\">گزینۀ «۳»</span></p>\r\n\r\n\t\t<p class=\"Soal-No-number\">مهره‌داران شش‌دار، سازوکارهایی دارند که باعث می‌شود جریان\r\n\t\t\tپیوسته‌ای از هوای تازه در مجاورت بخش مبادله‌ای برقرار شود که به سازوکارهای تهویه‌ای شهرت\r\n\t\t\tدارند. همۀ جانداران زنده از جمله جانوران مورد سؤال همواره بخشی از انرژی دریافتی خود را به صورت گرما از دست\r\n\t\t\tمی‌دهند.</p>\r\n\t\t<p class=\"Soal-No-number\"><span class=\"Roya-Bold\">بررسی </span><span class=\"Roya-Bold\">سایر گزینه‌ها:\r\n\t\t\t</span><span class=\"gozine\">گزینۀ (۱)</span> فقط قورباغۀ بالغ. <span class=\"gozine\">گزینۀ (۲)</span>\r\n\t\t\tپرندگان! <span class=\"gozine\">گزینۀ (۴)</span> جانوران دارای تنفس پوستی.\r\n\t\t</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        }
+      ]
+    }
+    ,
+    {
+      "position": 4,
+      "topic_id": 4399,
+      "topic_title": "فصل 5: تنظیم اسمزی و دفع مواد زائد",
+      "importance": 0.3035715,
+      "question_count": 5,
+      "questions": [
+        {
+          "question_id": 5789,
+          "difficulty": "easy",
+          "title_html": "<div><div id=\"TajrobiAz05-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-3\">8- </span>کدام مورد ویژگی مشترک همۀ شبکه‌های یاخته‌های\n         عصبی در بخش‌های مختلف لولۀ گوارش انسان سالم را نشان می‌دهد؟</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) به طور حتم در یک سمت خود با لایۀ ماهیچه‌ای حلقوی تماس\n         دارند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) فعالیت آن‌ها می‌تواند به دنبال فعالیت پل مغزی و\n         بصل‌النخاع افزایش یابد.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) با تأثیر بر دیوارۀ لولۀ گوارش، شروع مرحلۀ غیرارادی بلع را تنظیم\n         کرده و آن را پیش می‌برد.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) در مرحلۀ بعد از ورود غذا، فعالیت آن آغاز شده و در فاصلۀ بین\n         خوردن وعده‌های غذایی متوقف می‌شود.</p>"
+            }
+          ],
+          "correct_option": "2",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-4\"> </span>پاسخ: گزینۂ <span class=\"Number\">۲</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Bold-Roya\">راه حل تشریحی:</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">پل مغزی در ترشح بزاق و بصل‌النخاع در انعکاس بلع نقش دارد، پس زمانی که این دو بخش فعالیت می‌کنند می‌تواند نشان‌دهندۀ زمانی باشد که بلع رخ داده است. در چنین شرایطی، دستگاه گوارش می‌تواند در مرحلۀ فعالیت شدید قرار بگیرد که در این زمان، فعالیت یاخته‌های شبکۀ عصبی روده‌ای هم افزایش می‌یابد تا حرکت و ترشح مواد در لولۀ گوارش به درستی انجام شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۱</span> در معده، لایۀ ماهیچه‌ای مورب مشاهده می‌شود که بین لایۀ زیرمخاط و ماهیچۀ حلقوی معده قرار دارد؛ پس می‌توان گفت در این بخش از لولۀ گوارش، شبکۀ عصبی لایۀ زیر‌مخاط، نمی‌تواند با ماهیچۀ حلقوی در تماس باشد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۳</span> با ورود غذا به حلق، مرحلۀ غیرارادی بلع (بخش انعکاس بلع) آغاز می‌شود. دقت کنید که در دیوارۀ ماهیچه‌ای حلق، شبکه‌های عصبی روده‌ای دیده نمی‌شود، زیرا این شبکه از مری شروع می‌شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۴</span> شبکه‌های عصبی روده‌ای همواره فعال هستند و در زمان ورود غذا به لولۀ گوارش، فعالیت آن‌ها تشدید می‌شود؛ بنابراین فعالیت آن‌ها در فاصلۀ بین خوردن وعده‌های غذایی هرگز متوقف نمی‌شود و می‌توانند یک فعالیت حداقلی داشته باشند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 14392,
+          "difficulty": "hard",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-8\"> </span>چند مورد، در یک مویرگ خونی انسان در نوعی اندام\n         می‌تواند محل یکسان‌شدن فشار اسمزی و فشار تراوشی را به سمت بخش میانی و انتهای سرخرگی انتقال دهد؟</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-7\">•</span> کاهش قطر داخلی سرخرگ‌ها\n         قبل از شبکۀ مویرگی</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-7\">•</span> کاهش میزان مصرف نمک</p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-7\">•</span> افزایش میزان هموگلوبین در خوناب\n      </p>\n      <p class=\"Soal-No-Number-bullet\"><span class=\"Bullet-01 _idGenBNMarker-7\">•</span> افزایش فشار خون سیاهرگ‌ها\n      </p>\n      \n      \n      \n      \n      \n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) <span class=\"Number\">۱</span></p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) <span class=\"Number\">۲</span></p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) <span class=\"Number\">۳</span></p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) <span class=\"Number\">۴</span></p>"
+            }
+          ],
+          "correct_option": "2",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-10\"> </span>پاسخ: گزینۂ <span class=\"Number\">۲</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Bold-Roya\">راه حل تشریحی:</span> موارد اول و دوم صحیح است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">با توجه به شکل <span class=\"Number\">۱۳</span> کتاب درسی، محل یکسان‌شدن میزان فشار اسمزی و فشار تراوشی (خون)، به انتهای سیاهرگیِ مویرگ‌ها نزدیک‌تر است؛ یعنی از بعد از قسمت میانی آن‌ها! لذا عواملی که سبب <span class=\"Bold-Roya\">کاهش</span> <span class=\"Bold-Roya\">فشار </span><span class=\"Bold-Roya\">تراوشی</span> و یا<span class=\"Bold-Roya\"> افزایش فشار اسمزی</span> می‌شوند، می‌توانند محل یکسان‌شدن فشار اسمزی و تراوشی را به سمت عقب‌تر یعنی به انتهای سرخرگی مویرگ نزدیک‌تر کرده یا به عبارتی به بخش میانی مویرگ انتقال دهند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><img class=\"_idGenObjectAttribute-13\" src=\"https://bt.zoomeracademy.ir/storage/bank/questions/72acdc29-3e81-4f5f-9155-a5607d89881a/descriptive-answer/pasokh/KootahSazi_Daftarche_Pasokh-_Tajrobi-Az_05_MML-web-resources/image/05048.png\" alt=\"05048\"></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی همۀ موارد:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد اول: تنگ‌شدن سرخرگ‌های قبل شبکۀ مویرگی یا همان کاهش قطر داخلی آن‌ها، می‌تواند سبب کاهش میزان جریان خون ورودی به مویرگ شده و در نتیجه <span class=\"Bold-Roya\">فشار تراوشی</span> هم کم‌تر می‌شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد دوم: افزایش مصرف نمک می‌تواند سبب افزایش فشار تراوشی در شبکۀ مویرگی و بروز خیز شود، لذا کاهش میزان مصرف نمک می‌تواند باعث کاهش فشار تراوشی شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد سوم: افزایش پروتئین‌های خوناب، فشار اسمزی خون را بالا می‌برند، اما دقت کنید که هموگلوبین محلول در خوناب نیست.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">مورد چهارم: افزایش فشار خون در سیاهرگ‌ها به علت بازگشت‌دادن خون به درون شبکۀ مویرگی باعث <span class=\"Bold-Roya\">افزایش فشار </span><span class=\"Bold-Roya\">تراوشی</span> در مویرگ و بروز احتمالی ادم می‌شود.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 31844,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-10\"> </span>چند مورد عبارت روبه‌رو را به <span class=\"Underline\">نادرستی</span> تکمیل می‌کند؟ «در لولۀ گوارش انسان، در صورت شل‌بودن بندارۀ\n\t\t\tانتهای مری، می‌توان گفت قطعاً <span class=\"Unuse_NoghteChin\">...............</span>»</p>\n\t\t<p class=\"Soal-No-Number\">الف ـ میزان چین‌خوردگی‌های دیوارۀ معده افزایش می‌یابد.</p>\n\t\t<p class=\"Soal-No-Number\">ب ـ مخاط مری آسیب می‌بیند.</p>\n\t\t<p class=\"Soal-No-Number\">ج ـ مصرف نوشیدنی‌های الکلی توسط فرد زیاد شده است.</p>\n\t\t<p class=\"Soal-No-Number\">د ـ شخص به مدت زیاد در شرایط اضطراب و تنش بوده است.</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> <span class=\"Number\">۱</span></p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> <span class=\"Number\">۲</span></p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> <span class=\"Number\">۳</span></p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> <span class=\"Number\">۴</span></p>"
+            }
+          ],
+          "correct_option": "4",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-9\"> </span><span class=\"gozine\">گزینۀ «۴»</span>\r\n\t\t</p>\r\n\r\n\t\t<p class=\"Soal-No-number\">همۀ موارد نادرست‌اند. با شل‌شدن بندارۀ انتهای مری و ورود غذا به معده،\r\n\t\t\tچین‌خوردگی‌های آن کاهش می‌یابد. موارد «ب»، «ج» و «د» در مورد ریفلاکس است که به خاطر وجود\r\n\t\t\tکلمۀ قطعاً در صورت سؤال درست نیستند.</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 31863,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-9\"> </span>کدام گزینه برای تکمیل عبارت روبه‌رو <span class=\"Underline\">نامناسب</span> است؟ «در فرایند گوارش چربی‌های موجود در مواد غذایی در رودۀ باریک،\n\t\t\t<span class=\"Unuse_NoghteChin\">...............</span>»</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> حرکات قطعه‌قطعه‌کننده موجب ریزشدن چربی‌ها می‌شوند.&#13;\n\t\t</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> فعالیت ترشحات لوزالمعده همانند ترکیبات صفراوی انجام می‌پذیرد.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> محصولات قابل جذب می‌توانند دارای مولکول گلیسرول یا فاقد آن باشند.&#13;\n\t\t</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> یک آنزیم محلول در چربی، سبب جداشدن اسیدهای چرب از گلیسرول می‌شود.&#13;\n\t\t</p>"
+            }
+          ],
+          "correct_option": "4",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-8\"> </span><span class=\"gozine\">گزینۀ «۴»</span>\r\n\t\t</p>\r\n\r\n\t\t<p class=\"Soal-No-number\">لیپاز آنزیمی است که موجب جداشدن اسیدهای چرب از گلیسرول می‌شود. دقت کنید لیپازها\r\n\t\t\tآنزیم‌های محلول در آب هستند نه محلول در چربی.</p>\r\n\t\t<p class=\"Soal-No-number\"><span class=\"Roya-Bold\">بررسی سایر گزینه‌ها: </span><span class=\"gozine\">گزینۀ\r\n\t\t\t\t(۱)</span> حرکات مخلوط‌کنندۀ رودۀ باریک نظیر حرکات قطعه‌قطعه‌کننده موجب ریزشدن\r\n\t\t\tچربی‌ها می‌شوند. <span class=\"gozine\">گزینۀ (۲)</span> برای تجزیۀ لیپیدها هم\r\n\t\t\tترکیبات صفرا و حرکات رودۀ باریک و هم فعالیت لیپاز لوزالمعده لازم است. <span class=\"gozine\">گزینۀ (۳)</span>\r\n\t\t\tمحصولات قابل جذب\r\n\t\t\tمی‌توانند شامل اسیدهای چرب، گلیسرول، کلسترول و ... باشند.</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 32282,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-14\"> </span>کدام گزینه در مورد «نوعی ترکیب پروتئینی\n\t\t\tذخیره‌شده در واکوئول یاختۀ نشان داده شده در شکل زیر که مربوط به گیاه جو می‌باشد»، <span class=\"Underline\">نادرست</span> است؟</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> برای رشد و نمو رویان به مصرف می‌رسد.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> از به هم پیوستن واحدهایی به نام آمینواسید، تشکیل شده است.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> نوعی ترکیب پاداکسنده است که در پیشگیری از سرطان نقش دارد.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> می‌تواند منجر به کاهش شدید سطح جذب مواد، در برخی افراد شود.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-12\"> </span><span class=\"gozine\">گزینۀ «۳»</span></p>\r\n\r\n\t\t<p class=\"Soal-No-number\">منظور سؤال پروتئین گلوتن است. دقت کنید ترکیبات رنگی در واکوئول و رنگ‌دیسه\r\n\t\t\tپاداکسنده‌اند نه گلوتن. سایر گزینه‌ها در ارتباط با عملکرد گلوتن در رشد و نمو رویان گیاه و نیز\r\n\t\t\tتأثیر آن در افراد حساس به این پروتئین هستند.</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        }
+      ]
+    }
+    ,
+    {
+      "position": 5,
+      "topic_id": 4457,
+      "topic_title": "فصل 7: جذب و انتقال مواد در گیاهان",
+      "importance": 0.0,
+      "question_count": 5,
+      "questions": [
+        {
+          "question_id": 6843,
+          "difficulty": "easy",
+          "title_html": "<div><div id=\"TajrobiP10Az11-1403_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-1\">1- </span>کدام مورد در خصوص یاخته‌های بافت کلانشیمی صحیح است؟\n      </p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) مانع از رشد اندام می‌شوند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) دیوارۀ پسین ضخیم و چوبی‌شده دارند.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) معمولاً در زیر روپوست قرار می‌گیرند.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) با تقسیم خود، زخم‌های گیاه را بازسازی می‌کنند.</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-1\"> </span>پاسخ: گزینۂ <span class=\"Number\">۳</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Highlight\">پاسخ تشریحی: </span>یاخته‌های بافت کلانشیم معمولن در زیرِ روپوست قرار می‌گیرند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه‌های (<span class=\"Number\">۱</span>) و (<span class=\"Number\">۲</span>): یاخته‌های کلانشیمی دارای دیوارۀ نخستین ضخیم هستند ولی دیوارۀ پسین و لیگنین ندارند. به همین دلیل، این بافت مانع از رشد اندام نمی‌شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ (<span class=\"Number\">۴</span>): این مورد مربوط به یاخته‌های پارانشیمی است نه یاخته‌های کلانشیمی.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 27048,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-9\"> </span>در ارتباط با دستگاه گردش خون انسان، کدام مورد برای تکمیل\n         عبارت زیر <span class=\"Underline\">نامناسب</span> است؟</p>\n      <p class=\"Soal-No-Number\">«هر ساختاری که حاصل چین‌خوردن درون‌شامۀ قلب بوده و نسبت به سایر ساختارهای\n         مشابه در قلب، <span class=\"Unuse_NoghteChin\">...............</span> دارد، <span class=\"Unuse_NoghteChin\">...............</span> .»</p>\n      \n      \n      \n      \n      \n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) فاصلۀ کم‌تری از گره دهلیزی بطنی ـ از سمت پایین با چند طناب&#13;\n         ارتجاعی به دیوارۀ بطن راست متصل است</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) اندازۀ بزرگ‌تری ـ اولین دریچه‌ای در قلب است که در تماس&#13;\n         با خون بازگشتی از سیاهرگ فوق کبدی قرار می‌گیرد</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) فاصلۀ بیشتری تا طناب عصبی پشتی بدن ـ با شروع انقباض بطن‌ها&#13;\n         خون روشن را به نوعی سیاهرگ وارد می‌کند</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">٤</span>) در هر چرخۀ قلبی توانایی عبور خون روشن در مدت‌زمان بیشتری را&#13;\n         ـ به دنبال تغییر وضعیت می‌تواند صدایی قوی و گنگ ایجاد کند</p>"
+            }
+          ],
+          "correct_option": "3",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\"><span class=\"Pasokh-Gozineh _idGenBNMarker-12\"> </span>پاسخ: گزینه <span class=\"Number\">۳</span></p>\r\n\t\t\t<p class=\"Pasokh-No-Number\"><span class=\"Bold-Roya\">راه حل تشریحی:</span> طبق شکل <span class=\"Number\">۱</span> در فصل چهارم زیست‌شناسی (<span class=\"Number\">۱</span>)، دریچۀ سینی ابتدای سرخرگ ششی نسبت به سایر دریچه‌ها در قسمت جلو‌تری از بدن قرار گرفته است، پس به سطح جلویی بدن نزدیک‌تر و از طناب عصبی پشتی (نخاع) دورتر است. خونی که از دریچۀ سینی ششی می‌گذرد، خون تیره است که وارد سرخرگ ششی می‌شود.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۱</span> دریچه‌ای در قلب که کم‌ترین فاصله را از گره دهلیزی بطنی دارد، دریچۀ سه‌لختی است. این دریچه دارای سه قطعۀ آویخته بوده که از سمت پایین با چند طناب ارتجاعی به دیوارۀ بطن راست متصل هستند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۲</span> بزرگ‌ترین دریچۀ قلب انسان، دریچۀ سه‌لختی می‌باشد. این دریچه بین دهلیز راست و بطن راست بوده و خون تیرۀ بازگشتی از سمت اندام‌ها وقتی وارد قلب می‌شود، ابتدا از دهلیز راست و سپس از این دریچه عبور می‌کند؛ بنابراین دریچۀ سه‌لختی در قلب برای اولین بار در تماس با خون بازگشتی از سیاهرگ فوق کبدی قرار می‌گیرد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینه <span class=\"Number\">۴</span> دریچه‌های دهلیزی بطنی، در طی یک چرخۀ قلبی نسبت به سایر دریچه‌ها، مدت‌زمان بیشتری باز هستند؛ این دریچه‌ها هم طی استراحت عمومی باز هستند و هم طی انقباض دهلیزی (خون از دهلیزها می‌تواند وارد بطن‌ها شود). منظور سؤال دریچۀ دهلیزی بطنی چپ (دولختی) می‌باشد که خون روشن از آن عبور می‌کند. صدای اول قلب (پوم) قوی، گنگ و طولانی‌تر است و با بسته‌شدن دریچه‌های دولختی و سه‌لختی هنگام شروع انقباض بطن‌ها شنیده می‌شود.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 28019,
+          "difficulty": "hard",
+          "title_html": "<div><div id=\"Tajrobiaz05-P10_MML\" lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-6\">24- </span> کدام گزینه، عبارت زیر را به درستی تکمیل می‌کند؟\n      </p>\n      <p class=\"Soal-No-Number\">«به طور معمول، فقط گروهی از یاخته‌های خونی تولید‌شده در مغز قرمز نوعی استخوان\n         انسان که <span class=\"Unuse_NoghteChin\">...................</span> .»</p>\n      \n      \n      \n      \n      \n</div></div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۱</span>) دو قسمت نامساوی در ساختار هستۀ خود دارند، می‌توانند در\n         بافت‌های مختلف بدن پراکنده شوند</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۲</span>) نسبت به فراوان‌ترین گویچه‌های خونی، بزرگ‌تر\n         هستند، مولکول‌های افزایندۀ سرعت واکنش‌ها را دارند</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۳</span>) بیشترین تراکم دانه‌های رنگی را در سیتوپلاسم دارند، با عبور\n         از دیوارۀ برخی مویرگ‌ها وارد خون می‌شوند</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\">۴</span>) در پی مصرف ویتامین فولیک اسید تولید شده‌اند، واجد\n         ریزکیسه‌های غشادار حاوی مواد در مجاورت هستۀ خود هستند</p>"
+            }
+          ],
+          "correct_option": "4",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Pasokh-Gozineh\">پاسخ: گزینۂ «<span class=\"Number\">۴</span>»</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">پاسخ تشریحی: یاخته‌های خونی (گویچه‌های سفید و قرمز) همگی می‌توانند در مغز قرمز استخوان تولید شوند. دقت کنید پلاکت‌ها هم می‌توانند در مغز قرمز استخوان تولید شوند اما پلاکت‌ها، یاخته نیستند بلکه قطعاتی از یاخته هستند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">همۀ یاخته‌های خونی در پی مصرف فولیک اسید تولید شده‌اند؛ زیرا این ویتامین برای تقسیم طبیعی یاخته‌ای لازم است. می‌دانیم که گویچه‌های سفید همگی یاختۀ جانوری هستند و دارای اندامک وزیکول (ریزکیسه) در سیتوپلاسم خود هستند. ریزکیسه‌ها می‌توانند در مجاورت هسته هم باشند، اما دقت کنید که گویچۀ قرمز هسته ندارد.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">بررسی سایر گزینه‌ها:</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ «<span class=\"Number\">۱</span>» گویچه‌های سفید دانه‌دار همگی دارای هستۀ دو یا چند قسمتی هستند. (بازوفیل و ائوزینوفیل هسته دو قسمتی و نوتروفیل هستۀ چندقسمتی دارد) طبق متن کتاب، همۀ گویچه‌های سفید خونی می‌توانند در بافت‌ها پراکنده شوند.پس این مورد برای همۀ یاخته‌های مد نظر این گزینه صحیح است.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ «<span class=\"Number\">۲</span>» همۀ گویچه‌های سفید، نسبت به گویچه‌های قرمز (فراوان‌ترین گویچه‌های خونی) اندازۀ بزرگ‌تری دارند. دقت کنید همۀ این یاخته‌ها دارای آنزیم‌های درون‌یاخته‌ای هستند، چرا‌که می‌توانند واکنش‌های مختلفی مثل تولید <math xmlns=\"http://www.w3.org/1998/Math/MathML\" displaystyle=\"true\" mathvariant=\"normal\" mathsize=\"1.16\"><semantics><mrow><mi>A</mi><mi>T</mi><mi>P</mi></mrow></semantics></math>\r\n\r\n را انجام دهند که این واکنش‌ها به کمک آنزیم‌ها انجام می‌شود. آنزیم‌ها سرعت انجام واکنش‌ها را افزایش می‌دهند.</p>\r\n\t\t\t<p class=\"Pasokh-No-Number\">گزینۀ «<span class=\"Number\">۳</span>» طبق شکل <span class=\"Number\">۱۹</span> فصل <span class=\"Number\">۴</span>، ائوزینوفیل‌ها بیشترین تراکم دانه‌های رنگی را در سیتوپلاسم دارند. همۀ گویچه‌های خونی (هم قرمز و هم سفید) پس از تولید و بالغ شدن در مغز استخوان باید وارد خون شوند که برای این کار، لازم است از دیوارۀ مویرگ‌های این بخش بدن عبور کرده و به جریان خون وارد شوند.</p>\r\n\t\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 31720,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-4\"> </span>کدام گزینه، برای تکمیل عبارت مقابل مناسب است؟ «به طور\n\t\t\tمعمول، امروزه با <span class=\"Unuse_NoghteChin\">...............</span> نمی‌توان <span class=\"Unuse_NoghteChin\">...............</span>»</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> بررسی دنای افراد ـ روش‌های درمانی و دارویی خاص هر فرد را طراحی&#13;\n\t\t\tکرد.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> تولید بیشتر نفت و گاز در جهان ـ از آلودگی هوا و گرمایش زمین جلوگیری&#13;\n\t\t\tکرد.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> استفاده از اصول علمی بازسازی بوم‌سازگان‌ها ـ از نابودی&#13;\n\t\t\tمیراث‌های ملی جلوگیری کرد.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> روش‌های درمانی و دارویی جدید ـ بسیاری از بیماری‌های&#13;\n\t\t\tمرگ‌آور گذشته را مهار کرد.</p>"
+            }
+          ],
+          "correct_option": "2",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-4\"> </span><span class=\"gozine\">گزینۀ «۲»</span>\r\n\t\t</p>\r\n\r\n\t\t<p class=\"Soal-No-number\">تولید بیشتر نفت و گاز و سوخت‌های فسیلی، سبب آلودگی هوا و گرمایش زمین\r\n\t\t\tمی‌شود.</p>\r\n\t\t<p class=\"Soal-No-number\"><span class=\"Roya-Bold\">بررسی سایر گزینه‌</span><span class=\"Roya-Bold\">ها:\r\n\t\t\t</span><span class=\"gozine\">گزینۀ (۱)</span> در پزشکی شخصی، علاوه بر\r\n\t\t\tبررسی وضعیت بیمار، با بررسی اطلاعاتی که در دنای افراد وجود دارد، روش‌های درمانی و دارویی خاص هر فرد را\r\n\t\t\tطراحی می‌کنند. <span class=\"gozine\">گزینۀ (۳)</span> زیست‌شناسان کشورمان\r\n\t\t\tبا استفاده از اصول علمی بازسازی بوم‌سازگان‌ها، راه‌کارهای لازم برای احیای آن‌ها را ارائه\r\n\t\t\tکرده‌اند و امید دارند که در آینده از نابودی این میراث‌ها جلوگیری کنند. <span class=\"gozine\">گزینۀ\r\n\t\t\t\t(۴)</span> امروزه بسیاری از بیماری‌ها مانند بیماری قند و افزایش فشار خون که حدود صد سال پیش به مرگ\r\n\t\t\tمنجر می‌شدند، مهار شده‌اند و به علت روش‌ها و داروهای درمانی جدید، دیگر مرگ‌آور نیستند.\r\n\t\t</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        },
+        {
+          "question_id": 32023,
+          "difficulty": "medium",
+          "title_html": "<div lang=\"fa-IR\" dir=\"rtl\">\n<p class=\"Soal\"><span class=\"_idGenBNMarker-11\"> </span>کدام گزینه عبارت مقابل را به درستی کامل می‌کند؟\n\t\t\t«جانوران با ساختارهای تنفسی ویژه همگی <span class=\"Unuse_NoghteChin\">...............</span>»</p>\n\t\t\n\t\t\n\t\t\n\t\t\n\t\t\n</div>",
+          "answers": [
+            {
+              "option": "1",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۱</span></span><span class=\"Number\">)</span> به کمک دستگاه گردش مواد، گازهای تنفسی را منتقل می‌کنند.</p>"
+            },
+            {
+              "option": "2",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۲</span></span><span class=\"Number\">)</span> برای تبادل گازی نیازمند نوعی مایع در بخش مبادله‌ای خود هستند.</p>"
+            },
+            {
+              "option": "3",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۳</span></span><span class=\"Number\">)</span> فقط از یک روش اصلی برای تنفس بهره می‌برند.</p>"
+            },
+            {
+              "option": "4",
+              "answer_html": "<p class=\"_Gozine\"><span class=\"Number\"><span class=\"Number\">۴</span></span><span class=\"Number\">)</span> از طریق انتشار تسهیل‌شده می‌توانند تبادل گازی انجام دهند.&#13;\n\t\t</p>"
+            }
+          ],
+          "correct_option": "2",
+          "descriptive_answer_html": "<div lang=\"fa-IR\" dir=\"rtl\">\r\n<p class=\"Soal\"><span class=\"Un-Use_Gozineh _idGenBNMarker-10\"> </span><span class=\"gozine\">گزینۀ «۲»</span></p>\r\n\r\n\t\t<p class=\"Soal-No-number\">در همۀ جانوران با ساختار تنفسی ویژه باید در محل تبادل (بخش مبادله‌ای) مایعی\r\n\t\t\tبرای تسهیل تبادل گازها وجود داشته باشد، چراکه گازها فقط در حالت محلول در آب مبادله می‌شوند.</p>\r\n\t\t<p class=\"Soal-No-number\"><span class=\"Roya-Bold\">بررسی سایر گزینه‌ها: </span><span class=\"gozine\">گزینۀ\r\n\t\t\t\t(۱)</span> برای حشرات که تنفس نایدیسی دارند، صادق نیست. <span class=\"gozine\">گزینۀ (۳)</span> دوزیستان\r\n\t\t\tدر دوران نوزادی\r\n\t\t\tتنفس آبششی دارند و پس از آن از تنفس ششی و پوستی بهره می‌برند. <span class=\"gozine\">گزینۀ (۴)</span>\r\n\t\t\tعبور <math xmlns=\"http://www.w3.org/1998/Math/MathML\" displaystyle=\"true\" mathvariant=\"normal\" mathsize=\"1.16\"><semantics><mrow><msub><mi>O</mi><mn>۲</mn></msub></mrow></semantics></math>\r\n\r\n\t\t\tو <math xmlns=\"http://www.w3.org/1998/Math/MathML\" displaystyle=\"true\" mathvariant=\"normal\" mathsize=\"1.16\"><semantics><mrow><mi>C</mi><msub><mi>O</mi><mn>۲</mn></msub></mrow></semantics></math>\r\n\r\n\t\t\tدر غشای یاخته‌ها در سطح تنفسی از طریق انتشار ساده می‌باشد.</p>\r\n\t\t\r\n</div>",
+          "fetched_at_utc": "2026-08-11T14:11:41+00:00"
+        }
+      ]
+    }
+  ]
+}

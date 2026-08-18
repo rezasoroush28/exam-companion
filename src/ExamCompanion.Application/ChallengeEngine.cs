@@ -24,6 +24,7 @@ public sealed class ChallengeEngine(IQuestionService questions, ChallengeHealthE
     public string LessonTitle { get; private set; } = "";
     public IReadOnlyList<GameTopic> Topics { get; private set; } = [];
     public GameDifficulty CurrentDifficulty { get; private set; } = GameDifficulty.Easy;
+    public ChallengeHealthPattern CurrentHealthPattern { get; private set; } = null!;
     public int QuestionsPresented { get; private set; }
     public int QuestionsAnswered { get; private set; }
     public int LevelTargetCount { get; private set; }
@@ -53,6 +54,8 @@ public sealed class ChallengeEngine(IQuestionService questions, ChallengeHealthE
         LessonTitle = setup.LessonTitle; Topics = setup.Topics; _bank = setup.Questions;
         _levelDesign = await levelDesigns.GetActiveDesignAsync(cancellationToken);
         var lessonChallenge = await levelDesigns.GetOrCreateLessonChallengeAsync(setup, _levelDesign, cancellationToken);
+        if (lessonChallenge.LevelDesign is { LevelRules.Count: > 0 })
+            _levelDesign = lessonChallenge.LevelDesign;
         _lessonChallengeId = lessonChallenge.Id;
         _usedQuestionIds.Clear(); StartLevel(lessonChallenge.CurrentLevel.ToGameDifficulty());
     }
@@ -70,6 +73,7 @@ public sealed class ChallengeEngine(IQuestionService questions, ChallengeHealthE
             _progress[topic.Id] = new(topic, target, 0, 0, 0);
         }
         LevelTargetCount = _progress.Values.Sum(x => x.TargetQuestionCount);
+        CurrentHealthPattern = levelDesigns.GetOrCreateHealthPattern(_lessonChallengeId, _blueprint);
         BuildSchedule();
     }
 

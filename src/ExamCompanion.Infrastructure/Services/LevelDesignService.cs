@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChallengePrototype.Services;
 
-public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> contextFactory) : ILevelDesignService
+public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> contextFactory,
+    IChallengeHealthPatternCalculator healthPatternCalculator) : ILevelDesignService
 {
     public async Task<LevelDesign> GetActiveDesignAsync(CancellationToken cancellationToken = default)
     {
@@ -26,10 +27,29 @@ public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> con
         CancellationToken cancellationToken = default)
     {
         await using var db = await contextFactory.CreateDbContextAsync(cancellationToken);
-        var existing = await db.LessonChallenges.AsNoTracking().Include(x => x.TopicProgresses).Include(x => x.LevelProgresses)
+        var existing = await db.LessonChallenges.Include(x => x.TopicProgresses)
+            .Include(x => x.LevelProgresses).ThenInclude(x => x.HealthPattern).ThenInclude(x => x!.DifficultyFactors)
+            .Include(x => x.LevelDesign).ThenInclude(x => x.LevelRules)
+            .AsSplitQuery()
             .Where(x => x.ExamSession.UserId == "mvp-local" && x.LessonId == setup.LessonId && x.Status != LessonChallengeStatus.Completed)
             .OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);
-        if (existing is not null) return existing;
+        if (existing is not null)
+        {
+            var generated = false;
+            foreach (var progress in existing.LevelProgresses.Where(x => x.HealthPattern is null))
+            {
+                var rule = existing.LevelDesign.LevelRules.Single(x => x.ChallengeLevel == progress.ChallengeLevel);
+                var blueprint = Generate(rule, existing.TopicProgresses
+                    .Select(x => (x.TopicId, x.ImportanceSnapshot)).ToArray());
+                progress.HealthPattern = healthPatternCalculator.Calculate(progress, rule, blueprint,
+                    existing.TopicProgresses);
+                generated = true;
+            }
+            if (generated) await db.SaveChangesAsync(cancellationToken);
+            foreach (var progress in existing.LevelProgresses)
+                ValidateHealthPattern(progress, progress.HealthPattern!);
+            return existing;
+        }
 
         var now = DateTimeOffset.UtcNow;
         var session = new ExamSession { UserId = "mvp-local", Title = setup.LessonTitle, ExamDate = now.AddMonths(1),
@@ -41,15 +61,38 @@ public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> con
         foreach (var rule in design.LevelRules.OrderBy(x => x.ChallengeLevel))
         {
             var blueprint = Generate(rule, challenge.TopicProgresses.Select(x => (x.TopicId, x.ImportanceSnapshot)).ToArray());
-            challenge.LevelProgresses.Add(new ChallengeLevelProgress { ChallengeLevel = rule.ChallengeLevel,
+            var progress = new ChallengeLevelProgress { ChallengeLevel = rule.ChallengeLevel,
                 Status = rule.ChallengeLevel == ChallengeLevel.Easy ? LevelProgressStatus.Active : LevelProgressStatus.NotStarted,
                 StartingHealth = rule.StartingHealth, CurrentHealth = rule.StartingHealth,
                 TargetQuestionCount = blueprint.TargetQuestionCount, EvidenceRequired = blueprint.EvidenceRequired,
-                StartedAt = rule.ChallengeLevel == ChallengeLevel.Easy ? now : null });
+                StartedAt = rule.ChallengeLevel == ChallengeLevel.Easy ? now : null };
+            progress.HealthPattern = healthPatternCalculator.Calculate(progress, rule, blueprint,
+                challenge.TopicProgresses);
+            challenge.LevelProgresses.Add(progress);
         }
         db.LessonChallenges.Add(challenge);
         await db.SaveChangesAsync(cancellationToken);
         return challenge;
+    }
+
+    public ChallengeHealthPattern GetOrCreateHealthPattern(long lessonChallengeId, LevelBlueprint blueprint)
+    {
+        using var db = contextFactory.CreateDbContext();
+        var progress = db.LevelProgresses
+            .Include(x => x.HealthPattern).ThenInclude(x => x!.DifficultyFactors)
+            .Include(x => x.LessonChallenge).ThenInclude(x => x.TopicProgresses)
+            .Single(x => x.LessonChallengeId == lessonChallengeId && x.ChallengeLevel == blueprint.ChallengeLevel);
+        if (progress.HealthPattern is not null)
+        {
+            ValidateHealthPattern(progress, progress.HealthPattern);
+            return progress.HealthPattern;
+        }
+
+        progress.HealthPattern = healthPatternCalculator.Calculate(progress, blueprint.Rule, blueprint,
+            progress.LessonChallenge.TopicProgresses);
+        db.SaveChanges();
+        ValidateHealthPattern(progress, progress.HealthPattern);
+        return progress.HealthPattern;
     }
 
     public void SetCurrentLevel(long lessonChallengeId, ChallengeLevel level)
@@ -183,5 +226,16 @@ public sealed class LevelDesignService(IDbContextFactory<ChallengeDbContext> con
     {
         if (design.LevelRules.Count != 4 || Enum.GetValues<ChallengeLevel>().Any(level => design.LevelRules.Count(x => x.ChallengeLevel == level) != 1))
             throw new InvalidOperationException("A LevelDesign must contain exactly one rule for every challenge level.");
+    }
+
+    private static void ValidateHealthPattern(ChallengeLevelProgress progress, ChallengeHealthPattern pattern)
+    {
+        var expectedDifficulties = Enum.GetValues<QuestionDifficulty>();
+        if (pattern.PatternVersion <= 0 || pattern.ChallengeLevel != progress.ChallengeLevel ||
+            pattern.TargetQuestionCount != progress.TargetQuestionCount || pattern.HealthUnit <= 0 ||
+            pattern.DifficultyFactors.Count != expectedDifficulties.Length ||
+            !pattern.DifficultyFactors.Select(x => x.QuestionDifficulty).OrderBy(x => x)
+                .SequenceEqual(expectedDifficulties.OrderBy(x => x)))
+            throw new InvalidOperationException($"Level progress {progress.Id} has an invalid persisted health pattern.");
     }
 }

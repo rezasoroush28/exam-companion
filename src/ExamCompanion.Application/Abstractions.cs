@@ -25,6 +25,7 @@ public interface ILevelDesignService
     LevelBlueprint Generate(LevelRule rule, IReadOnlyCollection<(long TopicId, int Importance)> topics);
     IReadOnlyDictionary<QuestionDifficulty, int> AllocateDifficulties(LevelRule rule, int total);
     Task<ExamLessonChallenge> GetOrCreateLessonChallengeAsync(ChallengeSetup setup, LevelDesign design, CancellationToken cancellationToken = default);
+    ChallengeHealthPattern GetOrCreateHealthPattern(long lessonChallengeId, LevelBlueprint blueprint);
     void SetCurrentLevel(long lessonChallengeId, ChallengeLevel level);
     long BeginRun(long lessonChallengeId, ChallengeLevel level, double health);
     void RecordAttempt(long runId, long lessonChallengeId, ChallengeQuestion question, string? selectedAnswer,
