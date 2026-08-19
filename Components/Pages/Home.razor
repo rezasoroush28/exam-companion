@@ -2,6 +2,7 @@
 @page "/lessons"
 @inject ChallengeEngine Engine
 @inject ChallengeHealthEngine HealthEngine
+@inject NavigationManager Navigation
 @implements IAsyncDisposable
 
 <PageTitle>چالش مکعبی</PageTitle>
@@ -94,6 +95,7 @@
                     <div class="complete-card">
                         <span>نتیجه چالش کامل شد</span>
                         <strong>امتیاز نهایی: @_totalBonus</strong>
+                        <a class="recovery-entry" href="/recovery/@Engine.LessonChallengeId">مرور پیشنهادهای یادگیری</a>
                         <button @onclick="RestartAsync">شروع دوباره همین چالش</button>
                     </div>
                 }
@@ -363,6 +365,9 @@
         _floatingBonus = 0;
         _completed = true;
         await InvokeAsync(StateHasChanged);
+        try { await Task.Delay(1800, _lifetime.Token); }
+        catch (OperationCanceledException) { return; }
+        Navigation.NavigateTo($"/recovery/{Engine.LessonChallengeId}");
     }
 
     private async Task DebugForceCompletionAsync()

@@ -1,0 +1,29 @@
+<header class="recovery-top-hud">
+    <a class="recovery-exit" href="/lessons" aria-label="خروج از تمرین بازیابی">
+        <span aria-hidden="true">←</span> خروج
+    </a>
+    <div class="recovery-current-topic">
+        <span>مبحث @(CurrentIndex + 1) از @Topics.Count</span>
+        <strong>@Title(Topics.OrderBy(x => x.Sequence).ElementAt(CurrentIndex).TopicId)</strong>
+    </div>
+    <nav class="recovery-topic-chips" aria-label="مباحث تمرین بازیابی">
+        @foreach (var topic in Topics.OrderBy(x => x.Sequence))
+        {
+            var state = topic.Sequence == CurrentIndex ? "active" : topic.Status == TopicStatus.Stabilized ? "complete" : "pending";
+            <span class="recovery-topic-chip @state" title="@Title(topic.TopicId)">
+                <i aria-hidden="true"></i>
+                <b>@(topic.Sequence + 1)</b>
+                <em>@ShortTitle(Title(topic.TopicId))</em>
+            </span>
+        }
+    </nav>
+</header>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<RecoveryTopicSnapshot> Topics { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyDictionary<long, string> Titles { get; set; } = new Dictionary<long, string>();
+    [Parameter] public int CurrentIndex { get; set; }
+
+    private string Title(long topicId) => Titles.GetValueOrDefault(topicId, $"مبحث {topicId}");
+    private static string ShortTitle(string value) => value.Length <= 22 ? value : $"{value[..20]}…";
+}

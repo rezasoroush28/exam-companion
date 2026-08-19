@@ -35,6 +35,9 @@ public sealed class ExamLessonChallenge
     public LevelDesign LevelDesign { get; set; } = null!;
     public List<TopicProgress> TopicProgresses { get; set; } = [];
     public List<ChallengeLevelProgress> LevelProgresses { get; set; } = [];
+    public List<RecoverySuggestionSet> RecoverySuggestionSets { get; set; } = [];
+    public List<StudyClaim> StudyClaims { get; set; } = [];
+    public List<RecoveryMiniGameSession> RecoveryMiniGameSessions { get; set; } = [];
 }
 
 public sealed class TopicProgress

@@ -1,0 +1,12 @@
+<section class="recovery-result">
+    <div class="recovery-result-mark">✓</div>
+    <span>تمرین بازیابی کامل شد</span>
+    <h1>مبحث‌های انتخاب‌شده پایدار شدند</h1>
+    <p>@Correct پاسخ درست و @Incorrect تلاش نادرست ثبت شد. هیچ سکه، امتیاز یا پیشرفت چالش اصلی تغییر نکرد.</p>
+    <a class="recovery-primary" href="/lessons">بازگشت به چالش اصلی</a>
+</section>
+
+@code {
+    [Parameter] public int Correct { get; set; }
+    [Parameter] public int Incorrect { get; set; }
+}

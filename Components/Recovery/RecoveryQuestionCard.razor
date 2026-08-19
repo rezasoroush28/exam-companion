@@ -1,0 +1,42 @@
+<article class="recovery-question-card">
+    <div class="recovery-card-kicker">
+        <span>تمرین بازیابی</span>
+        <small>@Question.Difficulty.ToGameDifficulty().Label()</small>
+    </div>
+    <h1>@Question.TopicTitle</h1>
+    <RecoveryStabilityIndicator Correct="CorrectAnswers" Required="RequiredCorrect" />
+    <h2>@Question.Text</h2>
+    <div class="recovery-answers">
+        @foreach (var answer in Question.Answers)
+        {
+            var css = Feedback && answer.Option == Question.CorrectOption ? "correct"
+                : Feedback && answer.Option == Selected ? "incorrect"
+                : !Feedback && HintLevel > 0 && answer.Option == Question.CorrectOption ? $"hinted-subtle hint-level-{HintLevel}" : "";
+            <button id="recovery-answer-@answer.Option" class="recovery-answer @css" disabled="@Locked"
+                    @onclick="() => Answer.InvokeAsync(answer.Option)">
+                <span>@answer.Option</span><b>@answer.Text</b>
+                @if (IsDevelopment && answer.IsCorrect)
+                {
+                    <small>پاسخ صحیح</small>
+                }
+            </button>
+        }
+    </div>
+    @if (Feedback && !WasCorrect && !string.IsNullOrWhiteSpace(Question.Explanation))
+    {
+        <footer class="recovery-explanation">@Question.Explanation</footer>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public EducationalQuestion Question { get; set; } = null!;
+    [Parameter] public int HintLevel { get; set; }
+    [Parameter] public int CorrectAnswers { get; set; }
+    [Parameter] public int RequiredCorrect { get; set; }
+    [Parameter] public bool Locked { get; set; }
+    [Parameter] public bool Feedback { get; set; }
+    [Parameter] public bool WasCorrect { get; set; }
+    [Parameter] public string? Selected { get; set; }
+    [Parameter] public EventCallback<string> Answer { get; set; }
+    private static bool IsDevelopment => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+}

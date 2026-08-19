@@ -15,6 +15,13 @@ public sealed class ChallengeDbContext(DbContextOptions<ChallengeDbContext> opti
     public DbSet<QuestionAttempt> QuestionAttempts => Set<QuestionAttempt>();
     public DbSet<ChallengeHealthPattern> ChallengeHealthPatterns => Set<ChallengeHealthPattern>();
     public DbSet<ChallengeHealthDifficultyFactor> ChallengeHealthDifficultyFactors => Set<ChallengeHealthDifficultyFactor>();
+    public DbSet<RecoverySuggestionSet> RecoverySuggestionSets => Set<RecoverySuggestionSet>();
+    public DbSet<RecoverySuggestionItem> RecoverySuggestionItems => Set<RecoverySuggestionItem>();
+    public DbSet<StudyClaim> StudyClaims => Set<StudyClaim>();
+    public DbSet<StudyClaimTopic> StudyClaimTopics => Set<StudyClaimTopic>();
+    public DbSet<RecoveryMiniGameSession> RecoveryMiniGameSessions => Set<RecoveryMiniGameSession>();
+    public DbSet<RecoveryTopicSession> RecoveryTopicSessions => Set<RecoveryTopicSession>();
+    public DbSet<RecoveryQuestionAttempt> RecoveryQuestionAttempts => Set<RecoveryQuestionAttempt>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +86,70 @@ public sealed class ChallengeDbContext(DbContextOptions<ChallengeDbContext> opti
         {
             entity.HasIndex(x => new { x.ChallengeRunId, x.QuestionId });
             entity.HasOne(x => x.TopicProgress).WithMany().HasForeignKey(x => x.TopicProgressId).OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<RecoverySuggestionSet>(entity =>
+        {
+            entity.HasIndex(x => new { x.LessonChallengeId, x.Status });
+            entity.HasOne(x => x.LessonChallenge).WithMany(x => x.RecoverySuggestionSets)
+                .HasForeignKey(x => x.LessonChallengeId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<RecoverySuggestionItem>(entity =>
+        {
+            entity.HasIndex(x => new { x.SetId, x.Rank }).IsUnique();
+            entity.HasIndex(x => new { x.SetId, x.TopicId }).IsUnique();
+            entity.HasOne(x => x.SuggestionSet).WithMany(x => x.Items)
+                .HasForeignKey(x => x.SetId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.TopicProgress).WithMany().HasForeignKey(x => x.TopicProgressId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.ToTable(table => table.HasCheckConstraint("CK_RecoverySuggestionItem_Rank", "Rank BETWEEN 1 AND 3"));
+        });
+        modelBuilder.Entity<StudyClaim>(entity =>
+        {
+            entity.HasIndex(x => x.SetId).IsUnique();
+            entity.HasOne(x => x.LessonChallenge).WithMany(x => x.StudyClaims)
+                .HasForeignKey(x => x.LessonChallengeId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.SuggestionSet).WithMany().HasForeignKey(x => x.SetId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<StudyClaimTopic>(entity =>
+        {
+            entity.HasIndex(x => new { x.ClaimId, x.Sequence }).IsUnique();
+            entity.HasIndex(x => new { x.ClaimId, x.TopicId }).IsUnique();
+            entity.HasOne(x => x.StudyClaim).WithMany(x => x.Topics)
+                .HasForeignKey(x => x.ClaimId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.SuggestionItem).WithMany().HasForeignKey(x => x.SuggestionItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(x => x.TopicProgress).WithMany().HasForeignKey(x => x.TopicProgressId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<RecoveryMiniGameSession>(entity =>
+        {
+            entity.HasIndex(x => x.StudyClaimId).IsUnique();
+            entity.HasOne(x => x.LessonChallenge).WithMany(x => x.RecoveryMiniGameSessions)
+                .HasForeignKey(x => x.LessonChallengeId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.StudyClaim).WithMany().HasForeignKey(x => x.StudyClaimId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<RecoveryTopicSession>(entity =>
+        {
+            entity.HasIndex(x => new { x.MiniGameSessionId, x.Sequence }).IsUnique();
+            entity.HasOne(x => x.MiniGameSession).WithMany(x => x.Topics)
+                .HasForeignKey(x => x.MiniGameSessionId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.TopicProgress).WithMany().HasForeignKey(x => x.TopicProgressId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.ToTable(table => table.HasCheckConstraint("CK_RecoveryTopicSession_Stability",
+                "Stability BETWEEN 0 AND 1 AND RequiredCorrect > 0"));
+        });
+        modelBuilder.Entity<RecoveryQuestionAttempt>(entity =>
+        {
+            entity.Property(x => x.QuestionId).HasMaxLength(128).IsRequired();
+            entity.Property(x => x.SelectedAnswer).HasMaxLength(32);
+            entity.HasIndex(x => new { x.SessionId, x.QuestionId });
+            entity.HasOne(x => x.MiniGameSession).WithMany(x => x.Attempts)
+                .HasForeignKey(x => x.SessionId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.TopicSession).WithMany(x => x.Attempts)
+                .HasForeignKey(x => x.TopicSessionId).OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table => table.HasCheckConstraint("CK_RecoveryQuestionAttempt_Hint", "HintLevelUsed BETWEEN 0 AND 3"));
         });
 
         var createdAt = new DateTimeOffset(2026, 8, 16, 0, 0, 0, TimeSpan.Zero);

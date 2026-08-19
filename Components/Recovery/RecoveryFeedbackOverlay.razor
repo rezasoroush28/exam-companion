@@ -1,0 +1,21 @@
+@if (TopicStabilized || Feedback)
+{
+    <div @key="PulseKey" class="recovery-feedback-overlay @(TopicStabilized ? "stabilized" : WasCorrect ? "correct" : "incorrect")"
+         role="status" aria-live="polite">
+        <span aria-hidden="true">@(TopicStabilized ? "◆" : WasCorrect ? "✓" : "×")</span>
+        <strong>
+            @(TopicStabilized ? "مبحث پایدار شد" : WasCorrect ? "پاسخ درست بود" : "پایداری حفظ شد")
+        </strong>
+        @if (Feedback && WasCorrect && !TopicStabilized)
+        {
+            <small>پایداری +۱</small>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public bool Feedback { get; set; }
+    [Parameter] public bool WasCorrect { get; set; }
+    [Parameter] public bool TopicStabilized { get; set; }
+    [Parameter] public int PulseKey { get; set; }
+}
