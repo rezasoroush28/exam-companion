@@ -16,6 +16,8 @@
 
   <ItemGroup>
     <Compile Remove="src\**\*.cs" />
+    <Compile Remove="tests\**\*.cs" />
+    <Content Remove="tests\**\*" />
     <Content Remove="src\**\*" />
     <None Remove="src\**\*" />
   </ItemGroup>

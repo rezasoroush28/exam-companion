@@ -1,0 +1,41 @@
+@using ExamCompanion.Application.Music
+@using ExamCompanion.Domain.Music
+
+<article class="question-panel @(State.IsRepair ? "repair-question" : State.Question?.Type == QuestionType.Challenge ? "challenge-question" : "")" @key="State.TurnId">
+    <div class="question-panel-top"><span class="question-badge">@(State.IsRepair ? "✧ صیقل ملودی" : State.Step == GameStepType.Reinforcement ? "↻ یک نتِ دیگر" : State.Question?.Type == QuestionType.Challenge ? "✦ چالش نهایی" : "♪ کشف و یادگیری")</span><span class="tiny-label">@(State.IsRepair ? "ترمیم قطعه" : $"چرخه {State.CurrentCycle} از {State.RequiredCycles}")</span></div>
+    <div class="cycle-steps" aria-label="یادگیری، یادگیری، چالش">
+        <span class="@(State.EducationalAnswered >= 1 ? "done" : "")">♪</span><i></i><span class="@(State.EducationalAnswered >= 2 ? "done" : "")">♪</span><i></i><span class="@(State.Question?.Type == QuestionType.Challenge ? "current" : "")">✦</span>
+        <small>@(State.IsRepair ? "دو پاسخ درست، یک ملودی شفاف" : State.Step == GameStepType.Reinforcement ? "با یک تمرین دیگر ادامه می‌دیم" : "هر پاسخ، یک قدم به ملودی")</small>
+    </div>
+    @if (State.Question is { } q)
+    {
+        <h2>@q.Text</h2>
+        <div class="answer-options">
+            @foreach (var o in q.Options)
+            {
+                var css = Feedback != null ? o.Key == Feedback.CorrectOption ? "correct" : o.Key == Selected ? "wrong" : "quiet" : "";
+                <button class="answer-option @css" disabled="@(Busy || Feedback != null)" @onclick="() => Answer.InvokeAsync(o.Key)">
+                    <span class="answer-letter">@o.Key</span><span>@o.Text</span>
+                    @if (Feedback != null && o.Key == Feedback.CorrectOption) { <b aria-label="پاسخ درست">✓</b> }
+                </button>
+            }
+        </div>
+    }
+    @if (Feedback != null)
+    {
+        <div class="question-feedback @(Feedback.Correct ? "positive" : "gentle")" role="status"><strong>@Feedback.Message</strong>
+            @if (!string.IsNullOrWhiteSpace(Feedback.Explanation)) { <p>@Feedback.Explanation</p> }
+            <button class="button small" @onclick="Continue">ادامه ملودی <span>←</span></button>
+        </div>
+    }
+    else { <footer class="question-foot"><span>✧</span> عجله‌ای نیست. با ریتم خودت یاد بگیر.</footer> }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public GameStateDto State { get; set; } = null!;
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public string? Selected { get; set; }
+    [Parameter] public AnswerResultDto? Feedback { get; set; }
+    [Parameter] public EventCallback<string> Answer { get; set; }
+    [Parameter] public EventCallback Continue { get; set; }
+}

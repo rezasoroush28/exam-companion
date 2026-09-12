@@ -1,54 +1,32 @@
-# Exam Companion architecture
+# Music game architecture
 
-The solution uses four Clean Architecture projects.
+Four Clean Architecture layers, preserving the existing Visual Studio solution:
 
-| Project | Responsibility | May reference |
+| Layer | Active code | Responsibility |
 |---|---|---|
-| `ExamCompanion.Domain` | Entities, enums, value objects, and stable game rules | Nothing |
-| `ExamCompanion.Application` | Use cases, ports, health/progression engine, runtime blueprints | Domain |
-| `ExamCompanion.Infrastructure` | EF Core, SQLite, migrations, question-bank and persistence adapters | Application, Domain |
-| `ExamCompanion.Web` | Blazor UI, dependency composition, Matter.js and browser assets | Application, Infrastructure |
+| Domain | `src/ExamCompanion.Domain/Music` | Entities, states, default thresholds, importance-to-cycles rule |
+| Application | `src/ExamCompanion.Application/Music` | Session lifecycle, question selection, educational/challenge transitions, scratch/repair, DTOs and `IGameStore` |
+| Infrastructure | `src/ExamCompanion.Infrastructure/Music` | SQLite Code First mappings/migrations, tracked EF store, initial import from existing local banks |
+| Web | root project, `Components`, `wwwroot` | Persian Blazor UI, SVG disc, Web Audio, dependency composition |
 
-Dependencies point inward. Application code consumes ports such as `IQuestionService`, `ILevelDesignService`,
-`IRecoveryStore`, and `IEducationalQuestionSource`; it does not depend on EF Core or SQLite implementations.
+Application references Domain, not EF. Infrastructure implements the Application persistence port. Web references Application and Infrastructure at its composition root. No new game formulas live in JavaScript or Razor.
 
-## Visual Studio
+## An answer's path
 
-Open `ExamCompanion.sln`, select `ExamCompanion.Web` as the startup project, and run the `http` profile.
+1. `Game.razor` sends the session ID, current question ID, turn ID, and selected option to `IGameEngine`.
+2. `MusicGameEngine` reloads the authoritative session through `IGameStore`, validates the current turn and available option, and checks the stored correct answer.
+3. It records a `QuestionAttempt`, updates `TopicProgress` and the cycle state, selects the next question, and changes the concurrency revision.
+4. `MusicGameStore` saves the tracked aggregate atomically. The database enforces one attempt per session/turn. Competing revisions fail safely.
+5. The engine returns feedback and the new state. The disc immediately reflects it; Continue displays the next question. Audio provides optional feedback but owns no game state.
 
-## Commands
+Every answer is saved before feedback is returned. Reload therefore resumes the next pending question, not an already answered turn. An interrupted repair also resumes. A repair stores the suspended main question and stage, restoring them exactly afterward with a fresh turn ID.
 
-```powershell
-dotnet build ExamCompanion.sln
-dotnet run --project ExamCompanion.Web.csproj
-dotnet run --project ExamCompanion.Web.csproj -- --verify
-```
+## Persistence and lifecycle
 
-Create a Code First migration in the Infrastructure project:
+`IDbContextFactory<MusicDbContext>` supplies a fresh context for each engine operation; the loaded graph is tracked only through that operation's save. `DateTime` UTC is used for sortable SQLite timestamps, avoiding the historical DateTimeOffset ordering issue. Entity GUIDs are application-generated and configured `ValueGeneratedNever` so newly appended attempts/progress are inserted reliably.
 
-```powershell
-dotnet tool run dotnet-ef migrations add MigrationName `
-  --project src\ExamCompanion.Infrastructure\ExamCompanion.Infrastructure.csproj `
-  --startup-project ExamCompanion.Web.csproj `
-  --context ChallengeDbContext `
-  --output-dir Persistence\Migrations
-```
+The source databases are read only by `MusicSeed` on the first Development startup. Its two existing question-source adapters are the only old services registered. The new catalog and all gameplay data live in `data/exam-companion.db`. Historical health, coin, falling-cube, and suggestion code/data is not used by the new game.
 
-The external question-bank SQLite files are read-only reference sources. Application-owned challenge and progress data is managed through `ChallengeDbContext` and EF Core migrations.
+`Home.razor` starts a new session or opens the most recent one. `/game/{SessionId}` handles active learning, repair, and completed albums. There is no authentication: this is intentionally a single-user local MVP, not a multi-user hosted service.
 
-## Recovery mini-game
-
-Recovery suggestions snapshot up to three eligible `TopicProgress` rows ordered by lowest average bonus yield.
-Study claims and recovery sessions are persisted in their own EF aggregates. `RecoveryQuestionAttempt` never updates
-the assessment-side `TopicProgress`, `QuestionAttempt`, bonus, health, or coin data. Educational questions are read
-through `IEducationalQuestionSource` from the read-only `TopicEducationalQuestions.sqlite` database.
-
-The Application layer owns ranking, correct-answer thresholds, stability, difficulty selection, and completion.
-Blazor renders the workflow at `/recovery/{lessonChallengeId}`. `recoverySpace.js` owns only continuous canvas
-animation, generated audio, active-time measurement, and discrete hint notifications; it performs no persistence.
-
-## Generated health economy
-
-Each `ChallengeLevelProgress` owns one versioned `ChallengeHealthPattern`. Application code calculates it only after the level blueprint has finalized topic quotas, target question count, and actual difficulty quotas. Infrastructure persists the pattern and its four normalized difficulty factors; retries load the same row instead of recalculating it.
-
-`ChallengeHealthEngine` applies the persisted pattern to each actual question difficulty and the question topic's importance relative to the lesson's average importance. Blazor supplies active elapsed time and renders the result, but it does not own authoritative health formulas. Existing `QuestionAttempt` health deltas remain historical records and are not rewritten when patterns are introduced or versioned.
+For run commands, migration instructions, source topic IDs, game thresholds, verification, and limitations, see [README.md](README.md).

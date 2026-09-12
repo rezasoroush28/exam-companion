@@ -1,0 +1,56 @@
+@using System.Globalization
+@using ExamCompanion.Application.Music
+@using ExamCompanion.Domain.Music
+
+<div class="disc-object @(Preview ? "preview-disc" : "") @(Playing ? "is-playing" : "")" style="--active-color:@ActiveColor">
+    <div class="disc-halo"></div>
+    <svg viewBox="0 0 600 600" class="music-disc" role="group" aria-label="صفحه موسیقی؛ هر حلقه یک مبحث">
+        <defs>
+            <radialGradient id="disc-surface"><stop offset="0" stop-color="#353252"/><stop offset=".55" stop-color="#191a32"/><stop offset="1" stop-color="#25263e"/></radialGradient>
+            <radialGradient id="disc-heart"><stop offset="0" stop-color="#ffeab6"/><stop offset="1" stop-color="#ffc98d"/></radialGradient>
+        </defs>
+        <circle cx="300" cy="300" r="281" fill="url(#disc-surface)" stroke="#090b1d" stroke-width="8"/>
+        <circle cx="300" cy="300" r="274" fill="none" stroke="#53506c" stroke-width="1"/>
+        @for (var i = 0; i < Topics.Count; i++)
+        {
+            var t = Topics[i];
+            var r = 244 - i * 36;
+            var circumference = 2 * Math.PI * r;
+            var active = !Preview && t.Id == CurrentTopicId;
+            var progress = Preview ? new[] { .78, .57, .91, .38, .68 }[i % 5] : t.Progress;
+            <g class="disc-ring @(active ? "active" : "") @(t.HasScratch ? "scratched" : "")" style="--ring-color:@t.Color"
+               role="button" tabindex="0" aria-label="@(t.Name + (t.HasScratch ? "؛ نیاز به صیقل" : "؛ پخش ملودی"))"
+               @onclick="() => RingClicked.InvokeAsync(t.Id)" @onkeydown="e => RingKey(e, t.Id)">
+                <title>@t.Name — @(t.HasScratch ? "نیاز به صیقل" : $"{Math.Round(t.Progress * 100)}٪")</title>
+                <circle cx="300" cy="300" r="@r" class="ring-track" stroke-width="24"/>
+                <circle cx="300" cy="300" r="@r" class="ring-dashes" stroke-width="1" stroke-dasharray="2 10"/>
+                <circle cx="300" cy="300" r="@r" class="ring-progress" stroke-width="22" stroke-linecap="round"
+                        stroke-dasharray="@F(circumference)" stroke-dashoffset="@F(circumference * (1 - progress))" transform="rotate(-90 300 300)"/>
+                @if (active) { <circle cx="300" cy="@(300 - r)" r="6" fill="#fff8de" class="ring-beacon"/> }
+                @if (t.HasScratch)
+                {
+                    <path d="@($"M {300 + r - 13} 276 l 17 14 -18 13 20 15 -15 10")" class="scratch-mark"/>
+                }
+                @if (t.IsRepaired) { <g><text x="@(300 - r)" y="306" fill="#fff" font-size="18">✦</text></g> }
+            </g>
+        }
+        <g class="disc-center">
+            <circle cx="300" cy="300" r="66" fill="url(#disc-heart)" stroke="#101123" stroke-width="5"/>
+            <path d="M300 254 Q303 286 329 299 Q303 306 300 337 Q292 310 269 300 Q293 290 300 254" fill="#34304c"/>
+            <circle cx="294" cy="299" r="2.5" fill="#ffeabb"/><circle cx="306" cy="299" r="2.5" fill="#ffeabb"/>
+            <path d="M295 307 Q300 311 305 307" fill="none" stroke="#ffeabb" stroke-width="2" stroke-linecap="round"/>
+        </g>
+    </svg>
+    <span class="orbit-spark spark-one">✦</span><span class="orbit-spark spark-two">✧</span><span class="orbit-spark spark-three">✳</span>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<TopicStateDto> Topics { get; set; } = [];
+    [Parameter] public Guid CurrentTopicId { get; set; }
+    [Parameter] public bool Preview { get; set; }
+    [Parameter] public bool Playing { get; set; }
+    [Parameter] public EventCallback<Guid> RingClicked { get; set; }
+    private string ActiveColor => Topics.FirstOrDefault(t => t.Id == CurrentTopicId)?.Color ?? "#c6f278";
+    private static string F(double n) => n.ToString("0.###", CultureInfo.InvariantCulture);
+    private Task RingKey(KeyboardEventArgs e, Guid id) => e.Key is "Enter" or " " ? RingClicked.InvokeAsync(id) : Task.CompletedTask;
+}

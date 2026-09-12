@@ -1,5 +1,9 @@
 bin/
 obj/
+.tools/
+data/exam-companion.db*
+artifacts/
+node_modules/
 .vs/
 .vscode/
 
