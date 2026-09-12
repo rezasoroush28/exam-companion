@@ -2,6 +2,9 @@
 @page "/lessons"
 @inject ChallengeEngine Engine
 @inject ChallengeHealthEngine HealthEngine
+@inject IDevelopmentDataResetService DevelopmentDataReset
+@inject IWebHostEnvironment HostEnvironment
+@inject NavigationManager Navigation
 @implements IAsyncDisposable
 
 <PageTitle>چالش مکعبی</PageTitle>
@@ -94,6 +97,7 @@
                     <div class="complete-card">
                         <span>نتیجه چالش کامل شد</span>
                         <strong>امتیاز نهایی: @_totalBonus</strong>
+                        <a class="recovery-entry" href="/recovery/@Engine.LessonChallengeId">مرور پیشنهادهای یادگیری</a>
                         <button @onclick="RestartAsync">شروع دوباره همین چالش</button>
                     </div>
                 }
@@ -106,20 +110,52 @@
             </div>
         </section>
 
-        @if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        @if (IsDevelopment)
         {
-            <div class="result-debug">
-                <span>@_resultState</span>
-                <span>wrong: @_incorrectRemaining</span>
-                <span>correct: @_correctRemaining</span>
-                <span>bonus: @_totalBonus</span>
-                <button @onclick="DebugForceCompletionAsync">پایان آزمایشی</button>
-                <button @onclick="DebugRandomizeAnswersAsync">پاسخ‌های تصادفی</button>
-                <button @onclick="() => DebugSetAnswersAsync(true)">همه درست</button>
-                <button @onclick="() => DebugSetAnswersAsync(false)">همه غلط</button>
-                <button @onclick="ToggleWireframesAsync">wireframe</button>
-                <button @onclick="RestartAsync">بازنشانی</button>
-            </div>
+            <aside class="development-panel @(_developmentPanelOpen ? "open" : null)" aria-label="پنل توسعه">
+                <button class="development-panel-toggle" @onclick="ToggleDevelopmentPanel"
+                        aria-expanded="@_developmentPanelOpen" title="پنل توسعه">
+                    <span>DEV</span><b>@(_developmentPanelOpen ? "×" : "⚙")</b>
+                </button>
+                @if (_developmentPanelOpen)
+                {
+                    <div class="development-panel-body">
+                        <header><strong>پنل توسعه</strong><small>فقط محیط Development</small></header>
+                        <div class="development-metrics">
+                            <span>state: @_resultState</span>
+                            <span>wrong: @_incorrectRemaining</span>
+                            <span>correct: @_correctRemaining</span>
+                            <span>bonus: @_totalBonus</span>
+                        </div>
+                        <div class="development-tools">
+                            <button @onclick="DebugForceCompletionAsync">پایان آزمایشی</button>
+                            <button @onclick="DebugRandomizeAnswersAsync">پاسخ تصادفی</button>
+                            <button @onclick="() => DebugSetAnswersAsync(true)">همه درست</button>
+                            <button @onclick="() => DebugSetAnswersAsync(false)">همه غلط</button>
+                            <button @onclick="ToggleWireframesAsync">wireframe</button>
+                            <button @onclick="RestartAsync">بازنشانی بازی</button>
+                        </div>
+                        @if (_developmentResetConfirmation)
+                        {
+                            <div class="development-reset-confirmation" role="alert">
+                                <p>تمام پیشرفت، پاسخ‌ها، پاداش‌ها و پیشنهادها پاک شوند؟ بانک سؤال دست‌نخورده می‌ماند.</p>
+                                <button class="danger" disabled="@_clearingDevelopmentData" @onclick="ClearDevelopmentDataAsync">
+                                    @(_clearingDevelopmentData ? "در حال پاک‌سازی…" : "تأیید پاک‌سازی")
+                                </button>
+                                <button disabled="@_clearingDevelopmentData" @onclick="CancelDevelopmentReset">انصراف</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="development-reset" @onclick="RequestDevelopmentReset">پاک‌کردن داده‌ها و شروع از اول</button>
+                        }
+                        @if (_developmentResetError is not null)
+                        {
+                            <p class="development-reset-error">@_developmentResetError</p>
+                        }
+                    </div>
+                }
+            </aside>
         }
     }
 </div>
@@ -159,7 +195,11 @@
     private readonly HashSet<long> _collectedCubeIds = [];
     private string? _selectedOption;
     private string? _error;
-    private static bool IsDevelopment => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+    private bool _developmentPanelOpen = true;
+    private bool _developmentResetConfirmation;
+    private bool _clearingDevelopmentData;
+    private string? _developmentResetError;
+    private bool IsDevelopment => HostEnvironment.IsDevelopment();
 
     protected override async Task OnInitializedAsync() => await RestartAsync();
 
@@ -363,6 +403,57 @@
         _floatingBonus = 0;
         _completed = true;
         await InvokeAsync(StateHasChanged);
+        try { await Task.Delay(1800, _lifetime.Token); }
+        catch (OperationCanceledException) { return; }
+        Navigation.NavigateTo($"/recovery/{Engine.LessonChallengeId}");
+    }
+
+    private void ToggleDevelopmentPanel()
+    {
+        _developmentPanelOpen = !_developmentPanelOpen;
+        if (_developmentPanelOpen) return;
+        _developmentResetConfirmation = false;
+        _developmentResetError = null;
+    }
+
+    private void RequestDevelopmentReset()
+    {
+        if (!IsDevelopment || _clearingDevelopmentData) return;
+        _developmentResetError = null;
+        _developmentResetConfirmation = true;
+    }
+
+    private void CancelDevelopmentReset()
+    {
+        if (_clearingDevelopmentData) return;
+        _developmentResetConfirmation = false;
+    }
+
+    private async Task ClearDevelopmentDataAsync()
+    {
+        if (!IsDevelopment || !_developmentResetConfirmation || _clearingDevelopmentData) return;
+        _clearingDevelopmentData = true;
+        _developmentResetError = null;
+        _answerLocked = true;
+        _questionActive = false;
+        CancelHealthDepletion();
+        _lifetime.Cancel();
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            if (_healthBar is not null) await _healthBar.StopQuestionAsync();
+            Engine.EndRun(_health, ChallengeRunStatus.Abandoned, "DevelopmentDataReset");
+            await DevelopmentDataReset.ResetProgressAsync(CancellationToken.None);
+            Navigation.NavigateTo("/lessons", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            _developmentResetError = ex.Message;
+            _developmentResetConfirmation = false;
+            _clearingDevelopmentData = false;
+            await RestartAsync();
+        }
     }
 
     private async Task DebugForceCompletionAsync()

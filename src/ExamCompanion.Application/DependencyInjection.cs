@@ -11,6 +11,12 @@ public static class DependencyInjection
         services.AddSingleton<ChallengePrototype.Services.ChallengeHealthEngine>();
         services.AddSingleton<ChallengePrototype.Services.IChallengeHealthPatternCalculator,
             ChallengePrototype.Services.ChallengeHealthPatternCalculator>();
+        services.AddScoped<ChallengePrototype.Services.ITopicSuggestionService,
+            ChallengePrototype.Services.TopicSuggestionService>();
+        services.AddScoped<ChallengePrototype.Services.IStudyClaimService,
+            ChallengePrototype.Services.StudyClaimService>();
+        services.AddScoped<ChallengePrototype.Services.IRecoveryMiniGameService,
+            ChallengePrototype.Services.RecoveryMiniGameService>();
         return services;
     }
 }

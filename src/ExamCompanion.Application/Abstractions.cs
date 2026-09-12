@@ -34,3 +34,8 @@ public interface ILevelDesignService
     void EndRun(long runId, double health, ChallengeRunStatus status, string reason);
     void CompleteLessonChallenge(long lessonChallengeId);
 }
+
+public interface IDevelopmentDataResetService
+{
+    Task ResetProgressAsync(CancellationToken cancellationToken = default);
+}

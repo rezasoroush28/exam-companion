@@ -9,7 +9,8 @@ The solution uses four Clean Architecture projects.
 | `ExamCompanion.Infrastructure` | EF Core, SQLite, migrations, question-bank and persistence adapters | Application, Domain |
 | `ExamCompanion.Web` | Blazor UI, dependency composition, Matter.js and browser assets | Application, Infrastructure |
 
-Dependencies point inward. Application code consumes `IQuestionService` and `ILevelDesignService`; it does not depend on EF Core or SQLite implementations.
+Dependencies point inward. Application code consumes ports such as `IQuestionService`, `ILevelDesignService`,
+`IRecoveryStore`, and `IEducationalQuestionSource`; it does not depend on EF Core or SQLite implementations.
 
 ## Visual Studio
 
@@ -34,6 +35,17 @@ dotnet tool run dotnet-ef migrations add MigrationName `
 ```
 
 The external question-bank SQLite files are read-only reference sources. Application-owned challenge and progress data is managed through `ChallengeDbContext` and EF Core migrations.
+
+## Recovery mini-game
+
+Recovery suggestions snapshot up to three eligible `TopicProgress` rows ordered by lowest average bonus yield.
+Study claims and recovery sessions are persisted in their own EF aggregates. `RecoveryQuestionAttempt` never updates
+the assessment-side `TopicProgress`, `QuestionAttempt`, bonus, health, or coin data. Educational questions are read
+through `IEducationalQuestionSource` from the read-only `TopicEducationalQuestions.sqlite` database.
+
+The Application layer owns ranking, correct-answer thresholds, stability, difficulty selection, and completion.
+Blazor renders the workflow at `/recovery/{lessonChallengeId}`. `recoverySpace.js` owns only continuous canvas
+animation, generated audio, active-time measurement, and discrete hint notifications; it performs no persistence.
 
 ## Generated health economy
 

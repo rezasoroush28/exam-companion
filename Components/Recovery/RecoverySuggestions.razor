@@ -1,0 +1,27 @@
+<section class="recovery-suggestions" aria-labelledby="suggestion-heading">
+    <div class="recovery-intro">
+        <span>مرور هوشمند</span>
+        <h1 id="suggestion-heading">کدام مبحث را دوباره بخوانیم؟</h1>
+        <p>این سه مبحث از عملکرد واقعی همین چالش پیشنهاد شده‌اند و به‌ترتیب اهمیت در یک تمرین پیوسته اجرا می‌شوند.</p>
+    </div>
+    <div class="suggestion-grid">
+        @foreach (var item in Page.Suggestions.OrderByDescending(x => x.Importance).ThenBy(x => x.Rank))
+        {
+            <article class="suggestion-card readonly">
+                <span class="suggestion-rank">مرحله @(Page.Suggestions.OrderByDescending(x => x.Importance).ThenBy(x => x.Rank).ToList().IndexOf(item) + 1)</span>
+                <strong>@item.TopicTitle</strong>
+                <span>اهمیت @item.Importance از ۵</span>
+                <span>@item.QuestionsSeen سؤال · میانگین @item.AverageBonus.ToString("0.0") امتیاز</span>
+                <b>در برنامه بازیابی</b>
+            </article>
+        }
+    </div>
+    <button class="recovery-primary" @onclick="Confirm">
+        این مباحث را مطالعه کردم
+    </button>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public RecoverySuggestionPage Page { get; set; } = null!;
+    [Parameter] public EventCallback Confirm { get; set; }
+}

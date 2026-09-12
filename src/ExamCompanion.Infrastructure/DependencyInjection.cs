@@ -15,6 +15,9 @@ public static class DependencyInjection
                 sqlite.MigrationsAssembly(typeof(ChallengeDbContext).Assembly.FullName)));
         services.AddSingleton<IQuestionService, QuestionService>();
         services.AddSingleton<ILevelDesignService, LevelDesignService>();
+        services.AddSingleton<IEducationalQuestionSource, EducationalQuestionSource>();
+        services.AddSingleton<IRecoveryStore, RecoveryStore>();
+        services.AddSingleton<IDevelopmentDataResetService, DevelopmentDataResetService>();
         return services;
     }
 

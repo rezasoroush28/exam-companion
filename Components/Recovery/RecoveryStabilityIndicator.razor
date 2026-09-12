@@ -1,0 +1,15 @@
+<div class="recovery-stability-indicator" role="progressbar" aria-label="پایداری مبحث"
+     aria-valuemin="0" aria-valuemax="@Required" aria-valuenow="@Math.Min(Correct, Required)">
+    @for (var index = 0; index < Required; index++)
+    {
+        <span class="recovery-stability-segment @(index < Correct ? "filled" : "")" aria-hidden="true">
+            <i></i>
+        </span>
+    }
+    <small>@Math.Min(Correct, Required) از @Required پایدار شد</small>
+</div>
+
+@code {
+    [Parameter] public int Correct { get; set; }
+    [Parameter] public int Required { get; set; }
+}

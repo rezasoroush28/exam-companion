@@ -22,6 +22,7 @@ public sealed class ChallengeEngine(IQuestionService questions, ChallengeHealthE
     private long _currentRunId;
     private long? _lastTopicId;
     public string LessonTitle { get; private set; } = "";
+    public long LessonChallengeId => _lessonChallengeId;
     public IReadOnlyList<GameTopic> Topics { get; private set; } = [];
     public GameDifficulty CurrentDifficulty { get; private set; } = GameDifficulty.Easy;
     public ChallengeHealthPattern CurrentHealthPattern { get; private set; } = null!;

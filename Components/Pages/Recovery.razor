@@ -1,0 +1,284 @@
+@page "/recovery/{LessonChallengeId:int}"
+@using ChallengePrototype.Components.Recovery
+@inject ITopicSuggestionService SuggestionService
+@inject IStudyClaimService ClaimService
+@inject IRecoveryMiniGameService MiniGameService
+@inject IEducationalQuestionSource EducationalQuestions
+@inject IDevelopmentDataResetService DevelopmentDataReset
+@inject IWebHostEnvironment HostEnvironment
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<PageTitle>تمرین بازیابی</PageTitle>
+
+<main class="recovery-shell @(_session is { Status: MiniGameStatus.Active } ? "is-playing" : "")">
+    @if (_loading)
+    {
+        <div class="recovery-state">در حال آماده‌کردن پیشنهادها…</div>
+    }
+    else if (_error is not null)
+    {
+        <div class="recovery-state error"><strong>تمرین آماده نشد</strong><span>@_error</span><a href="/lessons">بازگشت</a></div>
+    }
+    else if (_session?.Status == MiniGameStatus.Completed)
+    {
+        <RecoveryResult Correct="_session.Attempts.Count(x => x.IsCorrect)" Incorrect="_session.Attempts.Count(x => !x.IsCorrect)" />
+    }
+    else if (_session is not null)
+    {
+        var topic = ActiveTopic;
+        <section class="recovery-scene-shell" style="--topic-stability:@topic.Stability.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+            <div class="recovery-scene-environment" aria-hidden="true">
+                <RecoverySpace @ref="_space" HintThreshold="HandleHintThresholdAsync" />
+                <div class="recovery-scene-vignette"></div>
+                <div class="recovery-scene-grid"></div>
+            </div>
+            <RecoveryTopHud Topics="_session.Topics" Titles="_topicTitles" CurrentIndex="_session.CurrentTopicIndex" />
+            @if (_question is not null)
+            {
+                <div class="recovery-question-overlay">
+                    <RecoveryQuestionCard Question="_question" HintLevel="_hintLevel" Locked="_answerLocked"
+                        CorrectAnswers="@(topic.CorrectAnswers + (_feedback && _wasCorrect ? 1 : 0))" RequiredCorrect="topic.RequiredCorrect"
+                        Feedback="_feedback" WasCorrect="_wasCorrect" Selected="_selectedAnswer" Answer="AnswerAsync" />
+                </div>
+            }
+            <RecoveryFeedbackOverlay Feedback="_feedback" WasCorrect="_wasCorrect"
+                TopicStabilized="_topicStabilizedFeedback" PulseKey="_feedbackPulse" />
+            <div class="recovery-scene-caption" aria-hidden="true">
+                <span>سامانه تثبیت شناختی</span><i></i><span>RECOVERY SPACE</span>
+            </div>
+        </section>
+    }
+    else if (_claim is not null)
+    {
+        <section class="recovery-claim-confirmed">
+            <span>ثبت شد</span>
+            <h1>مطالعه‌ی تو را باور کردیم.</h1>
+            <p>حالا با چند سؤال کوتاه، ذهن را از آشفتگی به پایداری می‌رسانیم. پاسخ اشتباه چیزی از پیشرفت کم نمی‌کند.</p>
+            <button class="recovery-primary" @onclick="StartAsync">شروع تمرین</button>
+        </section>
+    }
+    else if (_suggestions is not null && _suggestions.Suggestions.Count > 0)
+    {
+        <RecoverySuggestions Page="_suggestions" Confirm="ClaimAsync" />
+    }
+    else
+    {
+        <div class="recovery-state"><strong>هنوز داده کافی نداریم</strong><span>ابتدا در چالش اصلی به چند سؤال پاسخ بده تا پیشنهاد شخصی ساخته شود.</span><a href="/lessons">بازگشت به چالش</a></div>
+    }
+</main>
+
+@if (IsDevelopment)
+{
+    <aside class="development-panel @(_developmentPanelOpen ? "open" : null)" aria-label="پنل توسعه">
+        <button class="development-panel-toggle" @onclick="ToggleDevelopmentPanel"
+                aria-expanded="@_developmentPanelOpen" title="پنل توسعه">
+            <span>DEV</span><b>@(_developmentPanelOpen ? "×" : "⚙")</b>
+        </button>
+        @if (_developmentPanelOpen)
+        {
+            <div class="development-panel-body">
+                <header><strong>پنل توسعه</strong><small>تمرین بازیابی</small></header>
+                @if (_developmentResetConfirmation)
+                {
+                    <div class="development-reset-confirmation" role="alert">
+                        <p>تمام داده‌های چالش و تمرین بازیابی پاک شوند؟ بانک سؤال دست‌نخورده می‌ماند.</p>
+                        <button class="danger" disabled="@_clearingDevelopmentData" @onclick="ClearDevelopmentDataAsync">
+                            @(_clearingDevelopmentData ? "در حال پاک‌سازی…" : "تأیید پاک‌سازی")
+                        </button>
+                        <button disabled="@_clearingDevelopmentData" @onclick="CancelDevelopmentReset">انصراف</button>
+                    </div>
+                }
+                else
+                {
+                    <button class="development-reset" @onclick="RequestDevelopmentReset">پاک‌کردن داده‌ها و شروع از اول</button>
+                }
+                @if (_developmentResetError is not null)
+                {
+                    <p class="development-reset-error">@_developmentResetError</p>
+                }
+            </div>
+        }
+    </aside>
+}
+
+@code {
+    [Parameter] public int LessonChallengeId { get; set; }
+    private readonly CancellationTokenSource _lifetime = new();
+    private RecoverySuggestionPage? _suggestions;
+    private StudyClaimResult? _claim;
+    private RecoverySessionSnapshot? _session;
+    private EducationalQuestion? _question;
+    private RecoverySpace? _space;
+    private DateTimeOffset _shownAt;
+    private bool _loading = true;
+    private bool _resumePending;
+    private bool _answerLocked;
+    private bool _feedback;
+    private bool _wasCorrect;
+    private string? _selectedAnswer;
+    private int _hintLevel;
+    private int _feedbackPulse;
+    private bool _topicStabilizedFeedback;
+    private string? _error;
+    private bool _developmentPanelOpen = true;
+    private bool _developmentResetConfirmation;
+    private bool _clearingDevelopmentData;
+    private string? _developmentResetError;
+    private IReadOnlyDictionary<long, string> _topicTitles = new Dictionary<long, string>();
+
+    private RecoveryTopicSnapshot ActiveTopic => _session!.Topics.OrderBy(x => x.Sequence).ElementAt(_session.CurrentTopicIndex);
+    private bool IsDevelopment => HostEnvironment.IsDevelopment();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _session = await MiniGameService.ResumeLatestAsync(LessonChallengeId, _lifetime.Token);
+            if (_session is not null)
+                _topicTitles = await EducationalQuestions.GetTopicTitlesAsync(_session.Topics.Select(x => x.TopicId), _lifetime.Token);
+            if (_session is { Status: MiniGameStatus.Active }) _resumePending = true;
+            else if (_session is null) _suggestions = await SuggestionService.GetOrCreateAsync(LessonChallengeId, _lifetime.Token);
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _loading = false; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_resumePending || _space is null) return;
+        _resumePending = false;
+        try { await NextQuestionAsync(); }
+        catch (Exception ex) { _error = ex.Message; await InvokeAsync(StateHasChanged); }
+    }
+
+    private async Task ClaimAsync()
+    {
+        if (_suggestions is null || _suggestions.Suggestions.Count == 0) return;
+        try { _claim = await ClaimService.ClaimAsync(_suggestions.SuggestionSetId, _lifetime.Token); }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+
+    private async Task StartAsync()
+    {
+        if (_claim is null) return;
+        try
+        {
+            _session = await MiniGameService.StartOrResumeAsync(_claim.StudyClaimId, _lifetime.Token);
+            _topicTitles = await EducationalQuestions.GetTopicTitlesAsync(_session.Topics.Select(x => x.TopicId), _lifetime.Token);
+            await InvokeAsync(StateHasChanged);
+            await NextQuestionAsync();
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+
+    private async Task NextQuestionAsync()
+    {
+        if (_session is null || _session.Status == MiniGameStatus.Completed) return;
+        _question = await MiniGameService.GetNextQuestionAsync(_session, _lifetime.Token)
+            ?? throw new InvalidOperationException("برای این مبحث سؤال آموزشی پیدا نشد.");
+        _shownAt = DateTimeOffset.UtcNow;
+        _hintLevel = 0;
+        _topicStabilizedFeedback = false;
+        _feedback = false;
+        _answerLocked = false;
+        _selectedAnswer = null;
+        await InvokeAsync(StateHasChanged);
+        if (_space is not null) await _space.BeginQuestionAsync(ActiveTopic.Stability, _question.CorrectOption);
+    }
+
+    private async Task AnswerAsync(string answer)
+    {
+        if (_answerLocked || _question is null || _session is null || _space is null) return;
+        _answerLocked = true;
+        _selectedAnswer = answer;
+        var elapsed = await _space.StopQuestionAsync();
+        var result = await MiniGameService.AnswerAsync(_session, _question, answer, _shownAt, elapsed,
+            _hintLevel, _lifetime.Token);
+        _wasCorrect = result.IsCorrect;
+        _feedback = true;
+        _topicStabilizedFeedback = result.TopicStabilized;
+        _feedbackPulse++;
+        if (result.IsCorrect) await _space.ShowCorrectAsync(result.Stability);
+        else await _space.ShowIncorrectAsync();
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(result.TopicStabilized ? 1050 : 800, _lifetime.Token);
+        if (result.TopicStabilized) await _space.CompleteTopicAsync();
+        _session = await MiniGameService.GetAsync(_session.Id, _lifetime.Token)
+            ?? throw new InvalidOperationException("نشست بازیابی پیدا نشد.");
+        _question = null;
+        await InvokeAsync(StateHasChanged);
+        if (_session.Status != MiniGameStatus.Completed)
+        {
+            if (result.TopicStabilized) await Task.Delay(650, _lifetime.Token);
+            await NextQuestionAsync();
+        }
+    }
+
+    private Task HandleHintThresholdAsync(long elapsed)
+    {
+        if (_answerLocked) return Task.CompletedTask;
+        _hintLevel = Math.Max(_hintLevel, RecoveryRules.HintLevel(elapsed));
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleDevelopmentPanel()
+    {
+        _developmentPanelOpen = !_developmentPanelOpen;
+        if (_developmentPanelOpen) return;
+        _developmentResetConfirmation = false;
+        _developmentResetError = null;
+    }
+
+    private void RequestDevelopmentReset()
+    {
+        if (!IsDevelopment || _clearingDevelopmentData) return;
+        _developmentResetError = null;
+        _developmentResetConfirmation = true;
+    }
+
+    private void CancelDevelopmentReset()
+    {
+        if (_clearingDevelopmentData) return;
+        _developmentResetConfirmation = false;
+    }
+
+    private async Task ClearDevelopmentDataAsync()
+    {
+        if (!IsDevelopment || !_developmentResetConfirmation || _clearingDevelopmentData) return;
+        _clearingDevelopmentData = true;
+        _developmentResetError = null;
+        _answerLocked = true;
+        _resumePending = false;
+        _lifetime.Cancel();
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            if (_space is not null) await _space.StopQuestionAsync();
+            await DevelopmentDataReset.ResetProgressAsync(CancellationToken.None);
+            Navigation.NavigateTo("/lessons", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            _developmentResetError = ex.Message;
+            _developmentResetConfirmation = false;
+            _clearingDevelopmentData = false;
+        }
+    }
+
+    private string TopicTitle(long topicId) => _topicTitles.GetValueOrDefault(topicId)
+        ?? _suggestions?.Suggestions.FirstOrDefault(x => x.TopicId == topicId)?.TopicTitle
+        ?? $"مبحث {topicId}";
+
+    public async ValueTask DisposeAsync()
+    {
+        _lifetime.Cancel();
+        _lifetime.Dispose();
+        if (_session is { Status: MiniGameStatus.Active })
+        {
+            try { await MiniGameService.InterruptAsync(_session.Id); }
+            catch { }
+        }
+    }
+}
