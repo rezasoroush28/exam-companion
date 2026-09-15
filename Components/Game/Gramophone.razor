@@ -1,0 +1,76 @@
+@using System.Globalization
+@using ExamCompanion.Application.Music
+@using ExamCompanion.Domain.Music
+<div class="gramophone @(Preview ? "preview" : "")" data-gramophone>
+    <svg viewBox="100 30 1050 1140" role="group" aria-label="گرامافون کاغذی؛ پنج شیار برای پنج مبحث" class="gramophone-art">
+        <defs>
+            <filter id="@(_id + "-shadow")" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="15"/></filter>
+            <linearGradient id="@(_id + "-label")" x2=".4" y2="1"><stop stop-color="#fff0c5"/><stop offset="1" stop-color="#d9b976"/></linearGradient>
+            <linearGradient id="@(_id + "-arm")" x2="0" y2="1"><stop stop-color="#fff3cf"/><stop offset="1" stop-color="#d3af6e"/></linearGradient>
+            @* Clip the RGB art plate to let the studio background show around the object. *@
+            <clipPath id="@(_id + "-body")">
+                <path d="M153 792Q154 779 174 761L393 579Q423 549 477 558L882 623L970 637Q1000 632 1027 646L1056 653Q1088 662 1090 697L1094 797Q1098 832 1082 869L1075 910L1056 914L964 1075Q950 1100 929 1110L916 1137L867 1161L798 1149L780 1118L287 996L261 1020L201 1004L182 959Q151 950 152 921L159 897Q148 881 150 847Z"/>
+                <path d="M489 122Q521 64 546 57Q570 47 602 86L638 123Q667 134 697 142Q730 150 734 202L757 291L794 340L844 375Q903 398 933 464Q949 492 953 521Q962 522 960 548L957 599Q980 605 976 628Q974 656 928 660Q871 655 873 624Q872 607 893 600L893 563Q880 551 889 526Q875 491 833 480Q790 466 736 488L666 526L626 550Q589 589 550 587Q522 585 477 552Q417 555 388 526Q355 497 370 434Q330 403 325 367Q317 323 359 282L384 258Q378 184 435 145Q457 129 489 122Z"/>
+            </clipPath>
+        </defs>
+        <ellipse cx="624" cy="1090" rx="416" ry="57" fill="#060917" opacity=".42" filter="url(#@(_id + "-shadow"))"/>
+        <image class="gramophone-body" href="art/gramophone/papercraft-body-v2.png" x="0" y="0" width="1254" height="1254" clip-path="url(#@(_id + "-body"))" aria-hidden="true"/>
+        @* Motion reads this exact projection, keeping the needle on the selected groove. *@
+        <g class="turntable" data-turntable transform="matrix(1.65 .17 -.18 .81 613 765)">
+            <g data-record>
+                @for (var i = 0; i < Topics.Count; i++)
+                {
+                    var t = Topics[i]; var r = 175 - i * 25;
+                    var progress = Preview ? new[] { 1.0, .76, .54, .3, .12 }[i % 5] : t.Progress;
+                    var locked = !Preview && t.Status == TopicProgressStatus.Locked;
+                    <g class="groove @(t.Id == CurrentTopicId ? "active" : "")" data-groove="@t.Order" data-scratched="@(t.HasScratch ? "true" : "false")" style="--groove-color:var(--topic-@i)" role="button" tabindex="@(Preview || locked ? -1 : 0)" aria-disabled="@(Preview || locked ? "true" : "false")" aria-label="@(t.Name + (locked ? "؛ قفل" : t.HasScratch ? "؛ نیاز به صیقل" : $"؛ {Math.Round(t.Progress * 100)} درصد"))" @onclick="() => Select(t)" @onkeydown="e => Key(e, t)">
+                        <title>@t.Name</title>
+                        <circle r="@r" class="groove-track"/>
+                        <circle r="@r" class="groove-fill" pathLength="100" stroke-dasharray="100" stroke-dashoffset="@F(100 * (1 - progress))" transform="rotate(-90)"/>
+                        <circle r="@r" class="groove-hit-area"/>
+                        @if (t.HasScratch || (RepairingOrder == i))
+                        {
+                            <g class="scratch-mark @(RepairingOrder == i ? "closing" : "")" transform="rotate(@F((1.5 + i * .4) * 180 / Math.PI))">
+                                <path d="@($"M {r - 5} -49 l 9 10 -11 10 10 11 -9 10 11 12 -10 11 8 11 -10 10")" transform="scale(1 @F(r / 175.0))" class="scratch-under"/>
+                                <path d="@($"M {r - 5} -49 l 9 10 -11 10 10 11 -9 10 11 12 -10 11 8 11 -10 10")" transform="scale(1 @F(r / 175.0))" class="scratch-crack"/>
+                            </g>
+                        }
+                        @if (t.IsRepaired) { <path d="@($"M {-r} -8l3 5 5 3-5 3-3 5-3-5-5-3 5-3z")" fill="var(--paper)"/> }
+                    </g>
+                }
+                <circle r="51" fill="url(#@(_id + "-label"))" stroke="#b89657" stroke-width="1.5"/><circle r="46" fill="none" stroke="#fff3cb" stroke-width=".7" opacity=".55"/>
+                <path d="M-10 17v-38l27-7v34M-10-10l27-7" fill="none" stroke="var(--burgundy-dark)" stroke-width="5"/>
+                <ellipse cx="-18" cy="20" rx="10" ry="6" fill="var(--burgundy-dark)"/><ellipse cx="9" cy="9" rx="10" ry="6" fill="var(--burgundy-dark)"/>
+            </g>
+            <circle r="4" fill="#856044" stroke="#d0a66b" stroke-width="1"/>
+            <circle class="playhead" data-playhead cx="@F(Radius * Math.Cos(.55))" cy="@F(Radius * Math.Sin(.55))" r="5" fill="var(--paper)"/>
+        </g>
+        <g class="tone-arm" data-tone-arm data-pivot-x="1002" data-pivot-y="655" data-needle-lift="18">
+            <path data-arm-path d="@ArmPath" stroke="#705037" stroke-width="20" fill="none" stroke-linecap="round"/>
+            <path data-arm-highlight d="@ArmPath" stroke="url(#@(_id + "-arm"))" stroke-width="13" fill="none" stroke-linecap="round"/>
+            <circle cx="1002" cy="655" r="10" fill="#e4bc68" stroke="#ffe0a2" stroke-width="2"/>
+            <g data-needle transform="translate(@F(NeedleX) @F(NeedleY))">
+                <path d="M-3 4L0 18L8 1" fill="#fff2cb" stroke="#b7975f" stroke-width="1.5"/>
+                <path d="M-21-18L9-29L26-16L-4-4Z" fill="#87bfad"/>
+                <path d="M-21-18L-4-4V12L-21 0Z" fill="#407c7e"/>
+                <path d="M-4-4L26-16V0L-4 12Z" fill="#52958e"/>
+                <ellipse cx="2" cy="-17" rx="6" ry="4" fill="#edcb77"/>
+            </g>
+        </g>
+    </svg>
+</div>
+@code {
+    [Parameter] public IReadOnlyList<TopicStateDto> Topics { get; set; } = [];
+    [Parameter] public Guid CurrentTopicId { get; set; }
+    [Parameter] public bool Preview { get; set; }
+    [Parameter] public int? RepairingOrder { get; set; }
+    [Parameter] public EventCallback<Guid> RingClicked { get; set; }
+    private readonly string _id = "gram-" + Guid.NewGuid().ToString("N");
+    private int Radius => 175 - 25 * Math.Max(0, Topics.ToList().FindIndex(t => t.Id == CurrentTopicId));
+    private double NeedleX => 613 + Radius * (1.65 * Math.Cos(.55) - .18 * Math.Sin(.55));
+    private double NeedleY => 765 + Radius * (.17 * Math.Cos(.55) + .81 * Math.Sin(.55)) - 18;
+    private string ArmPath => $"M1002 655C964 695 {F(NeedleX + 105)} {F(NeedleY - 18)} {F(NeedleX)} {F(NeedleY - 12)}";
+    private static string F(double n) => n.ToString("0.###", CultureInfo.InvariantCulture);
+    private Task Select(TopicStateDto t) => Preview || t.Status == TopicProgressStatus.Locked ? Task.CompletedTask : RingClicked.InvokeAsync(t.Id);
+    private Task Key(KeyboardEventArgs e, TopicStateDto t) => e.Key is "Enter" or " " ? Select(t) : Task.CompletedTask;
+}

@@ -110,5 +110,6 @@ public sealed class GameRulesOptions
     public int MaxChallengeAttempts { get; set; } = 2;
     public int WrongAnswersForScratch { get; set; } = 3;
     public int ReinforcementsForScratch { get; set; } = 3;
+    public bool ShowDeveloperAnswers { get; set; }
     public static int Cycles(double importance) => importance < .34 ? 1 : importance < .67 ? 2 : 3;
 }

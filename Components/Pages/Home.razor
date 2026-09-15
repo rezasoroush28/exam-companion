@@ -7,27 +7,26 @@
 
 <PageTitle>هم‌آهنگ | Exam Companion</PageTitle>
 <div class="studio-shell">
-    <header class="studio-header"><a class="brand" href="/"><span class="brand-star">✦</span><span>هم‌آهنگ<small>EXAM COMPANION</small></span></a><span class="header-note">یک تجربه‌ی کوچک برای کشف‌های بزرگ</span><span class="edition">VOL. 01 <i>✳</i></span></header>
+    <header class="studio-header"><a class="brand" href="/"><img src="art/brand/hamahang-mark.svg" alt=""/><span>هم‌آهنگ<small>EXAM COMPANION</small></span></a><span class="header-note">یک استودیوی کوچک برای یادگرفتن</span><span class="edition">VOL. 01</span></header>
     @if (_lesson != null)
     {
         <main class="landing-grid">
             <section class="landing-copy">
                 <div class="eyebrow"><span class="live-dot"></span> یادگیری، با ریتم تو</div>
-                <h1>دانسته‌هات رو<br/>به <em>موسیقی</em><br/>تبدیل کن<span class="title-star">✧</span></h1>
+                <h1>یاد بگیر.<br/>یک <em>ملودی</em> بساز.<br/>صدای خودت رو بشنو.</h1>
                 <p class="hero-description">هر مبحث یک ملودی‌ست. کشفش کن، نت‌هاش رو کنار هم بذار و آلبوم خودت رو بساز.</p>
-                <div class="lesson-picker"><span class="lesson-icon">❀</span><div><small>آلبوم این سفر</small><strong>@_lesson.Name</strong></div><span class="lesson-track-count">۵ قطعه <span>↗</span></span></div>
+                <div class="lesson-picker"><GameIcon/><div><small>آلبوم این سفر</small><strong>@_lesson.Name</strong></div><span class="lesson-track-count">۵ قطعه</span></div>
                 <button class="button primary start-game" disabled="@_busy" @onclick="Start"><span>@(_busy ? "در حال ساخت آلبوم…" : "شروع یک ملودی تازه")</span><b>←</b></button>
                 @if (_lesson.ResumeSessionId.HasValue) { <a class="resume-link" href="/game/@_lesson.ResumeSessionId">ادامه‌ی آلبوم قبلی <span>↗</span></a> }
                 <div class="landing-promise"><span>♪ بدون زمان‌سنج</span><span>✧ فرصت برای دوباره یادگرفتن</span></div>
             </section>
             <section class="landing-art" aria-label="پیش‌نمایش صفحه موسیقی">
-                <div class="art-label"><span>YOUR KNOWLEDGE.<br/>YOUR OWN SOUND.</span><svg viewBox="0 0 90 35"><path d="M2 3 Q20 36 78 23 M68 14 L80 24 L68 31"/></svg></div>
-                <MusicDisc Topics="_lesson.Topics" Preview="true"/>
-                <div class="floating-note note-a"><span>♪</span> هر پاسخ، یک نت تازه</div><div class="floating-note note-b">✦ <span>کشف کن. بساز. بدرخش.</span></div>
+                <div class="art-label">A LITTLE LEARNING.<br/>A SOUND OF YOUR OWN.</div>
+                <Gramophone Topics="_lesson.Topics" Preview="true"/>
                 <div class="disc-caption"><span class="equalizer"><i></i><i></i><i></i><i></i></span><span>صدای دنیای زنده</span><small>۵ مبحث · یک آلبوم</small></div>
             </section>
         </main>
-        <section class="how-it-plays"><div><span>01</span><strong>کشف کن</strong><p>با چند سؤال کوتاه، نت‌های تازه پیدا کن.</p></div><i>⤳</i><div><span>02</span><strong>ملودی بساز</strong><p>با یک چالش، قطعه‌ات رو کامل کن.</p></div><i>⤳</i><div><span>03</span><strong>صیقل بده</strong><p>برگرد و خش‌های کوچیک رو به درخشش تبدیل کن.</p></div></section>
+        <section class="how-it-plays"><div><span>01</span><strong>نت‌ها رو کشف کن</strong><p>هر سؤال کوتاه، یک تکه از ملودی تو.</p></div><div><span>02</span><strong>قطعه‌ات رو بساز</strong><p>با یک چالش، نت‌ها رو به هم وصل کن.</p></div><div><span>03</span><strong>دوباره صیقل بده</strong><p>خش‌های کوچک رو با یک تمرین کوتاه پاک کن.</p></div></section>
     }
     else if (_error == null) { <div class="empty-state">♪ در حال کوک‌کردن سازها…</div> }
     @if (_error != null) { <div class="error-notice" role="alert">@_error <button @onclick="Load">تلاش دوباره</button></div> }

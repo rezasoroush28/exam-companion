@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddOptions<GameRulesOptions>().Bind(builder.Configuration.GetSection("MusicGameRules"))
+    .PostConfigure(r => r.ShowDeveloperAnswers &= builder.Environment.IsDevelopment())
     .Validate(r => r.BaseEducationalQuestionCount >= 1 && r.MaxEducationalQuestionCount >= r.BaseEducationalQuestionCount
         && r.MaxChallengeAttempts >= 1 && r.WrongAnswersForScratch >= 1 && r.ReinforcementsForScratch >= 1,
         "Game rules must have valid positive thresholds.").ValidateOnStart();

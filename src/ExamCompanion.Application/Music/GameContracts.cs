@@ -4,9 +4,9 @@ namespace ExamCompanion.Application.Music;
 
 public sealed record LessonDto(Guid Id, string Name, string ExamName, IReadOnlyList<TopicStateDto> Topics, Guid? ResumeSessionId);
 public sealed record TopicStateDto(Guid Id, string Name, int Order, double Importance, string Color, string MusicalKey,
-    int RequiredCycles, int CompletedCycles, TopicProgressStatus Status, bool HasScratch, bool IsRepaired, double Progress);
+    int RequiredCycles, int CompletedCycles, TopicProgressStatus Status, bool HasScratch, bool IsRepaired, double Progress, int NotesRevealed = 0);
 public sealed record OptionDto(string Key, string Text);
-public sealed record CurrentQuestionDto(Guid Id, QuestionType Type, string Text, IReadOnlyList<OptionDto> Options);
+public sealed record CurrentQuestionDto(Guid Id, QuestionType Type, string Text, IReadOnlyList<OptionDto> Options, string? DeveloperCorrectOption = null);
 public sealed record GameStateDto(Guid SessionId, string LessonName, GameSessionStatus Status, Guid CurrentTopicId,
     int CurrentCycle, int RequiredCycles, GameStepType Step, Guid TurnId, CurrentQuestionDto? Question,
     IReadOnlyList<TopicStateDto> Topics, bool IsRepair, int EducationalAnswered, int EducationalTarget, int ChallengeAttempts);

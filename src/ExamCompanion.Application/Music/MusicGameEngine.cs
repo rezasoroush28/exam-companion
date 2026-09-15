@@ -164,7 +164,7 @@ public sealed class MusicGameEngine(IGameStore store, IQuestionSelector selector
     }
     private static IReadOnlyList<OptionDto> Options(Question q) => new[] {
         new OptionDto("A", q.OptionA), new("B", q.OptionB), new("C", q.OptionC ?? ""), new("D", q.OptionD ?? "") }.Where(o => o.Text.Length > 0).ToArray();
-    private static GameStateDto Map(GameSession s)
+    private GameStateDto Map(GameSession s)
     {
         var active = s.RepairTopicId ?? s.CurrentTopicId;
         var p = s.Topics.Single(p => p.TopicId == active);
@@ -174,10 +174,11 @@ public sealed class MusicGameEngine(IGameStore store, IQuestionSelector selector
             var partial = t.Id == s.CurrentTopicId && tp.CompletedAt == null ? Math.Min(.8, s.EducationalAnswered * .18) : 0;
             return new TopicStateDto(t.Id, t.Name, t.DisplayOrder, t.Importance, t.MusicalColor, t.MusicalKey,
                 tp.RequiredCycles, tp.CompletedCycles, tp.Status, tp.HasScratch, tp.IsRepaired,
-                Math.Min(1, (tp.CompletedCycles + partial) / tp.RequiredCycles));
+                Math.Min(1, (tp.CompletedCycles + partial) / tp.RequiredCycles),
+                s.Attempts.Count(a => a.TopicId == t.Id && a.IsCorrect && !a.WasRepair && t.Questions.Any(q => q.Id == a.QuestionId && q.Type == QuestionType.Educational)));
         }).ToArray();
         return new(s.Id, s.Lesson.Name, s.Status, active, s.CurrentCycleIndex + 1, p.RequiredCycles, s.Step, s.TurnId,
-            q == null ? null : new(q.Id, q.Type, q.Text, Options(q)), topics, s.RepairTopicId.HasValue,
+            q == null ? null : new(q.Id, q.Type, q.Text, Options(q), rules.ShowDeveloperAnswers ? q.CorrectOption : null), topics, s.RepairTopicId.HasValue,
             s.EducationalAnswered, s.EducationalTarget, s.ChallengeAttempts);
     }
 }

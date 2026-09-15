@@ -11,6 +11,17 @@ namespace ExamCompanion.Application.Tests;
 
 public sealed class GameEngineTests
 {
+    [Fact] public async Task MusicalNotesComeOnlyFromCorrectEducationalAnswersAndSurviveReload()
+    {
+        await using var h = await Harness.Create(); var s = await h.Start();
+        s = (await h.Answer(s, false)).State;
+        Assert.Equal(0, s.Topics[0].NotesRevealed);
+        s = (await h.Answer(s, true)).State;
+        Assert.Equal(1, s.Topics[0].NotesRevealed);
+        var loaded = await h.Engine.GetSessionAsync(s.SessionId);
+        Assert.Equal(1, loaded.Topics[0].NotesRevealed);
+        Assert.Null(loaded.Question!.DeveloperCorrectOption);
+    }
     [Theory]
     [InlineData(.2, 1)] [InlineData(.339, 1)] [InlineData(.34, 2)] [InlineData(.5, 2)] [InlineData(.67, 3)] [InlineData(.9, 3)]
     public void ImportanceControlsCycles(double importance, int cycles) => Assert.Equal(cycles, GameRulesOptions.Cycles(importance));
