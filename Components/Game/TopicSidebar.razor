@@ -1,0 +1,23 @@
+@using ExamCompanion.Application.Music
+@using ExamCompanion.Domain.Music
+<nav class="topic-sidebar" aria-label="مبحث‌های آلبوم">
+    <div class="sidebar-heading"><span>قطعه‌های آلبوم</span><small dir="ltr">SIDE A / 01</small></div>
+    <div class="track-list">
+        @foreach (var t in Topics)
+        {
+            var locked = t.Status == TopicProgressStatus.Locked;
+            <button class="track @(t.Id == CurrentTopicId ? "active" : "")" style="--track-color:var(--topic-@t.Order)" disabled="@locked" aria-current="@(t.Id == CurrentTopicId ? "step" : null)" @onclick="() => Selected.InvokeAsync(t.Id)">
+                <span class="track-number">@((t.Order + 1).ToString("00"))</span>
+                <span class="track-copy"><strong>@Short(t.Name)</strong><small>@(locked ? "هنوز نوبتش نرسیده" : t.HasScratch ? "نیاز به صیقل" : t.IsRepaired ? "صیقل‌خورده" : t.Progress >= 1 ? "قطعه کامل" : "در حال ساخت")</small><span class="track-meter"><i style="width:@((t.Progress * 100).ToString("0", System.Globalization.CultureInfo.InvariantCulture))%"></i></span></span>
+                <GameIcon Name="@(locked ? "lock" : t.HasScratch ? "scratch" : t.IsRepaired ? "sparkle" : "note")"/>
+            </button>
+        }
+    </div>
+    <p class="sidebar-note">هر مبحث، یک صدای تازه.<br/>با ریتم خودت ادامه بده.</p>
+</nav>
+@code {
+    [Parameter] public IReadOnlyList<TopicStateDto> Topics { get; set; } = [];
+    [Parameter] public Guid CurrentTopicId { get; set; }
+    [Parameter] public EventCallback<Guid> Selected { get; set; }
+    private static string Short(string s) => s.Contains(':') ? s[(s.IndexOf(':') + 1)..].Trim() : s;
+}
