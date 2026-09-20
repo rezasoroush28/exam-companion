@@ -1,23 +1,54 @@
 @using System.Globalization
 @using ExamCompanion.Application.Music
 @using ExamCompanion.Domain.Music
-<div class="gramophone @(Preview ? "preview" : "")" data-gramophone>
-    <svg viewBox="100 30 1050 1140" role="group" aria-label="گرامافون کاغذی؛ پنج شیار برای پنج مبحث" class="gramophone-art">
+<div class="gramophone @(Preview ? "preview" : "")" data-gramophone data-topic="@CurrentTopicId" data-motion="idle" data-playing="false" data-hit="false" data-pulse="" data-reduced-motion="false" data-ready="@(Preview ? "true" : "false")">
+    <svg viewBox="100 20 1050 1180" role="group" aria-label="گرامافون کاغذی؛ پنج شیار برای پنج مبحث" class="gramophone-art">
         <defs>
-            <filter id="@(_id + "-shadow")" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="15"/></filter>
+            <filter id="@(_id + "-shadow")" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="16"/></filter>
+            <linearGradient id="@(_id + "-body")" x2=".25" y2="1"><stop stop-color="#b77179"/><stop offset=".55" stop-color="#965466"/><stop offset="1" stop-color="#693544"/></linearGradient>
+            <linearGradient id="@(_id + "-top")" x2=".4" y2="1"><stop stop-color="#b99168"/><stop offset="1" stop-color="#8d654b"/></linearGradient>
+            <linearGradient id="@(_id + "-paper")" x2=".8" y2=".5"><stop stop-color="#fff0c7"/><stop offset="1" stop-color="#d9a44c"/></linearGradient>
+            <linearGradient id="@(_id + "-teal")" x2=".8" y2="1"><stop stop-color="#7db6a9"/><stop offset=".6" stop-color="#4f9390"/><stop offset="1" stop-color="#326b70"/></linearGradient>
             <linearGradient id="@(_id + "-label")" x2=".4" y2="1"><stop stop-color="#fff0c5"/><stop offset="1" stop-color="#d9b976"/></linearGradient>
             <linearGradient id="@(_id + "-arm")" x2="0" y2="1"><stop stop-color="#fff3cf"/><stop offset="1" stop-color="#d3af6e"/></linearGradient>
-            @* Clip the RGB art plate to let the studio background show around the object. *@
-            <clipPath id="@(_id + "-body")">
-                <path d="M153 792Q154 779 174 761L393 579Q423 549 477 558L882 623L970 637Q1000 632 1027 646L1056 653Q1088 662 1090 697L1094 797Q1098 832 1082 869L1075 910L1056 914L964 1075Q950 1100 929 1110L916 1137L867 1161L798 1149L780 1118L287 996L261 1020L201 1004L182 959Q151 950 152 921L159 897Q148 881 150 847Z"/>
-                <path d="M489 122Q521 64 546 57Q570 47 602 86L638 123Q667 134 697 142Q730 150 734 202L757 291L794 340L844 375Q903 398 933 464Q949 492 953 521Q962 522 960 548L957 599Q980 605 976 628Q974 656 928 660Q871 655 873 624Q872 607 893 600L893 563Q880 551 889 526Q875 491 833 480Q790 466 736 488L666 526L626 550Q589 589 550 587Q522 585 477 552Q417 555 388 526Q355 497 370 434Q330 403 325 367Q317 323 359 282L384 258Q378 184 435 145Q457 129 489 122Z"/>
-            </clipPath>
+            <radialGradient id="@(_id + "-vinyl")" cx=".3" cy=".2" r=".9"><stop stop-color="#303743"/><stop offset="1" stop-color="#171e29"/></radialGradient>
+            <pattern id="@(_id + "-grain")" width="9" height="11" patternUnits="userSpaceOnUse"><path d="M1 2h1M6 7h.5M3 10h1" stroke="#fff2cf" stroke-width=".8" opacity=".18"/></pattern>
         </defs>
-        <ellipse cx="624" cy="1090" rx="416" ry="57" fill="#060917" opacity=".42" filter="url(#@(_id + "-shadow"))"/>
-        <image class="gramophone-body" href="art/gramophone/papercraft-body-v2.png" x="0" y="0" width="1254" height="1254" clip-path="url(#@(_id + "-body"))" aria-hidden="true"/>
-        @* Motion reads this exact projection, keeping the needle on the selected groove. *@
-        <g class="turntable" data-turntable transform="matrix(1.65 .17 -.18 .81 613 765)">
-            <g data-record>
+        <g class="gram-shadow" data-part="gram-shadow"><ellipse cx="620" cy="1176" rx="285" ry="49" fill="#050817" opacity=".45" filter="url(#@(_id + "-shadow"))"/></g>
+        <g data-part="gramophone-root"><g class="gram-locomotion" data-part="gram-locomotion">
+        <g class="artifact-rest" data-part="artifact-rest">
+        <g class="artifact-motion" data-part="artifact-motion">
+        <g class="machine-root" data-part="machine-root">
+        <g class="gram-body" data-part="gram-body">
+            <g class="limb left-leg" data-part="left-leg" data-hip-x="452" data-hip-y="939" data-knee-x="466" data-knee-y="1034" data-ankle-x="443" data-ankle-y="1090">
+                <g class="limb left-thigh" data-part="left-thigh" data-pivot-x="452" data-pivot-y="939"><use href="/assets/gramophone/left-thigh.svg#art"/>
+                    <g class="limb left-shin" data-part="left-shin" data-pivot-x="466" data-pivot-y="1034"><use href="/assets/gramophone/left-shin.svg#art"/>
+                        <g class="limb left-foot" data-part="left-foot" data-pivot-x="443" data-pivot-y="1090"><use href="/assets/gramophone/left-foot.svg#art"/></g>
+                    </g>
+                </g>
+            </g>
+            <g class="limb right-leg" data-part="right-leg" data-hip-x="659" data-hip-y="966" data-knee-x="714" data-knee-y="1048" data-ankle-x="701" data-ankle-y="1100">
+                <g class="limb right-thigh" data-part="right-thigh" data-pivot-x="659" data-pivot-y="966"><use href="/assets/gramophone/right-thigh.svg#art"/>
+                    <g class="limb right-shin" data-part="right-shin" data-pivot-x="714" data-pivot-y="1048"><use href="/assets/gramophone/right-shin.svg#art"/>
+                        <g class="limb right-foot" data-part="right-foot" data-pivot-x="701" data-pivot-y="1100"><use href="/assets/gramophone/right-foot.svg#art"/></g>
+                    </g>
+                </g>
+            </g>
+            <g class="limb left-arm" data-part="left-arm" data-shoulder-x="383" data-shoulder-y="732"><use href="/assets/gramophone/left-arm.svg#art"/></g>
+            <g data-part="gram-top-plane"><use href="/assets/gramophone/body.svg#art"/></g>
+        </g>
+            <g transform="translate(240 240) scale(.6)">
+            <g class="turntable" data-turntable transform="matrix(1.65 .17 -.18 .81 613 765)">
+                <g class="turntable-housing" data-part="turntable-housing">
+                    <circle r="205" fill="#533b31" stroke="#d9b481" stroke-width="5"/>
+                    <circle r="199" fill="#090e19" stroke="#876b4c" stroke-width="4"/>
+                    <circle r="195" fill="#111622"/>
+                </g>
+                <g class="record-stage" data-part="record-stage">
+                <g class="record-root" data-part="record-root">
+                    <g class="record-disc" data-part="record-disc" data-record>
+                        <circle r="192" fill="url(#@(_id + "-vinyl"))" stroke="#424653" stroke-width="1.5"/>
+                        <g class="topic-grooves" data-part="topic-grooves">
                 @for (var i = 0; i < Topics.Count; i++)
                 {
                     var t = Topics[i]; var r = 175 - i * 25;
@@ -28,6 +59,8 @@
                         <circle r="@r" class="groove-track"/>
                         <circle r="@r" class="groove-fill" pathLength="100" stroke-dasharray="100" stroke-dashoffset="@F(100 * (1 - progress))" transform="rotate(-90)"/>
                         <circle r="@r" class="groove-hit-area"/>
+                        <circle r="@r" class="groove-reaction" pathLength="100" aria-hidden="true"/>
+                        <g data-part="scratch-layer" class="scratch-layer">
                         @if (t.HasScratch || (RepairingOrder == i))
                         {
                             <g class="scratch-mark @(RepairingOrder == i ? "closing" : "")" transform="rotate(@F((1.5 + i * .4) * 180 / Math.PI))">
@@ -35,28 +68,72 @@
                                 <path d="@($"M {r - 5} -49 l 9 10 -11 10 10 11 -9 10 11 12 -10 11 8 11 -10 10")" transform="scale(1 @F(r / 175.0))" class="scratch-crack"/>
                             </g>
                         }
+                        </g>
                         @if (t.IsRepaired) { <path d="@($"M {-r} -8l3 5 5 3-5 3-3 5-3-5-5-3 5-3z")" fill="var(--paper)"/> }
                     </g>
                 }
-                <circle r="51" fill="url(#@(_id + "-label"))" stroke="#b89657" stroke-width="1.5"/><circle r="46" fill="none" stroke="#fff3cb" stroke-width=".7" opacity=".55"/>
-                <path d="M-10 17v-38l27-7v34M-10-10l27-7" fill="none" stroke="var(--burgundy-dark)" stroke-width="5"/>
-                <ellipse cx="-18" cy="20" rx="10" ry="6" fill="var(--burgundy-dark)"/><ellipse cx="9" cy="9" rx="10" ry="6" fill="var(--burgundy-dark)"/>
+
+                        </g>
+                        <g class="record-label" data-part="record-label">
+                            <circle r="51" fill="url(#@(_id + "-label"))" stroke="#b89657" stroke-width="1.5"/>
+                            <circle r="46" fill="none" stroke="#fff3cb" stroke-width=".7" opacity=".55"/>
+                            <path d="M-10 17v-38l27-7v34M-10-10l27-7" fill="none" stroke="var(--burgundy-dark)" stroke-width="5"/>
+                            <ellipse cx="-18" cy="20" rx="10" ry="6" fill="var(--burgundy-dark)"/><ellipse cx="9" cy="9" rx="10" ry="6" fill="var(--burgundy-dark)"/>
+                        </g>
+                    </g>
+                </g>
+                <circle r="4" fill="#856044" stroke="#d0a66b" stroke-width="1"/>
+                <g class="playhead" data-part="playhead"><circle data-playhead cx="@F(Radius * Math.Cos(.55))" cy="@F(Radius * Math.Sin(.55))" r="4" fill="var(--paper)"/></g>
+                </g>
             </g>
-            <circle r="4" fill="#856044" stroke="#d0a66b" stroke-width="1"/>
-            <circle class="playhead" data-playhead cx="@F(Radius * Math.Cos(.55))" cy="@F(Radius * Math.Sin(.55))" r="5" fill="var(--paper)"/>
-        </g>
-        <g class="tone-arm" data-tone-arm data-pivot-x="1002" data-pivot-y="655" data-needle-lift="18">
-            <path data-arm-path d="@ArmPath" stroke="#705037" stroke-width="20" fill="none" stroke-linecap="round"/>
-            <path data-arm-highlight d="@ArmPath" stroke="url(#@(_id + "-arm"))" stroke-width="13" fill="none" stroke-linecap="round"/>
-            <circle cx="1002" cy="655" r="10" fill="#e4bc68" stroke="#ffe0a2" stroke-width="2"/>
-            <g data-needle transform="translate(@F(NeedleX) @F(NeedleY))">
-                <path d="M-3 4L0 18L8 1" fill="#fff2cb" stroke="#b7975f" stroke-width="1.5"/>
-                <path d="M-21-18L9-29L26-16L-4-4Z" fill="#87bfad"/>
-                <path d="M-21-18L-4-4V12L-21 0Z" fill="#407c7e"/>
-                <path d="M-4-4L26-16V0L-4 12Z" fill="#52958e"/>
-                <ellipse cx="2" cy="-17" rx="6" ry="4" fill="#edcb77"/>
             </g>
+            <g class="horn-support" data-part="horn-support"><path d="M467 615h70v34h-70Z" fill="#bc8a42" stroke="#efc67a" stroke-width="5"/></g>
+            <g data-part="horn-pivot"><g class="horn-follow" data-part="horn-follow">
+                <g class="horn-root" data-part="horn-root"><g class="horn-shell" data-part="horn-shell"><use href="/assets/gramophone/horn.svg#art"/></g></g>
+            </g></g>
+            <g transform="translate(240 240) scale(.6)">
+            <ellipse cx="1003" cy="694" rx="43" ry="20" fill="#6f523b"/>
+            <ellipse cx="1003" cy="687" rx="41" ry="19" fill="#d4b17b" stroke="#f3d39a" stroke-width="2"/>
+            <path d="M987 649v36q17 12 33 0v-36" fill="#a57f43"/>
+            <g class="tonearm-pivot" data-part="tonearm-pivot">
+            <g class="tonearm-follow" data-part="tonearm-follow">
+            <g class="tonearm-root tone-arm" data-part="tonearm-root" data-tone-arm data-pivot-x="1002" data-pivot-y="655" data-needle-lift="18">
+                <g class="tonearm-arm" data-part="tonearm-arm">
+                    <path data-arm-path d="@ArmPath" stroke="#705037" stroke-width="20" fill="none" stroke-linecap="round"/>
+                    <path data-arm-highlight d="@ArmPath" stroke="url(#@(_id + "-arm"))" stroke-width="13" fill="none" stroke-linecap="round"/>
+                </g>
+                <circle cx="1002" cy="655" r="10" fill="#e4bc68" stroke="#ffe0a2" stroke-width="2"/>
+                <g class="needle" data-part="needle" data-needle transform="translate(@F(NeedleX) @F(NeedleY))">
+                    <path d="M-3 4L0 18L8 1" fill="#fff2cb" stroke="#b7975f" stroke-width="1.5"/>
+                    <path d="M-21-18L9-29L26-16L-4-4Z" fill="#87bfad"/>
+                    <path d="M-21-18L-4-4V12L-21 0Z" fill="#407c7e"/>
+                    <path d="M-4-4L26-16V0L-4 12Z" fill="#52958e"/>
+                    <ellipse cx="2" cy="-17" rx="6" ry="4" fill="#edcb77"/>
+                </g>
+            </g>
+            </g>
+            </g>
+            </g>
+            <g class="pocket-root" data-part="pocket-root" data-flap-x="765" data-flap-y="804" data-disc-x="798" data-disc-y="855">
+                <g class="record-prop" data-part="record-prop" data-center-x="0" data-center-y="0" aria-hidden="true"><use href="/assets/gramophone/record-prop.svg#art"/></g>
+                <use href="/assets/gramophone/pocket-front.svg#art" class="pocket-front" data-part="pocket-front"/>
+                <g class="pocket-flap" data-part="pocket-flap" data-pivot-x="765" data-pivot-y="804"><use href="/assets/gramophone/pocket-flap.svg#art"/></g>
+            </g>
+            <g class="limb right-arm" data-part="right-arm" data-shoulder-x="786" data-shoulder-y="792" data-elbow-x="914" data-elbow-y="830" data-wrist-x="943" data-wrist-y="711">
+                <use href="/assets/gramophone/right-arm.svg#upper"/>
+                <g class="limb right-forearm" data-part="right-forearm" data-pivot-x="914" data-pivot-y="830"><use href="/assets/gramophone/right-arm.svg#forearm"/></g>
+            </g>
+            <g class="sparkle-fx" data-part="sparkle-fx" aria-hidden="true"><path d="M962 551l5 13 13 5-13 5-5 13-5-13-13-5 13-5Z" fill="#fff0c5"/></g>
         </g>
+        </g>
+        </g>
+        </g></g>
+        <g class="rig-pivots" data-part="rig-pivots" aria-hidden="true">
+            <g class="pivot-marker artifact-pivot-marker"><circle cx="620" cy="1090" r="14"/><path d="M596 1090h48M620 1066v48"/></g>
+            <g class="pivot-marker horn-pivot-marker"><circle cx="900" cy="540" r="12"/><path d="M880 540h40M900 520v40"/></g>
+            <g class="pivot-marker tonearm-pivot-marker"><circle cx="1002" cy="655" r="12"/><path d="M982 655h40M1002 635v40"/></g>
+        </g>
+        <g class="impact-fx" data-part="impact-fx" aria-hidden="true"><path d="M250 1087l-23-9M978 1094l24-8M216 1103h-17M1010 1106h18" stroke="#d9b67e" stroke-width="3" stroke-linecap="round"/></g>
     </svg>
 </div>
 @code {

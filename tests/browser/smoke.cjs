@@ -61,13 +61,17 @@ fs.mkdirSync(artifacts, { recursive: true });
     );
   };
   const start = async () => {
-    await page.goto("http://localhost:5175/");
+    await page.goto(process.env.EXAM_URL ?? "http://localhost:5175/");
     await page.locator(".start-game:not([disabled])").waitFor();
     await page.locator(".start-game").click();
     await page.waitForURL("**/game/*");
     const id = page.url().split("/").pop().toUpperCase();
     sessions.push(id);
     await page.locator(".answer-option").first().waitFor();
+    await page.waitForFunction(
+      () =>
+        document.querySelector(".game-studio")?.dataset.entering === "false",
+    );
     return id;
   };
   const state = (id) =>
@@ -77,6 +81,15 @@ fs.mkdirSync(artifacts, { recursive: true });
       )
       .get(id);
   const answer = async (id, correct, capture) => {
+    if (capture === "repair-success")
+      await page.evaluate(() => {
+        window.repairMotions = [];
+        document
+          .querySelector(".game-studio")
+          .addEventListener("gramophone-motion-started", (e) =>
+            window.repairMotions.push(e.detail.motion),
+          );
+      });
     const before = state(id);
     const key = correct
       ? before.CorrectOption
@@ -93,13 +106,22 @@ fs.mkdirSync(artifacts, { recursive: true });
       await choice.press(key.toLowerCase());
     } else await choice.click();
     await page.locator(".question-feedback").waitFor();
+    if (capture === "repair-success") {
+      await page.waitForFunction(() =>
+        window.repairMotions.includes("repair-relief-settle"),
+      );
+      assert(
+        await page.evaluate(() => window.repairMotions.includes("repair-heal")),
+        "successful repair plays heal then relief",
+      );
+    }
     if (capture) await snap(capture);
     assert.notEqual(state(id).TurnId, before.TurnId, "answer was persisted");
     await page.locator(".question-feedback button").click();
     await page.locator(".question-feedback").waitFor({ state: "hidden" });
   };
   try {
-    await page.goto("http://localhost:5175/");
+    await page.goto(process.env.EXAM_URL ?? "http://localhost:5175/");
     await page.locator(".start-game").waitFor();
     await snap("home-desktop");
     await page.setViewportSize({ width: 390, height: 844 });

@@ -21,12 +21,29 @@ const chords = {
 export function isEnabled() {
   return enabled;
 }
+export function status() {
+  return context?.state ?? "not-created";
+}
 export async function unlock() {
   try {
     const Audio = window.AudioContext || window.webkitAudioContext;
     if (enabled && Audio) {
       context ??= new Audio();
-      if (context.state === "suspended") await context.resume();
+      if (context.state === "suspended") {
+        // A browser may keep resume pending until it accepts a user gesture.
+        // Give audio a short chance, then allow silent visual playback.
+        let resumeTimer;
+        try {
+          await Promise.race([
+            context.resume(),
+            new Promise((resolve) => {
+              resumeTimer = setTimeout(resolve, 200);
+            }),
+          ]);
+        } finally {
+          clearTimeout(resumeTimer);
+        }
+      }
     }
   } catch {}
 }
@@ -101,12 +118,24 @@ export function scratchFraction(order) {
     ((0.55 - (1.5 + order * 0.4) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2)
   );
 }
+export async function wake() {
+  const own = generation;
+  await unlock();
+  if (own === generation) voice(84, clock() + 0.02, 0.3, 0.025);
+}
 export async function schedule(topics, event = "preview") {
   stop();
   const own = generation;
   await unlock();
-  const start = clock() + 0.06;
-  if (own !== generation) return { start, entries: [], end: start };
+  // Keep one clock for the entire schedule. If audio resumes later, a silent
+  // timeline must not jump from performance time into AudioContext time.
+  const timelineClock =
+    context?.state === "running"
+      ? () => context.currentTime
+      : () => performance.now() / 1000;
+  const start = timelineClock() + 0.06;
+  if (own !== generation)
+    return { start, entries: [], end: start, clock: timelineClock };
   // Cycle completion plays four equally short notes, without the sustained replay layer.
   const cycleResolution = event === "resolve";
   const duration = cycleResolution
@@ -191,7 +220,12 @@ export async function schedule(topics, event = "preview") {
       bus.disconnect();
     };
   }
-  return { start, entries, end: start + entries.length * duration };
+  return {
+    start,
+    entries,
+    end: start + entries.length * duration,
+    clock: timelineClock,
+  };
 }
 export function stop() {
   generation++;

@@ -5,6 +5,7 @@
 @inject IGameEngine Engine
 @inject IJSRuntime JS
 @inject IWebHostEnvironment HostEnvironment
+@inject ILogger<Game> Logger
 @implements IAsyncDisposable
 
 <PageTitle>آلبوم من | هم‌آهنگ</PageTitle>
@@ -17,6 +18,7 @@
                 <label class="dev-answer-toggle"><input type="checkbox" @bind="_showDeveloperAnswer"/> پاسخ درست</label>
             }
             <a class="exit-link" href="/">بازگشت به استودیو ↗</a>
+            <label class="motion-preference"><input type="checkbox" checked="@_reducedMotion" @onchange="ToggleReducedMotion"/> حرکت کمتر</label>
             <button class="sound-button" aria-pressed="@(_sound ? "true" : "false")" @onclick="ToggleSound"><GameIcon Name="@(_sound ? "sound" : "mute")"/>@(_sound ? "صدا روشن" : "صدا خاموش")</button>
         </div>
     </header>
@@ -43,6 +45,20 @@
                 <div class="available-notes" aria-label="نت‌های کشف‌شده">
                     @for (var i = 0; i < 4; i++) { <span class="@(current.Progress >= 1 || current.NotesRevealed > i ? "lit" : "")">@NoteNames(current.MusicalKey)[i]</span> }
                 </div>
+                @if (HostEnvironment.IsDevelopment())
+                {
+                    <details class="motion-tester">
+                        <summary>آزمایش حرکت گرامافون · Development</summary>
+                        <label>حرکت <select @bind="_testMotion">
+                            <option value="entrance">ورود کامل</option>
+                            @foreach (var motion in TestMotions) { <option value="@motion">@motion</option> }
+                        </select></label>
+                        <div><button class="button" disabled="@(_motion == null)" @onclick="PreviewMotion">اجرای حرکت</button>
+                        <button class="button" @onclick="ReadMotionStatus">وضعیت حرکت</button></div>
+                        <p>این کنترل‌ها فقط حرکت را آزمایش می‌کنند. تنظیم «حرکت کمتر» و تنظیم سیستم رعایت می‌شود.</p>
+                        <pre dir="ltr" role="status">@_motionStatus</pre>
+                    </details>
+                }
                 @if (_selectedRing is { } selected)
                 {
                     <div class="ring-detail"><strong>@ShortName(selected.Name)</strong><p>@(selected.HasScratch ? "یک خش کوچک در این قطعه هست. گوش بده، بعد صیقلش بده." : "این نت‌ها رو خودت کنار هم گذاشتی.")</p>
@@ -82,9 +98,28 @@
     private AnswerResultDto? _feedback;
     private TopicStateDto? _selectedRing;
     private string? _selectedAnswer, _error;
-    private bool _busy, _disposed, _focusPending, _sound = true, _showDeveloperAnswer = true;
+    private bool _busy, _disposed, _focusPending, _listenPending, _reducedMotion, _sound = true, _showDeveloperAnswer = true;
+    private Guid? _presentationSession;
     private IJSObjectReference? _module, _motion;
-    private (TopicStateDto[] Topics, string Event)? _pending;
+    private sealed record PlaybackRequest(TopicStateDto[] Topics, string Event, string[]? Motions = null, int CycleIndex = 0, bool FinalComposition = false);
+    private PlaybackRequest? _pending;
+    private string _testMotion = "topic-proud-hop", _motionStatus = "برای دیدن تنظیم‌های مرورگر، وضعیت حرکت را بزنید.";
+    private static readonly string[] TestMotions = ["enter-drop", "land-impact", "record-drop-in", "record-wobble-settle", "wake", "idle-settle", "listen-lean", "correct-pulse", "wrong-recoil", "challenge-resolve", "cycle-complete-hop", "topic-proud-hop", "repair-heal", "repair-relief-settle", "lesson-complete-bow"];
+    private async Task PreviewMotion()
+    {
+        if (_motion == null || !HostEnvironment.IsDevelopment()) return;
+        try { await _motion.InvokeVoidAsync("preview", _testMotion); await ReadMotionStatus(); }
+        catch (JSException e) { Logger.LogError(e, "Gramophone preview failed"); _motionStatus = e.Message; }
+    }
+    private async Task ReadMotionStatus()
+    {
+        if (_motion == null || !HostEnvironment.IsDevelopment()) return;
+        try {
+            var status = await _motion.InvokeAsync<System.Text.Json.JsonElement>("diagnostics");
+            _motionStatus = System.Text.Json.JsonSerializer.Serialize(status, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (JSException e) { Logger.LogError(e, "Gramophone diagnostics failed"); _motionStatus = e.Message; }
+    }
     protected override Task OnParametersSetAsync() => Load();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -96,17 +131,25 @@
                 _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameMotion.js");
                 _motion = await _module.InvokeAsync<IJSObjectReference>("create", _host);
                 _sound = await _motion.InvokeAsync<bool>("isEnabled");
+                _reducedMotion = await _motion.InvokeAsync<bool>("reducedPreference");
                 await InvokeAsync(StateHasChanged);
+            }
+            if (_state != null && _motion != null && _presentationSession != SessionId)
+            {
+                _presentationSession = SessionId;
+                await _motion.InvokeVoidAsync("initialize", SessionId.ToString());
             }
             if (_pending is { } pending && _motion != null)
             {
                 _pending = null;
-                await _motion.InvokeVoidAsync("play", AudioTopics(pending.Topics), pending.Event);
+                await _motion.InvokeVoidAsync("play", AudioTopics(pending.Topics), pending.Event,
+                    new { motions = pending.Motions, cycleIndex = pending.CycleIndex, finalComposition = pending.FinalComposition });
             }
+            if (_listenPending && _motion != null) { _listenPending = false; await _motion.InvokeVoidAsync("listen", _state?.IsRepair == true); }
             if (_focusPending && _motion != null) { _focusPending = false; await _motion.InvokeVoidAsync("focusQuestion"); }
         }
         catch (JSDisconnectedException) { }
-        catch (JSException) { _pending = null; }
+        catch (JSException e) { _pending = null; Logger.LogError(e, "Gramophone presentation failed"); }
     }
     private async Task Load()
     {
@@ -127,7 +170,16 @@
             _feedback = await Engine.SubmitAnswerAsync(SessionId, _state.Question.Id, _state.TurnId, option);
             var t = _feedback.State.Topics.Single(t => t.Order == _feedback.TopicOrder);
             var type = _feedback.Result == AnswerResultType.Repaired ? "repair" : !_feedback.Correct ? "wrong" : _state.Question.Type == QuestionType.Challenge ? "resolve" : "correct";
-            _pending = ([t], type);
+            var before = _state.Topics.Single(topic => topic.Id == t.Id);
+            var motions = new List<string>();
+            if (_feedback.Result == AnswerResultType.Repaired) motions.AddRange(["repair-heal", "repair-relief-settle"]);
+            else
+            {
+                motions.Add(!_feedback.Correct ? "wrong-recoil" : _state.Question.Type == QuestionType.Challenge ? "challenge-resolve" : "correct-pulse");
+                if (!_state.IsRepair && t.CompletedCycles > before.CompletedCycles)
+                    motions.Add(t.CompletedCycles >= t.RequiredCycles ? "topic-proud-hop" : "cycle-complete-hop");
+            }
+            _pending = new([t], type, motions.ToArray(), _state.CurrentCycle);
             _selectedRing = null;
         }
         catch (GameInputException e) { _error = e.Message; }
@@ -139,14 +191,15 @@
         if (_feedback == null) return;
         await StopPlayback();
         _state = _feedback.State; _feedback = null; _selectedAnswer = null; _selectedRing = null; _focusPending = true;
-        if (_state.Status == GameSessionStatus.Completed && !_state.IsRepair) _pending = (_state.Topics.ToArray(), "album");
+        if (_state.Status == GameSessionStatus.Completed && !_state.IsRepair) _pending = new(_state.Topics.ToArray(), "album", FinalComposition: true);
+        else _listenPending = true;
     }
     private async Task Repair(Guid id)
     {
         if (_busy || _feedback != null) return;
         _busy = true; _error = null;
         await StopPlayback();
-        try { _state = await Engine.StartRepairAsync(SessionId, id); _selectedRing = null; }
+        try { _state = await Engine.StartRepairAsync(SessionId, id); _selectedRing = null; _listenPending = true; }
         catch (GameInputException e) { _error = e.Message; }
         catch (Exception) { _error = "شروع تمرین ممکن نشد."; }
         finally { _busy = false; }
@@ -156,7 +209,7 @@
         var t = (_feedback?.State ?? _state)?.Topics.Single(t => t.Id == id);
         if (t == null || t.Status == TopicProgressStatus.Locked || _busy) return Task.CompletedTask;
         _selectedRing = t;
-        if (t.Progress > 0) _pending = ([t], "preview");
+        if (t.Progress > 0) _pending = new([t], "preview");
         return Task.CompletedTask;
     }
     private async Task ToggleSound()
@@ -164,15 +217,20 @@
         _sound = !_sound;
         if (_motion != null) { try { await _motion.InvokeVoidAsync("setEnabled", _sound); } catch (JSException) { } }
     }
+    private async Task ToggleReducedMotion(ChangeEventArgs e)
+    {
+        _reducedMotion = e.Value is true;
+        if (_motion != null) { try { await _motion.InvokeVoidAsync("setReducedMotion", _reducedMotion); } catch (JSException) { } }
+    }
     private async Task PlayDisc()
     {
         if (_motion == null || _state == null) return;
         var topics = (_feedback?.State ?? _state).Topics.Where(t => t.Progress > 0).ToArray();
-        try { await _motion.InvokeVoidAsync("toggle", AudioTopics(topics)); } catch (JSException) { }
+        try { await _motion.InvokeVoidAsync("toggle", AudioTopics(topics), new { finalComposition = _state.Status == GameSessionStatus.Completed && !_state.IsRepair }); } catch (JSException) { }
     }
     private async Task StopPlayback()
     {
-        _pending = null;
+        _pending = null; _listenPending = false;
         if (_motion != null) { try { await _motion.InvokeVoidAsync("stop"); } catch (JSException) { } }
     }
     private static object[] AudioTopics(IEnumerable<TopicStateDto> topics) => topics.Select(t => (object)new { order = t.Order, key = t.MusicalKey, progress = t.Progress, notes = t.NotesRevealed, scratched = t.HasScratch }).ToArray();

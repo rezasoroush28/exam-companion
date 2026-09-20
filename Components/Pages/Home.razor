@@ -4,6 +4,7 @@
 @using ChallengePrototype.Components.Game
 @inject IGameEngine Engine
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>هم‌آهنگ | Exam Companion</PageTitle>
 <div class="studio-shell">
@@ -42,7 +43,13 @@
     {
         if (_busy || _lesson == null) return;
         _busy = true;
-        try { var state = await Engine.StartSessionAsync(_lesson.Id); Navigation.NavigateTo($"/game/{state.SessionId}"); }
+        try
+        {
+            var state = await Engine.StartSessionAsync(_lesson.Id);
+            try { await JS.InvokeVoidAsync("sessionStorage.setItem", $"gramophone:enter:{state.SessionId}", "1"); }
+            catch (JSException) { }
+            Navigation.NavigateTo($"/game/{state.SessionId}");
+        }
         catch (Exception) { _error = "شروع بازی ممکن نشد؛ دوباره تلاش کن."; }
         finally { _busy = false; }
     }

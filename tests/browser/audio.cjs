@@ -10,7 +10,7 @@ try {
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   try {
     const page = await browser.newPage();
-    await page.goto("http://localhost:5175/");
+    await page.goto(process.env.EXAM_URL ?? "http://localhost:5175/");
     const result = await page.evaluate(async () => {
       const realAudio = window.AudioContext;
       let offline;
@@ -38,6 +38,33 @@ try {
         const partial = await render("partial", 0.3, false);
         const correct = await render("correct", 0.3, true, "correct");
         const cycle = await render("cycle", 1, true, "resolve");
+        const replacementAudio =
+          await import("/js/gameAudio.js?offline=replacement");
+        const topic = {
+          order: 0,
+          key: "C",
+          notes: 1,
+          progress: 1,
+          scratched: false,
+        };
+        replacementAudio.setEnabled(true);
+        await replacementAudio.schedule([{ ...topic, scratched: true }]);
+        await replacementAudio.wake();
+        await replacementAudio.schedule([topic]);
+        const replaced = (await offline.startRendering()).getChannelData(0);
+        const stoppedAudio = await import("/js/gameAudio.js?offline=stopped");
+        stoppedAudio.setEnabled(true);
+        await stoppedAudio.schedule([{ ...topic, scratched: true }]);
+        stoppedAudio.stop();
+        const stopped = (await offline.startRendering()).getChannelData(0);
+        const concurrentAudio =
+          await import("/js/gameAudio.js?offline=concurrent");
+        concurrentAudio.setEnabled(true);
+        const stale = concurrentAudio.schedule([{ ...topic, scratched: true }]);
+        const latest = concurrentAudio.schedule([topic]);
+        const staleTimeline = await stale;
+        await latest;
+        const concurrent = (await offline.startRendering()).getChannelData(0);
         const amplitude = (data, time) => {
           const frequency = 440 * 2 ** ((60 - 69) / 12);
           let re = 0,
@@ -59,6 +86,21 @@ try {
           return Math.sqrt(sum / count);
         };
         return {
+          replacementDifference: replaced.reduce(
+            (peak, value, i) =>
+              Math.max(peak, Math.abs(value - clean.samples[i])),
+            0,
+          ),
+          stoppedPeak: stopped.reduce(
+            (peak, value) => Math.max(peak, Math.abs(value)),
+            0,
+          ),
+          concurrentDifference: concurrent.reduce(
+            (peak, value, i) =>
+              Math.max(peak, Math.abs(value - clean.samples[i])),
+            0,
+          ),
+          staleEntries: staleTimeline.entries.length,
           cases: [scratched, partial].map((test) => ({
             before: difference(clean.samples, test.samples, 0.85),
             middleRatio:
@@ -94,6 +136,15 @@ try {
       );
       assert(sample.duration >= 1, "noise lasts at least one second");
     }
+    assert(
+      result.replacementDifference < 0.00001,
+      "replacement cancels prior notes, noise and wake without oscillator stacking",
+    );
+    assert(result.stoppedPeak < 0.00001, "stop silences all scheduled sources");
+    assert(
+      result.concurrentDifference < 0.00001 && result.staleEntries === 0,
+      "concurrent stale scheduler cannot add voices",
+    );
     assert(result.cycleHasNotes, "cycle completion plays its notes");
     assert(
       result.cycleTailPeak < 0.00001,

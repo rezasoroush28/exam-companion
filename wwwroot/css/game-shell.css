@@ -47,6 +47,56 @@
   font-size: 10px;
   color: var(--muted);
 }
+.motion-preference {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.motion-preference input {
+  accent-color: var(--lime);
+}
+.motion-tester {
+  margin: 18px auto;
+  max-width: 440px;
+  padding: 12px;
+  border: 1px solid #ffffff30;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.motion-tester summary {
+  cursor: pointer;
+}
+.motion-tester label,
+.motion-tester div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.motion-tester select {
+  max-width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  background: #20283a;
+  color: #fff;
+}
+.motion-tester .button {
+  padding: 8px 12px;
+  min-height: 36px;
+  font-size: 12px;
+}
+.motion-tester pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.game-studio[data-entering="true"] .question-stage {
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
 .dev-answer-toggle input {
   accent-color: var(--lime);
 }
