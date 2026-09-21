@@ -6,6 +6,7 @@ import {
   readRigGeometry,
   sampleEntrancePose,
 } from "./gramophoneEntranceRig.js";
+import { createFrameEntranceRunner } from "./gramophoneFrameEntrance.js";
 
 // Public entrance names and MotionLab's rig-prefixed controls share one sampler.
 const rigPreviewAliases = Object.freeze({
@@ -97,6 +98,11 @@ export function create(host) {
     initializedSession = null,
     rigDiagnostics = null,
     rigPlayback = null,
+    frameEntrance = null,
+    framePreviousStage = null,
+    framePreview = false,
+    frameBoundGram = null,
+    frameInvalidReason = null,
     paused = false;
   let nextIdleAt = performance.now() + 11000,
     finalComposition = false;
@@ -166,6 +172,39 @@ export function create(host) {
     }
     return node;
   };
+  const rigGeometry = () => readRigGeometry({
+    leftLeg: part("left-leg"),
+    rightLeg: part("right-leg"),
+    rightArm: part("right-arm"),
+    pocketRoot: part("pocket-root"),
+  });
+  function applyFramePose(sample) {
+    const set = (name, transform) => {
+      const node = part(name);
+      if (node) node.style.transform = transform;
+    };
+    set("gram-locomotion", `translateX(${sample.locomotionX}px)`);
+    set("machine-root", `translate(${sample.bodyX}px, ${sample.bodyY}px) rotate(${sample.bodyAngle}deg)`);
+    set("horn-follow", `rotate(${sample.horn}deg)`);
+    set("left-arm", `rotate(${sample.leftArm}deg)`);
+    set("right-arm", `rotate(${sample.rightArm}deg)`);
+    set("right-forearm", `rotate(${sample.rightForearm}deg)`);
+    set("left-thigh", `rotate(${sample.left.thigh}deg)`);
+    set("left-shin", `rotate(${sample.left.shin}deg)`);
+    set("right-thigh", `rotate(${sample.right.thigh}deg)`);
+    set("right-shin", `rotate(${sample.right.shin}deg)`);
+    set("left-foot", `translate(${sample.left.foot.x}px, ${sample.left.foot.y}px) rotate(${sample.left.foot.angle}deg)`);
+    set("right-foot", `translate(${sample.right.foot.x}px, ${sample.right.foot.y}px) rotate(${sample.right.foot.angle}deg)`);
+    set("pocket-flap", `rotate(${sample.flap}deg)`);
+    const prop = part("record-prop");
+    if (prop) {
+      prop.style.transform = sample.disc.matrix
+        ? `matrix(${sample.disc.matrix.join(",")})`
+        : `translate(${sample.disc.center.x}px, ${sample.disc.center.y}px) rotate(${sample.disc.angle}deg) scale(${sample.disc.scale})`;
+      prop.style.opacity = String(sample.disc.opacity);
+      prop.style.visibility = sample.disc.visible ? "visible" : "hidden";
+    }
+  }
   const emit = (name, detail = {}) =>
     host.dispatchEvent(new CustomEvent("gramophone-" + name, { detail }));
   const timingEvent = (name, detail = {}) =>
@@ -215,6 +254,87 @@ export function create(host) {
     }
     if (gram()) gram().dataset.ready = "true";
   }
+  frameEntrance = createFrameEntranceRunner({
+    isValid: () => {
+      const current = gram();
+      const missing = ["gram-locomotion", "machine-root", "left-thigh", "left-shin", "right-thigh", "right-shin", "right-forearm", "record-prop"].filter((name) => !part(name));
+      frameInvalidReason = disposed ? "disposed" : !host.isConnected ? "host-disconnected" : current !== frameBoundGram ? "root-replaced" : missing.length ? `missing:${missing.join(",")}` : null;
+      return !frameInvalidReason;
+    },
+    onInvalid: () => {
+      if (!disposed) cancelAllMotion();
+    },
+    applyPose: (sample) => {
+      applyFramePose(sample);
+      rigDiagnostics = {
+        ...rigDiagnostics,
+        stage: sample.diagnostics.stage,
+        clamped: sample.diagnostics.clamped,
+        wrist: sample.diagnostics.wrist,
+        discCenter: sample.diagnostics.discCenter,
+        attachmentDistance: sample.diagnostics.attachmentDistance || 0,
+        footTargets: sample.diagnostics.feet,
+      };
+    },
+    onStage: (stage) => {
+      const name = stage.replace(/^rig-/, "");
+      if (framePreviousStage) emit("motion-completed", { motion: framePreviousStage });
+      const visibleName = framePreview ? stage : name;
+      framePreviousStage = visibleName;
+      currentMotion = visibleName;
+      for (const channel of ["gram-locomotion", "left-arm", "right-arm", "right-forearm", "left-thigh", "left-shin", "right-thigh", "right-shin", "left-foot", "right-foot", "pocket-flap", "record-prop"])
+        activeChannels.set(channel, visibleName);
+      const g = gram();
+      if (g) {
+        g.dataset.motion = visibleName;
+        g.classList.add("motion-" + visibleName);
+      }
+      const semantic = motionSpecs[name]?.[1] || "RigPreview";
+      state(semantic);
+      emit("motion-started", { motion: visibleName, state: semantic, reduced: false, channels: ["frame-entrance"] });
+    },
+    onComplete: () => {
+      if (framePreviousStage) emit("motion-completed", { motion: framePreviousStage });
+      framePreviousStage = null;
+      for (const channel of ["gram-locomotion", "left-arm", "right-arm", "right-forearm", "left-thigh", "left-shin", "right-thigh", "right-shin", "left-foot", "right-foot", "pocket-flap", "record-prop"])
+        activeChannels.delete(channel);
+      const g = gram();
+      if (g) g.dataset.motion = "idle";
+      currentMotion = "";
+    },
+  });
+  function startFrameEntrance(stages = entranceStages, preview = false) {
+    const binding = refreshLiveParts();
+    if (disposed || !host.isConnected || !gram() || binding.missing.length || reduced())
+      return Promise.resolve({ completed: false });
+    framePreview = preview;
+    frameBoundGram = gram();
+    frameInvalidReason = null;
+    if (preview) prepareRigPreview();
+    const geometry = rigGeometry();
+    rigDiagnostics = {
+      stage: stages[0]?.name || null,
+      sampleRate: "requestAnimationFrame",
+      sampleCount: 0,
+      clamped: false,
+      wrist: geometry.arm.wrist,
+      discCenter: geometry.pocket.disc,
+      attachmentDistance: 0,
+      footTargets: { left: geometry.left.ankle, right: geometry.right.ankle },
+    };
+    rigPlayback = {
+      frameRuntime: true,
+      stage: stages[0]?.name || null,
+      geometry,
+      duration: stages.reduce((total, stage) => total + stage.duration, 0),
+      completed: false,
+    };
+    framePreviousStage = null;
+    return frameEntrance.start({ stages, nextGeometry: geometry }).then((result) => {
+      if (rigPlayback?.frameRuntime) rigPlayback.completed = !!result.completed;
+      return result;
+    });
+  }
   function clearWaits() {
     for (const [id, finish] of waits) {
       clearTimeout(id);
@@ -260,7 +380,16 @@ export function create(host) {
       animations.delete(animation);
     }
   }
+  function clearFramePose() {
+    for (const name of ["gram-locomotion", "machine-root", "horn-follow", "left-arm", "right-arm", "right-forearm",
+      "left-thigh", "left-shin", "right-thigh", "right-shin", "left-foot", "right-foot", "pocket-flap", "record-prop"])
+      if (part(name)) {
+        part(name).style.transform = "";
+        part(name).style.opacity = "";
+      }
+  }
   function resetMotion() {
+    frameEntrance?.cancel();
     cancelChannels(new Set(["artifact", "horn", "tonearm", "record", "shadow", "fx",
       "gram-locomotion", "left-arm", "right-arm", "right-forearm", "left-leg", "right-leg",
       "left-thigh", "left-shin", "right-thigh", "right-shin", "left-foot", "right-foot",
@@ -273,6 +402,7 @@ export function create(host) {
     if (artifact) artifact.style.transform = "";
     const machine = part("machine-root");
     if (machine) machine.style.transform = "";
+    clearFramePose();
     rigDiagnostics = null;
     rigPlayback = null;
     applyRestPose();
@@ -753,9 +883,16 @@ export function create(host) {
     part("record-root").style.visibility = "hidden";
     part("record-root").style.opacity = "1";
     g.dataset.entranceCount = String(Number(g.dataset.entranceCount || 0) + 1);
+    if (!reduced()) {
+      const frameResult = await startFrameEntrance(entranceStages);
+      if (!frameResult.completed || disposed || own !== sequenceGeneration) {
+        if (own === sequenceGeneration) cancelAllMotion();
+        return;
+      }
+    }
     const steps = reduced()
       ? ["place-disc", "wake", "listen-lean"]
-      : productionEntrance;
+      : ["place-disc", "record-wobble-settle", "wake", "listen-lean"];
     for (const name of steps) {
       if (disposed || own !== sequenceGeneration) return;
       if (!(await perform(name, { entrance: true }))) {
@@ -1006,8 +1143,12 @@ export function create(host) {
       stop();
       if (name === "entrance") void entranceSequence();
       else if (name === "prototype-entrance") {
-        prepareRigPreview();
-        void sequence(reduced() ? ["wake", "listen-lean"] : entranceStageNames, { rigPreview: true, persist: true });
+        if (reduced()) void sequence(["wake", "listen-lean"], { persist: true });
+        else void startFrameEntrance(entranceStages, true);
+      }
+      else if (rigStageFor(name) && !reduced()) {
+        const stage = entranceStages.find((candidate) => candidate.name === rigStageFor(name));
+        if (stage) void startFrameEntrance([stage], true);
       }
       else
         void perform(name, {
@@ -1020,10 +1161,12 @@ export function create(host) {
     refreshParts: refreshLiveParts,
     pause() {
       paused = true;
+      frameEntrance?.pause();
       for (const animation of animations) animation.pause();
     },
     resume() {
       paused = false;
+      frameEntrance?.resume();
       for (const animation of animations) animation.play();
     },
     reset() {
@@ -1070,7 +1213,11 @@ export function create(host) {
     },
     setSlowMotion(value) {
       motionRate = value ? 0.35 : 1;
+      frameEntrance?.setRate(motionRate);
       for (const animation of animations) animation.playbackRate = motionRate;
+    },
+    seekFrameEntrance(value) {
+      return frameEntrance?.seek(value) || false;
     },
     setShowPivots(value) {
       host.dataset.showPivots = String(!!value);
@@ -1081,12 +1228,20 @@ export function create(host) {
       const binding = refreshLiveParts();
       let currentRig = rigDiagnostics;
       if (rigPlayback) {
-        const elapsed = rigPlayback.completed ? rigPlayback.duration
-          : Math.max(0, Math.min(rigPlayback.duration, Number(rigPlayback.animation?.currentTime) || 0));
-        const sample = sampleEntrancePose(rigPlayback.stage, elapsed / rigPlayback.duration, rigPlayback.geometry);
+        const frameStatus = rigPlayback.frameRuntime ? frameEntrance.diagnostics() : null;
+        const elapsed = frameStatus ? frameStatus.absoluteTime : (rigPlayback.completed ? rigPlayback.duration
+          : Math.max(0, Math.min(rigPlayback.duration, Number(rigPlayback.animation?.currentTime) || 0)));
+        const progress = frameStatus ? frameStatus.progress : elapsed / rigPlayback.duration;
+        const stage = frameStatus?.stage || rigPlayback.stage;
+        const sample = sampleEntrancePose(stage, progress, rigPlayback.geometry);
         currentRig = {
           ...rigDiagnostics,
-          currentProgress: elapsed / rigPlayback.duration,
+          runtime: frameStatus?.runtime || "web-animations",
+          frameLoopActive: frameStatus?.active || false,
+          activeFrameLoops: frameStatus?.activeFrameLoops || 0,
+          frameCount: frameStatus?.frameCount || 0,
+          absoluteTime: elapsed,
+          currentProgress: progress,
           clamped: sample.diagnostics.clamped,
           wrist: sample.diagnostics.wrist,
           discCenter: sample.diagnostics.discCenter,
@@ -1134,6 +1289,7 @@ export function create(host) {
         activeAnimations: animations.size,
         pendingWaits: waits.size,
         entering: entrance,
+        frameInvalidReason,
         rig: currentRig,
         disposed,
       };

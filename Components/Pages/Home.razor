@@ -5,9 +5,10 @@
 @inject IGameEngine Engine
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>هم‌آهنگ | Exam Companion</PageTitle>
-<div class="studio-shell">
+<div class="studio-shell" @ref="_host">
     <header class="studio-header"><a class="brand" href="/"><img src="art/brand/hamahang-mark.svg" alt=""/><span>هم‌آهنگ<small>EXAM COMPANION</small></span></a><span class="header-note">یک استودیوی کوچک برای یادگرفتن</span><span class="edition">VOL. 01</span></header>
     @if (_lesson != null)
     {
@@ -34,10 +35,30 @@
     <footer class="studio-footer"><span>ساخته‌شده برای لذتِ فهمیدن</span><span>LEARN A LITTLE. MAKE A LITTLE MAGIC. ✦</span></footer>
 </div>
 @code {
+    private ElementReference _host;
     private LessonDto? _lesson;
     private string? _error;
-    private bool _busy;
+    private bool _busy, _disposed, _motionInitialized;
+    private IJSObjectReference? _motionModule, _motion;
     protected override Task OnInitializedAsync() => Load();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_disposed || _lesson == null || _motionInitialized) return;
+        try
+        {
+            _motionModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameMotion.js");
+            _motion ??= await _motionModule.InvokeAsync<IJSObjectReference>("create", _host);
+            _motionInitialized = true;
+            await _motion.InvokeVoidAsync("initialize", "landing");
+            await _motion.InvokeVoidAsync("preview", "prototype-entrance");
+        }
+        catch (JSDisconnectedException) { }
+        catch (JSException)
+        {
+            // The page remains usable if presentation-only motion is unavailable.
+            _motionInitialized = false;
+        }
+    }
     private async Task Load() { try { _error = null; _lesson = await Engine.GetLessonAsync(); } catch (Exception) { _error = "آلبوم بارگذاری نشد. لطفاً دوباره امتحان کن."; } }
     private async Task Start()
     {
@@ -52,5 +73,19 @@
         }
         catch (Exception) { _error = "شروع بازی ممکن نشد؛ دوباره تلاش کن."; }
         finally { _busy = false; }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        try
+        {
+            if (_motion != null)
+            {
+                await _motion.InvokeVoidAsync("dispose");
+                await _motion.DisposeAsync();
+            }
+            if (_motionModule != null) await _motionModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
     }
 }

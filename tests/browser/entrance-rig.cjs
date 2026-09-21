@@ -41,7 +41,7 @@ catch { ({ chromium } = require("../../.tools/browser/node_modules/playwright"))
       const host = document.querySelector(".motion-lab"), c = m.create(host);
       c.setReducedMotion(false); c.preview(stage); c.pause();
       const duration = rig.entranceStages.find((s) => s.name === stage)?.duration || 600;
-      for (const a of host.getAnimations({ subtree: true })) a.currentTime = duration * progress;
+      c.seekFrameEntrance(duration * progress);
       const part = (name) => host.querySelector(`[data-part="${name}"]`);
       const position = (name, x, y, reference = "machine-root") => {
         const matrix = part(reference).getScreenCTM().inverse().multiply(part(name).getScreenCTM());

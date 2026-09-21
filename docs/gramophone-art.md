@@ -6,7 +6,7 @@ The game renders one native inline-SVG gramophone from `Components/Game/Gramopho
 
 The main hierarchy is `artifact-rest > artifact-motion > gram-locomotion > machine-root`. `artifact-rest` owns the persistent resting angle, `artifact-motion` owns gameplay reactions, `gram-locomotion` owns entrance travel, and `machine-root` owns the character body. Arms and legs use nested upper/lower groups with explicit shoulder, elbow, hip, knee, and ankle pivots. Feet remain nested at their ankle joints and counter-rotate so the soles stay level.
 
-`wwwroot/js/gramophoneEntranceRig.js` is a pure sampled pose model. It solves reachable two-link limbs, clamps unreachable targets deterministically, and returns transforms without touching the DOM. `wwwroot/js/gameMotion.js` applies those samples through the Web Animations API, owns sequencing and cancellation, and keeps all learning and persistence rules in Blazor/.NET.
+`wwwroot/js/gramophoneEntranceRig.js` is a pure sampled pose model. It solves reachable two-link limbs, clamps unreachable targets deterministically, and returns transforms without touching the DOM. `gramophoneFrameEntrance.js` applies the prototype segment through one absolute-time `requestAnimationFrame` loop; `gameMotion.js` owns its lifecycle plus the tracked Web Animations used by placement and gameplay reactions. Learning and persistence rules remain in Blazor/.NET.
 
 ## Production entrance
 
@@ -30,13 +30,13 @@ The entrance is a one-shot sequence for a newly created challenge:
 
 The walk covers roughly 1040 SVG units in four alternating strides. Each stance foot cancels the body's forward travel while the opposite foot lifts, producing planted contact rather than sliding. The body then lowers about 42 SVG units into the seated pose. The pocket flap opens, the hand reaches the record, and the record remains at a rigid hand-relative offset through pull and hold. The `place-disc` stage interpolates from that exact held matrix to the projected turntable matrix, avoiding a handoff snap. The question becomes active only after the final listen pose.
 
-The fresh-session marker is consumed once. Refresh, resume, rerender, or a previously opened challenge does not replay the entrance.
+The fresh-session marker is consumed once. Refresh, resume, rerender, or a previously opened challenge does not replay the entrance. Home previews the complete prototype-derived walk-through-disc-hold segment through the same frame runner.
 
 ## Motion lifecycle
 
-Every animation belongs to a controller and channel. Replacement, navigation, disposal, hidden tabs, reduced-motion changes, root replacement, and explicit cancellation invalidate the current generation. Stale completion callbacks cannot commit styles or clear a newer animation. Pause and resume use Web Animations timing, and playback-rate changes preserve the current pose instead of restarting the stage.
+Every animation belongs to a controller and channel. Replacement, navigation, disposal, hidden tabs, reduced-motion changes, root replacement, and explicit cancellation invalidate the current generation. Stale completion callbacks cannot commit styles or clear a newer animation. Pause, resume, seeking, and playback-rate changes preserve the current frame-runner pose instead of restarting the stage.
 
-The controller commits only the endpoint properties needed by an entrance stage, then cancels the finished Web Animation so no orphaned player remains. Ending or cancelling entrance clears temporary transforms, restores the playable record, hides the pocket record, and leaves the gramophone in one coherent ready state.
+The frame runner writes the sampled entrance pose directly on each browser frame and owns at most one active loop. Ending or cancelling entrance clears temporary transforms, restores the playable record, hides the pocket record, and leaves the gramophone in one coherent ready state.
 
 Reduced motion skips walking, limb choreography, and large rotations. It assembles the playable record immediately, then retains short state-oriented wake/listen feedback. Question readiness, focus, and progression behavior remain unchanged.
 
@@ -53,6 +53,7 @@ In Development, `/motion-lab` renders the real production SVG and rig. It can pr
 Verification commands:
 
 - `dotnet build ExamCompanion.sln --no-restore`
+- `node tests/browser/frame-entrance.cjs`
 - `node tests/browser/entrance-rig.cjs`
 - `node tests/browser/motion-lab.cjs`
 - `node tests/browser/motion.cjs`
