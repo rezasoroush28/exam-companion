@@ -1,0 +1,7 @@
+<svg class="playback-waveform" viewBox="0 0 160 30" width="160" height="30" role="img" aria-label="نمایش موج صدای قطعه">
+    @for (var i = 0; i < 32; i++)
+    {
+        var height = 3 + (i * 7 % 19);
+        <line x1="@(i * 5 + 2)" x2="@(i * 5 + 2)" y1="@(15 - height / 2)" y2="@(15 + height / 2)" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    }
+</svg>

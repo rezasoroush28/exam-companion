@@ -1,0 +1,131 @@
+@page "/motion-lab"
+@using ExamCompanion.Application.Music
+@using ExamCompanion.Domain.Music
+@using ChallengePrototype.Components.Game
+@inject IJSRuntime JS
+@inject IWebHostEnvironment HostEnvironment
+@implements IAsyncDisposable
+
+<PageTitle>آزمایش حرکت گرامافون | هم‌آهنگ</PageTitle>
+
+@if (!HostEnvironment.IsDevelopment())
+{
+    <main class="motion-lab unavailable"><h1>این صفحه فقط در حالت توسعه فعال است.</h1><a href="/">بازگشت</a></main>
+}
+else
+{
+    <main class="motion-lab" @ref="_host">
+        <header class="motion-lab-header">
+            <a href="/" class="motion-lab-back">← بازگشت</a>
+            <div><span class="eyebrow">DEVELOPMENT MOTION LAB</span><h1>حرکت‌های گرامافون</h1><p>یک فضای جدا برای دیدن و تکرار هر حرکت؛ هیچ سؤالی ثبت نمی‌شود. حرکت ورود در اینجا آهسته‌تر پخش می‌شود.</p></div>
+            <div class="motion-lab-toggles">
+                <label><input type="checkbox" checked="@_reduced" @onchange="ToggleReduced"/> حرکت کمتر</label>
+                <label><input type="checkbox" checked="@_slow" @onchange="ToggleSlow"/> حرکت آهسته ۰٫۳۵×</label>
+                <label><input type="checkbox" checked="@_showPivots" @onchange="TogglePivots"/> نمایش محورهای حرکت</label>
+            </div>
+        </header>
+        <section class="motion-lab-stage" aria-label="نمایش جداگانه گرامافون">
+            <Gramophone Topics="_topics" CurrentTopicId="@_topics[0].Id" />
+        </section>
+        <section class="motion-lab-controls" aria-label="کنترل حرکت">
+            <div class="motion-lab-actions">
+                <button class="button" disabled="@(_motion == null)" @onclick="Pause">مکث</button>
+                <button class="button" disabled="@(_motion == null)" @onclick="Resume">ادامه</button>
+                <button class="button" disabled="@(_motion == null)" @onclick="Cancel">لغو</button>
+                <button class="button" disabled="@(_motion == null)" @onclick="Reset">بازنشانی حالت</button>
+                <button class="button" disabled="@(_motion == null)" @onclick="ReadStatus">وضعیت</button>
+            </div>
+            <div class="motion-lab-motion-grid">
+                <button class="button primary" disabled="@(_motion == null)" @onclick="PlayEntrance">پخش دوباره ورود</button>
+                @foreach (var motion in Motions)
+                {
+                    var selected = motion;
+                    <button class="button" disabled="@(_motion == null)" @onclick="() => PlayMotion(selected)">@selected</button>
+                }
+            </div>
+            <section class="motion-lab-rig-controls" aria-label="Articulated entrance rig preview">
+                <span class="eyebrow">ARTICULATED RIG PREVIEW</span>
+                <div class="motion-lab-motion-grid">
+                    @foreach (var motion in RigMotions)
+                    {
+                        var selected = motion;
+                        <button class="button @(motion == "prototype-entrance" ? "primary" : "")" disabled="@(_motion == null)" @onclick="() => PlayMotion(selected)">@selected</button>
+                    }
+                </div>
+            </section>
+            <pre dir="ltr" role="status">@_status</pre>
+        </section>
+    </main>
+}
+
+@code {
+    private ElementReference _host;
+    private IJSObjectReference? _module, _motion;
+    private bool _reduced, _slow, _showPivots;
+    private readonly CancellationTokenSource _statusCancellation = new();
+    private string _status = "";
+    private readonly IReadOnlyList<TopicStateDto> _topics = Enumerable.Range(0, 5).Select(i =>
+        new TopicStateDto(Guid.NewGuid(), $"مبحث آزمایشی {i + 1}", i, 1, $"var(--topic-{i})", i switch { 1 => "Dm", 2 => "Em", 3 => "F", 4 => "G", _ => "C" }, 1, 1, TopicProgressStatus.CompletedClean, false, false, 1, 4)).ToArray();
+    private static readonly string[] Motions = ["enter-drop", "land-impact", "record-drop-in", "record-wobble-settle", "wake", "idle-settle", "listen-lean", "correct-pulse", "wrong-recoil", "challenge-resolve", "cycle-complete-hop", "topic-proud-hop", "scratch-approach", "scratch-hit", "repair-heal", "repair-relief-settle", "lesson-complete-bow"];
+    private static readonly string[] RigMotions = ["prototype-entrance", "rig-walk-in", "rig-stop-and-settle", "rig-sit-settle", "rig-notice-pocket", "rig-reach-pocket", "rig-open-pocket", "rig-grab-disc", "rig-pull-disc", "rig-hold-disc"];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !HostEnvironment.IsDevelopment()) return;
+        _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameMotion.js");
+        _motion = await _module.InvokeAsync<IJSObjectReference>("create", _host);
+        _reduced = await _motion.InvokeAsync<bool>("reducedPreference");
+        await _motion.InvokeVoidAsync("initialize", "motion-lab");
+        _ = PumpStatusAsync(_statusCancellation.Token);
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task PlayMotion(string motion)
+    {
+        if (_motion == null) return;
+        await _motion.InvokeVoidAsync("preview", motion);
+    }
+    private Task PlayEntrance() => PlayMotion("entrance");
+    private async Task Pause() { if (_motion != null) await _motion.InvokeVoidAsync("pause"); }
+    private async Task Resume() { if (_motion != null) await _motion.InvokeVoidAsync("resume"); }
+    private async Task Cancel() { if (_motion != null) await _motion.InvokeVoidAsync("cancelMotion"); }
+    private async Task Reset() { if (_motion != null) await _motion.InvokeVoidAsync("reset"); }
+    private async Task ToggleReduced(ChangeEventArgs e)
+    {
+        _reduced = e.Value is true;
+        if (_motion != null) await _motion.InvokeVoidAsync("setReducedMotion", _reduced);
+    }
+    private async Task ToggleSlow(ChangeEventArgs e)
+    {
+        _slow = e.Value is true;
+        if (_motion != null) await _motion.InvokeVoidAsync("setSlowMotion", _slow);
+    }
+    private async Task TogglePivots(ChangeEventArgs e)
+    {
+        _showPivots = e.Value is true;
+        if (_motion != null) await _motion.InvokeVoidAsync("setShowPivots", _showPivots);
+    }
+    private async Task ReadStatus()
+    {
+        if (_motion == null) return;
+        var status = await _motion.InvokeAsync<System.Text.Json.JsonElement>("diagnostics");
+        _status = System.Text.Json.JsonSerializer.Serialize(status, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+    private async Task PumpStatusAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+                await InvokeAsync(async () => { await ReadStatus(); StateHasChanged(); });
+        }
+        catch (OperationCanceledException) { }
+        catch (JSDisconnectedException) { }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _statusCancellation.Cancel();
+        try { if (_motion != null) { await _motion.InvokeVoidAsync("dispose"); await _motion.DisposeAsync(); } if (_module != null) await _module.DisposeAsync(); }
+        catch (JSDisconnectedException) { }
+        _statusCancellation.Dispose();
+    }
+}

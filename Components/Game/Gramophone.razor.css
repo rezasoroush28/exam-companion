@@ -1,0 +1,239 @@
+.gramophone {
+  width: 100%;
+  position: relative;
+  overflow: visible;
+  --motion-soft-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-spring: cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+.gramophone-art {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.groove-track {
+  fill: none;
+  stroke: #393e4d;
+  stroke-width: 12;
+}
+.tone-arm,
+.playhead,
+.horn-support,
+.horn-root,
+.impact-fx,
+.sparkle-fx {
+  pointer-events: none;
+}
+.artifact-rest,
+.artifact-motion,
+.machine-root,
+.horn-follow,
+.tonearm-follow,
+.gram-shadow,
+.record-root,
+.tonearm-root {
+  transform-box: fill-box;
+}
+.artifact-rest,
+.artifact-motion,
+.machine-root {
+  transform-origin: 50% 100%;
+}
+.horn-follow {
+  transform-box: view-box;
+  transform-origin: 490px 615px;
+}
+.gram-locomotion { transform-box: view-box; transform-origin: 620px 1170px; }
+.limb, .pocket-root, .pocket-front, .pocket-flap, .record-prop { transform-box: view-box; pointer-events: none; }
+.left-arm { transform-origin: 383px 732px; }
+.right-arm { transform-origin: 786px 792px; }
+.right-forearm { transform-origin: 914px 830px; }
+.left-leg { transform-origin: 452px 939px; }
+.right-leg { transform-origin: 659px 966px; }
+.left-thigh { transform-origin: 452px 939px; }
+.left-shin { transform-origin: 466px 1034px; }
+.right-thigh { transform-origin: 659px 966px; }
+.right-shin { transform-origin: 714px 1048px; }
+.left-foot { transform-origin: 443px 1090px; }
+.right-foot { transform-origin: 701px 1100px; }
+.pocket-root { transform-origin: 765px 804px; }
+.pocket-flap { transform-origin: 765px 804px; }
+.record-prop { visibility: hidden; transform-origin: 0 0; }
+.gram-shadow {
+  transform-origin: 50% 50%;
+}
+.record-root {
+  transform-origin: 50% 50%;
+}
+/* Pixel origins are in the shared SVG coordinate system, exactly at the pivot. */
+.tonearm-follow,
+.tonearm-root {
+  transform-box: view-box;
+  transform-origin: 1002px 655px;
+}
+.impact-fx,
+.sparkle-fx {
+  opacity: 0;
+}
+.gramophone[data-reduced-motion="true"] .groove-fill {
+  transition: none;
+}
+.gramophone[data-reduced-motion="true"] .scratch-mark.closing {
+  opacity: 0;
+}
+.gramophone[data-ready="false"] .machine-root {
+  opacity: 0;
+}
+.motion-enter-drop .machine-root,
+.motion-correct-pulse .artifact-motion,
+.motion-wrong-recoil .artifact-motion,
+.motion-challenge-resolve .artifact-motion,
+.motion-cycle-complete-hop .artifact-motion,
+.motion-topic-proud-hop .artifact-motion,
+.motion-lesson-complete-bow .artifact-motion {
+  will-change: transform;
+}
+.motion-record-drop-in .record-root,
+.motion-record-wobble-settle .record-root {
+  will-change: transform;
+}
+.motion-land-impact .impact-fx {
+  color: var(--paper);
+}
+.motion-wake .horn-shell,
+.motion-listen-lean .horn-shell {
+  filter: brightness(1.025);
+}
+.motion-idle-settle .horn-follow {
+  will-change: transform;
+}
+.rig-pivots {
+  display: none;
+  pointer-events: none;
+}
+.gramophone[data-show-pivots="true"] .rig-pivots,
+[data-show-pivots="true"] .rig-pivots {
+  display: block;
+}
+.pivot-marker circle,
+.pivot-marker path {
+  fill: #101526cc;
+  stroke: #b5e84f;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+.horn-pivot-marker circle,
+.horn-pivot-marker path {
+  stroke: #ffca68;
+}
+.tonearm-pivot-marker circle,
+.tonearm-pivot-marker path {
+  stroke: #70d9d0;
+}
+.motion-correct-pulse .groove.active .groove-fill,
+.motion-challenge-resolve .groove.active .groove-fill,
+.motion-topic-proud-hop .groove.active .groove-fill {
+  filter: brightness(1.15);
+}
+.motion-wrong-recoil .groove.active .groove-track {
+  stroke: #646273;
+}
+.motion-scratch-approach .groove.playing .scratch-crack,
+.motion-scratch-hit .groove.playing .scratch-crack {
+  stroke: var(--horn-cream);
+}
+.motion-repair-heal .groove.active .groove-fill {
+  filter: brightness(1.12);
+}
+.motion-repair-relief-settle .sparkle-fx {
+  fill: var(--paper);
+}
+.motion-lesson-complete-bow .record-label {
+  filter: brightness(1.12);
+}
+.groove-fill {
+  fill: none;
+  stroke: var(--groove-color);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.65s ease;
+}
+.groove-reaction {
+  fill: none;
+  stroke: var(--groove-color);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 12 88;
+  opacity: 0;
+  pointer-events: none;
+}
+.groove-hit-area {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 23;
+  cursor: pointer;
+}
+.groove[aria-disabled="true"] .groove-hit-area {
+  cursor: default;
+}
+.groove:focus {
+  outline: none;
+}
+.groove:focus .groove-track,
+.groove:hover:not([aria-disabled="true"]) .groove-track {
+  stroke: var(--focus);
+}
+.groove.active .groove-track {
+  stroke: #545968;
+}
+.scratch-under {
+  fill: none;
+  stroke: #14141c;
+  stroke-width: 11;
+}
+.scratch-crack {
+  fill: none;
+  stroke: var(--scratch);
+  stroke-width: 3;
+}
+.scratch-mark {
+  transition: opacity 0.7s;
+}
+.scratch-mark.closing {
+  animation: close-paper 0.9s forwards;
+}
+.playhead {
+  opacity: 0.65;
+}
+.gramophone[data-playing="true"] .playhead {
+  opacity: 1;
+}
+.gramophone[data-hit="true"] .groove.playing .scratch-crack {
+  stroke: var(--horn-cream);
+  stroke-width: 5;
+}
+.gramophone[data-hit="true"] [data-needle] {
+  filter: drop-shadow(0 -3px 1px #f0dca860);
+}
+.gramophone[data-playing="true"] .groove.playing .groove-track {
+  stroke: var(--groove-color);
+}
+@keyframes close-paper {
+  from {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(48% 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .scratch-mark.closing {
+    opacity: 0;
+  }
+}

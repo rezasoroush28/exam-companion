@@ -1,0 +1,245 @@
+@page "/game/{SessionId:guid}"
+@using ExamCompanion.Application.Music
+@using ExamCompanion.Domain.Music
+@using ChallengePrototype.Components.Game
+@inject IGameEngine Engine
+@inject IJSRuntime JS
+@inject IWebHostEnvironment HostEnvironment
+@inject ILogger<Game> Logger
+@implements IAsyncDisposable
+
+<PageTitle>آلبوم من | هم‌آهنگ</PageTitle>
+<div class="studio-shell game-studio" @ref="_host">
+    <header class="studio-header">
+        <a class="brand" href="/"><img src="art/brand/hamahang-mark.svg" alt=""/><span>هم‌آهنگ<small>EXAM COMPANION</small></span></a>
+        <div class="header-actions">
+            @if (HostEnvironment.IsDevelopment())
+            {
+                <label class="dev-answer-toggle"><input type="checkbox" @bind="_showDeveloperAnswer"/> پاسخ درست</label>
+            }
+            <a class="exit-link" href="/">بازگشت به استودیو ↗</a>
+            <label class="motion-preference"><input type="checkbox" checked="@_reducedMotion" @onchange="ToggleReducedMotion"/> حرکت کمتر</label>
+            <button class="sound-button" aria-pressed="@(_sound ? "true" : "false")" @onclick="ToggleSound"><GameIcon Name="@(_sound ? "sound" : "mute")"/>@(_sound ? "صدا روشن" : "صدا خاموش")</button>
+        </div>
+    </header>
+    @if (_state != null)
+    {
+        var shown = _feedback?.State ?? _state;
+        var current = shown.Topics.Single(t => t.Id == _state.CurrentTopicId);
+        var complete = _state.Question == null && !_state.IsRepair;
+        <div class="session-title"><div><span class="eyebrow">استودیوی یادگیری تو</span><h1>@_state.LessonName <span>/ @(complete ? "آلبوم تو آماده‌ست" : _state.IsRepair ? "در حال صیقل" : "آلبوم دنیای زنده")</span></h1></div><span class="album-counter" dir="ltr">VOL. 01 · @shown.Topics.Count(t => t.Progress >= 1) / 5 TRACKS</span></div>
+        <main class="game-grid @(complete ? "album-finished" : "")">
+            <TopicSidebar Topics="shown.Topics" CurrentTopicId="_state.CurrentTopicId" Selected="SelectRing"/>
+            <section class="disc-stage" aria-label="گرامافون آلبوم">
+                @if (!complete)
+                {
+                    <div class="current-track-label mobile-track-label"><span>@((current.Order + 1).ToString("00"))</span><div><small>@(_state.IsRepair ? "صیقل دادن این مبحث" : "قطعه‌ی در حال ساخت")</small><h3>@ShortName(current.Name)</h3></div></div>
+                }
+                <div class="stage-caption"><span>THE LIVING WORLD</span><span>HANDCRAFTED BY YOU</span></div>
+                <Gramophone Topics="shown.Topics" CurrentTopicId="@(_selectedRing?.Id ?? _state.CurrentTopicId)" RepairingOrder="@(_feedback?.Result == AnswerResultType.Repaired ? _feedback.TopicOrder : null)" RingClicked="SelectRing"/>
+                <div class="disc-transport">
+                    <button class="play-disc" @onclick="PlayDisc" disabled="@(!shown.Topics.Any(t => t.Progress > 0))" aria-label="پخش یا توقف آلبوم"><span class="play-symbol"><GameIcon Name="play"/></span><span class="pause-symbol"><GameIcon Name="pause"/></span></button>
+                    <div class="transport-copy">صدای یادگیری تو<small>برای شنیدن، پخش را بزن</small></div>
+                    <PlaybackWaveform/>
+                </div>
+                <div class="available-notes" aria-label="نت‌های کشف‌شده">
+                    @for (var i = 0; i < 4; i++) { <span class="@(current.Progress >= 1 || current.NotesRevealed > i ? "lit" : "")">@NoteNames(current.MusicalKey)[i]</span> }
+                </div>
+                @if (HostEnvironment.IsDevelopment())
+                {
+                    <details class="motion-tester">
+                        <summary>آزمایش حرکت گرامافون · Development</summary>
+                        <label>حرکت <select @bind="_testMotion">
+                            <option value="entrance">ورود کامل</option>
+                            @foreach (var motion in TestMotions) { <option value="@motion">@motion</option> }
+                        </select></label>
+                        <div><button class="button" disabled="@(_motion == null)" @onclick="PreviewMotion">اجرای حرکت</button>
+                        <button class="button" @onclick="ReadMotionStatus">وضعیت حرکت</button></div>
+                        <p>این کنترل‌ها فقط حرکت را آزمایش می‌کنند. تنظیم «حرکت کمتر» و تنظیم سیستم رعایت می‌شود.</p>
+                        <pre dir="ltr" role="status">@_motionStatus</pre>
+                    </details>
+                }
+                @if (_selectedRing is { } selected)
+                {
+                    <div class="ring-detail"><strong>@ShortName(selected.Name)</strong><p>@(selected.HasScratch ? "یک خش کوچک در این قطعه هست. گوش بده، بعد صیقلش بده." : "این نت‌ها رو خودت کنار هم گذاشتی.")</p>
+                        @if (selected.HasScratch && selected.Progress >= 1 && !_state.IsRepair)
+                        { <button class="button" disabled="@(_busy || _feedback != null)" @onclick="() => Repair(selected.Id)"><GameIcon Name="repair"/>صیقل دادن این مبحث</button> }
+                    </div>
+                }
+            </section>
+            <section class="question-stage">
+                @if (complete)
+                {
+                    <article class="completion-panel"><span class="eyebrow">از چند نت کوچک، تا یک آلبوم</span><h2>این صدای<br/><em>یادگیری توئه.</em></h2><p>پنج مبحث، پنج ملودی؛ همه روی صفحه‌ای که خودت ساختی.</p>
+                        <div class="completion-counts">@_state.Topics.Count(t => !t.HasScratch) قطعه شفاف · @_state.Topics.Count(t => t.HasScratch) قطعه برای صیقل</div>
+                        @foreach (var t in _state.Topics.Where(t => t.HasScratch))
+                        { <button class="repair-track" disabled="@_busy" @onclick="() => Repair(t.Id)"><GameIcon Name="repair"/>@ShortName(t.Name)</button> }
+                        <button class="button primary" @onclick="PlayDisc"><GameIcon Name="play"/>پخش آلبوم من</button><a class="text-link" href="/">بازگشت به استودیو ↗</a>
+                    </article>
+                }
+                else
+                {
+                    <div class="current-track-label"><span>@((current.Order + 1).ToString("00"))</span><div><small>@(_state.IsRepair ? "صیقل دادن این مبحث" : "قطعه‌ی در حال ساخت")</small><h3>@ShortName(current.Name)</h3></div></div>
+                    <QuestionPanel State="_state" Busy="_busy" Feedback="_feedback" Selected="_selectedAnswer" ShowCorrectChoice="@(HostEnvironment.IsDevelopment() && _showDeveloperAnswer)" Answer="Answer" Continue="Continue"/>
+                    <div class="conductor-tip"><p>@(_state.IsRepair ? "یک تمرین، یک چالش؛ برای یک ملودی شفاف‌تر." : "قدم‌های کوچک هم صدای قشنگی دارن.")</p></div>
+                }
+            </section>
+        </main>
+    }
+    else if (_error == null) { <div class="empty-state">در حال آماده‌کردن گرامافون…</div> }
+    @if (_error != null) { <div class="error-notice" role="alert">@_error<button disabled="@_busy" @onclick="Load">بارگذاری دوباره</button><a href="/">بازگشت</a></div> }
+    <footer class="studio-footer"><span>با ریتم خودت، نت به نت.</span><span>SMALL NOTES. SOMETHING YOURS.</span></footer>
+</div>
+
+@code {
+    [Parameter] public Guid SessionId { get; set; }
+    private ElementReference _host;
+    private GameStateDto? _state;
+    private AnswerResultDto? _feedback;
+    private TopicStateDto? _selectedRing;
+    private string? _selectedAnswer, _error;
+    private bool _busy, _disposed, _focusPending, _listenPending, _reducedMotion, _sound = true, _showDeveloperAnswer = true;
+    private Guid? _presentationSession;
+    private IJSObjectReference? _module, _motion;
+    private sealed record PlaybackRequest(TopicStateDto[] Topics, string Event, string[]? Motions = null, int CycleIndex = 0, bool FinalComposition = false);
+    private PlaybackRequest? _pending;
+    private string _testMotion = "topic-proud-hop", _motionStatus = "برای دیدن تنظیم‌های مرورگر، وضعیت حرکت را بزنید.";
+    private static readonly string[] TestMotions = ["enter-drop", "land-impact", "record-drop-in", "record-wobble-settle", "wake", "idle-settle", "listen-lean", "correct-pulse", "wrong-recoil", "challenge-resolve", "cycle-complete-hop", "topic-proud-hop", "repair-heal", "repair-relief-settle", "lesson-complete-bow"];
+    private async Task PreviewMotion()
+    {
+        if (_motion == null || !HostEnvironment.IsDevelopment()) return;
+        try { await _motion.InvokeVoidAsync("preview", _testMotion); await ReadMotionStatus(); }
+        catch (JSException e) { Logger.LogError(e, "Gramophone preview failed"); _motionStatus = e.Message; }
+    }
+    private async Task ReadMotionStatus()
+    {
+        if (_motion == null || !HostEnvironment.IsDevelopment()) return;
+        try {
+            var status = await _motion.InvokeAsync<System.Text.Json.JsonElement>("diagnostics");
+            _motionStatus = System.Text.Json.JsonSerializer.Serialize(status, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (JSException e) { Logger.LogError(e, "Gramophone diagnostics failed"); _motionStatus = e.Message; }
+    }
+    protected override Task OnParametersSetAsync() => Load();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_disposed) return;
+        try
+        {
+            if (firstRender)
+            {
+                _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameMotion.js");
+                _motion = await _module.InvokeAsync<IJSObjectReference>("create", _host);
+                _sound = await _motion.InvokeAsync<bool>("isEnabled");
+                _reducedMotion = await _motion.InvokeAsync<bool>("reducedPreference");
+                await InvokeAsync(StateHasChanged);
+            }
+            if (_state != null && _motion != null && _presentationSession != SessionId)
+            {
+                _presentationSession = SessionId;
+                await _motion.InvokeVoidAsync("initialize", SessionId.ToString());
+            }
+            if (_pending is { } pending && _motion != null)
+            {
+                _pending = null;
+                await _motion.InvokeVoidAsync("play", AudioTopics(pending.Topics), pending.Event,
+                    new { motions = pending.Motions, cycleIndex = pending.CycleIndex, finalComposition = pending.FinalComposition });
+            }
+            if (_listenPending && _motion != null) { _listenPending = false; await _motion.InvokeVoidAsync("listen", _state?.IsRepair == true); }
+            if (_focusPending && _motion != null) { _focusPending = false; await _motion.InvokeVoidAsync("focusQuestion"); }
+        }
+        catch (JSDisconnectedException) { }
+        catch (JSException e) { _pending = null; Logger.LogError(e, "Gramophone presentation failed"); }
+    }
+    private async Task Load()
+    {
+        if (_busy) return;
+        _busy = true;
+        try { await StopPlayback(); _error = null; _state = await Engine.GetSessionAsync(SessionId); _feedback = null; _selectedAnswer = null; _selectedRing = null; }
+        catch (GameInputException e) { _error = e.Message; }
+        catch (Exception) { _error = "آلبوم بارگذاری نشد. دوباره تلاش کن."; }
+        finally { _busy = false; }
+    }
+    private async Task Answer(string option)
+    {
+        if (_busy || _feedback != null || _state?.Question == null) return;
+        _busy = true; _selectedAnswer = option; _error = null;
+        await StopPlayback();
+        try
+        {
+            _feedback = await Engine.SubmitAnswerAsync(SessionId, _state.Question.Id, _state.TurnId, option);
+            var t = _feedback.State.Topics.Single(t => t.Order == _feedback.TopicOrder);
+            var type = _feedback.Result == AnswerResultType.Repaired ? "repair" : !_feedback.Correct ? "wrong" : _state.Question.Type == QuestionType.Challenge ? "resolve" : "correct";
+            var before = _state.Topics.Single(topic => topic.Id == t.Id);
+            var motions = new List<string>();
+            if (_feedback.Result == AnswerResultType.Repaired) motions.AddRange(["repair-heal", "repair-relief-settle"]);
+            else
+            {
+                motions.Add(!_feedback.Correct ? "wrong-recoil" : _state.Question.Type == QuestionType.Challenge ? "challenge-resolve" : "correct-pulse");
+                if (!_state.IsRepair && t.CompletedCycles > before.CompletedCycles)
+                    motions.Add(t.CompletedCycles >= t.RequiredCycles ? "topic-proud-hop" : "cycle-complete-hop");
+            }
+            _pending = new([t], type, motions.ToArray(), _state.CurrentCycle);
+            _selectedRing = null;
+        }
+        catch (GameInputException e) { _error = e.Message; }
+        catch (Exception) { _error = "پاسخ ثبت نشد. دوباره بارگذاری کن."; }
+        finally { _busy = false; }
+    }
+    private async Task Continue()
+    {
+        if (_feedback == null) return;
+        await StopPlayback();
+        _state = _feedback.State; _feedback = null; _selectedAnswer = null; _selectedRing = null; _focusPending = true;
+        if (_state.Status == GameSessionStatus.Completed && !_state.IsRepair) _pending = new(_state.Topics.ToArray(), "album", FinalComposition: true);
+        else _listenPending = true;
+    }
+    private async Task Repair(Guid id)
+    {
+        if (_busy || _feedback != null) return;
+        _busy = true; _error = null;
+        await StopPlayback();
+        try { _state = await Engine.StartRepairAsync(SessionId, id); _selectedRing = null; _listenPending = true; }
+        catch (GameInputException e) { _error = e.Message; }
+        catch (Exception) { _error = "شروع تمرین ممکن نشد."; }
+        finally { _busy = false; }
+    }
+    private Task SelectRing(Guid id)
+    {
+        var t = (_feedback?.State ?? _state)?.Topics.Single(t => t.Id == id);
+        if (t == null || t.Status == TopicProgressStatus.Locked || _busy) return Task.CompletedTask;
+        _selectedRing = t;
+        if (t.Progress > 0) _pending = new([t], "preview");
+        return Task.CompletedTask;
+    }
+    private async Task ToggleSound()
+    {
+        _sound = !_sound;
+        if (_motion != null) { try { await _motion.InvokeVoidAsync("setEnabled", _sound); } catch (JSException) { } }
+    }
+    private async Task ToggleReducedMotion(ChangeEventArgs e)
+    {
+        _reducedMotion = e.Value is true;
+        if (_motion != null) { try { await _motion.InvokeVoidAsync("setReducedMotion", _reducedMotion); } catch (JSException) { } }
+    }
+    private async Task PlayDisc()
+    {
+        if (_motion == null || _state == null) return;
+        var topics = (_feedback?.State ?? _state).Topics.Where(t => t.Progress > 0).ToArray();
+        try { await _motion.InvokeVoidAsync("toggle", AudioTopics(topics), new { finalComposition = _state.Status == GameSessionStatus.Completed && !_state.IsRepair }); } catch (JSException) { }
+    }
+    private async Task StopPlayback()
+    {
+        _pending = null; _listenPending = false;
+        if (_motion != null) { try { await _motion.InvokeVoidAsync("stop"); } catch (JSException) { } }
+    }
+    private static object[] AudioTopics(IEnumerable<TopicStateDto> topics) => topics.Select(t => (object)new { order = t.Order, key = t.MusicalKey, progress = t.Progress, notes = t.NotesRevealed, scratched = t.HasScratch }).ToArray();
+    private static string[] NoteNames(string key) => key switch { "Dm" => ["D", "F", "A", "C"], "Em" => ["E", "G", "B", "D"], "F" => ["F", "A", "C", "E"], "G" => ["G", "B", "D", "F"], _ => ["C", "E", "G", "B"] };
+    private static string ShortName(string name) => name.Contains(':') ? name[(name.IndexOf(':') + 1)..].Trim() : name;
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        try { if (_motion != null) { await _motion.InvokeVoidAsync("dispose"); await _motion.DisposeAsync(); } if (_module != null) await _module.DisposeAsync(); }
+        catch (JSDisconnectedException) { }
+    }
+}
