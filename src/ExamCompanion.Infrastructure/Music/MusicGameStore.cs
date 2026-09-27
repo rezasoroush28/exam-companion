@@ -30,6 +30,14 @@ public sealed class MusicGameStore(IDbContextFactory<MusicDbContext> factory) : 
         return await context.Sessions.Where(s => s.LessonId == lessonId).OrderByDescending(s => s.StartedAt)
             .Select(s => (Guid?)s.Id).FirstOrDefaultAsync(ct);
     }
+    public async Task DeleteSessionAsync(Guid id, CancellationToken ct = default)
+    {
+        await using var context = await factory.CreateDbContextAsync(ct);
+        var session = await context.Sessions.SingleOrDefaultAsync(s => s.Id == id, ct);
+        if (session == null) return;
+        context.Sessions.Remove(session);
+        await context.SaveChangesAsync(ct);
+    }
     public async Task AddAsync(GameSession session, CancellationToken ct = default)
     {
         db!.Sessions.Add(session); await SaveAsync(ct);

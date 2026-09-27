@@ -17,6 +17,7 @@ public interface IGameStore
     Task<Lesson?> GetLessonAsync(Guid? id, CancellationToken ct = default);
     Task<GameSession?> GetSessionAsync(Guid id, CancellationToken ct = default);
     Task<Guid?> LatestSessionAsync(Guid lessonId, CancellationToken ct = default);
+    Task DeleteSessionAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(GameSession session, CancellationToken ct = default);
     Task SaveAsync(CancellationToken ct = default);
 }
