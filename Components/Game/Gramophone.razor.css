@@ -1,0 +1,116 @@
+.gramophone {
+  width: 100%;
+  position: relative;
+}
+.gramophone-art {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.groove-track {
+  fill: none;
+  stroke: #393e4d;
+  stroke-width: 12;
+}
+.gramophone-body,
+.tone-arm,
+.playhead {
+  pointer-events: none;
+}
+.groove-fill {
+  fill: none;
+  stroke: var(--groove-color);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.65s ease;
+}
+.groove-hit-area {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 23;
+  cursor: pointer;
+}
+.groove[aria-disabled="true"] .groove-hit-area {
+  cursor: default;
+}
+.groove:focus {
+  outline: none;
+}
+.groove:focus .groove-track,
+.groove:hover:not([aria-disabled="true"]) .groove-track {
+  stroke: var(--focus);
+}
+.groove.active .groove-track {
+  stroke: #545968;
+}
+.scratch-under {
+  fill: none;
+  stroke: #14141c;
+  stroke-width: 11;
+}
+.scratch-crack {
+  fill: none;
+  stroke: var(--scratch);
+  stroke-width: 3;
+}
+.scratch-mark {
+  transition: opacity 0.7s;
+}
+.scratch-mark.closing {
+  animation: close-paper 0.9s forwards;
+}
+.playhead {
+  opacity: 0.65;
+}
+.gramophone[data-playing="true"] .playhead {
+  opacity: 1;
+}
+.gramophone[data-hit="true"] .scratch-crack {
+  stroke: var(--horn-cream);
+  stroke-width: 5;
+}
+.gramophone[data-hit="true"] [data-needle] {
+  filter: drop-shadow(0 -3px 1px #f0dca860);
+}
+.gramophone[data-pulse="correct"] .groove.active .groove-fill {
+  animation: groove-pulse 0.65s;
+}
+.gramophone[data-pulse="wrong"] {
+  animation: hesitate 0.4s;
+}
+.gramophone[data-playing="true"] .groove.playing .groove-track {
+  stroke: var(--groove-color);
+}
+@keyframes close-paper {
+  from {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(48% 0);
+  }
+}
+@keyframes groove-pulse {
+  50% {
+    stroke-width: 14;
+  }
+}
+@keyframes hesitate {
+  35% {
+    transform: rotate(-0.5deg);
+  }
+  65% {
+    transform: rotate(0.4deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .scratch-mark.closing {
+    opacity: 0;
+  }
+}

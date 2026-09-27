@@ -1,0 +1,6 @@
+/* Entrance and gameplay share the same layout and SVG projection.
+   Hide surrounding content without removing its reserved space. */
+html { scrollbar-gutter: stable; }
+.chapter h1 { height: 3.2em; overflow-y: auto; }
+body:not([data-entry="done"]) :is(.topbar,.chapter,.music-strip,.album-heading,.topics,.learning,footer) { visibility: hidden; pointer-events: none; }
+body[data-entry="waiting"] .stage svg { visibility: hidden; }
